@@ -1,0 +1,9 @@
+# make config files
+
+python3 htoaa_Wrapper.py -analyze htoaa_Analysis_Example.py -era 2018 -run_mode condor -v MyFirstJobs -samples QCD,SUSY_GluGluH_01J_HToAATo4B,WJetsToQQ_HT,WJetsToLNu_HT_LO,SUSY_VBFH_HToAATo4B,SUSY_WH_WToAll,SUSY_ZH_ZToAll_HToAATo4B -ntuples CentralNanoAOD -nFilesPerJob 5
+
+
+
+voms-proxy-init --rfc --voms cms -valid 192:00 --out ~/x509up_u10898
+python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v triggerStudy -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2
+#python3 htoaa_Wrapper.py -analyze htoaa_Analysis_Example.py -era 2018 -run_mode condor -v skims_new -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2'
