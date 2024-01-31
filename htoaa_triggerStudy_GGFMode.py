@@ -107,9 +107,9 @@ class ObjectSelection:
         self.MuonMVAId     =  1 # (1=MvaLoose, 2=MvaMedium, 3=MvaTight, 4=MvaVTight, 5=MvaVVTight)
         self.MuonMiniIsoId =  1 # (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
 
+
         self.dRMuonFatJetThshLow = 0.8
         self.dRMuonFatJetThshHigh = 2.75
-
 
 
     def selectMuons(self, eventsObj):
@@ -189,7 +189,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         # sel_names_all = dict of {"selection name" : [list of different cuts]}; for cut-flow table
         self.sel_names_all = OD([
-            ("SR",                    [
+            ("SR",
+            [
                 "nPV",
                 "METFilters",
                 self.sMuTrgSelection,
@@ -201,9 +202,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "leadingFatJetEta",
                 "JetID",
                 #"leadingFatJetParticleNetMD_XbbvsQCD", ## Denominator for trigger efficiency calculation
-                # "lFJPNetXbbPlusDZHbb",
-                "leadingFatJetZHbb_Xbb_avg",
-                "leadingFatJetMsoftdropHiggsVeto",
+                #"lFJPNetXbbPlusDZHbb",
+                # "leadingFatJetZHbb_Xbb_avg",
+                # "leadingFatJetMsoftdropHiggsVeto",
+                # 'Inclusive',
+                'Mass140',
+                'Mass140_dR_2p75',
+
             ]),
         ])
         if not self.datasetInfo['isMC']:
@@ -267,13 +272,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             self.sel_names_all["SR_%s" % selName_] = self.sel_names_all["SR"] + [selName_]
 
         # selection region addition each SR conditions successively
-        for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"]) - 1):
+        for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"])): #- 1):
             conditionName = self.sel_names_all["SR"][iCondition]
             self.sel_names_all["sel_%s" % conditionName] = self.sel_names_all["SR"][0 : (iCondition+1)]
-        print(f"self.sel_names_all: {json.dumps(self.sel_names_all, indent=4)}")
-
-
-
 
         self.histosExtensions = ['']
         dataLSSelGoldenJSON = None
@@ -334,10 +335,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             #self.pdgId_BHadrons = list(set(self.pdgId_BHadrons))
             #print(f" after duplicate removal --> \nself.pdgId_BHadrons ({len(self.pdgId_BHadrons)}): {self.pdgId_BHadrons}")
 
-            ## MC QCD
-            if self.datasetInfo['isQCD'] and \
-                self.datasetInfo["MCSamplesStitchOption"] == MCSamplesStitchOptions.PhSpOverlapRewgt:
-                # for QCD, make histograms in category of number of GEN b quarks matching to leading fat jet (AK8)
+            ## MC QCD, TTbar
+            '''if (self.datasetInfo['isQCD'] and \
+                self.datasetInfo["MCSamplesStitchOption"] == MCSamplesStitchOptions.PhSpOverlapRewgt):
+                # for QCD or ttbar, make histograms in category of number of GEN b quarks matching to leading fat jet (AK8)
+                self.histosExtensions = HistogramNameExtensions_QCD'''
+            if self.datasetInfo['isTTbar']:
                 self.histosExtensions = HistogramNameExtensions_QCD
 
             ## MC ParticleNetMD_XbbvsQCD SFs
@@ -391,7 +394,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         pdgId_axis            = hist.Bin("PdgId",                  r"PdgId",                     101,    -0.5,   100.5)
         alphaS_axis           = hist.Bin("alphaS",                 r"alphaS",                    101,    0.01,     0.2)
         PU_axis               = hist.Bin("PU",                     r"PU",                         99,     0.0,    99.0)
-
+        nB_axis               = hist.Bin('nBHadrons',               r'nBHadrons',                  6,      0,      6.0)
         sXaxis      = 'xAxis'
         sXaxisLabel = 'xAxisLabel'
         sYaxis      = 'yAxis'
@@ -461,6 +464,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('hLeadingFatJetBtagDDBvLV2_pTGt400_msoftdropGt60'+sHExt,    {sXaxis: mlScore_axis,    sXaxisLabel: r"LeadingFatJet BtagDDBvLV2 pTGt400_msoftdropGt60"}),
                     ('hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60'+sHExt,    {sXaxis: mlScore_axis,    sXaxisLabel: r"LeadingFatJet PNetMD_Hto4b_Htoaa4bOverQCD pTGt400_msoftdropGt60"}),
 
+                    ## nbhadron for checkint ttbar splitting
+                    ('hLeadingFatJet_nBHadrons'+sHExt, {sXaxis: nB_axis, sXaxisLabel: r'nBHadrons'}),
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -949,7 +954,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         if "dR_Muon_FatJet" in self.sel_names_all["SR"]:
             selection.add(
                 "dR_Muon_FatJet",
-                dR_leadingMuon_leadingFatJet > self.objectSelector.dRMuonFatJetThsh
+                #dR_leadingMuon_leadingFatJet > self.objectSelector.dRMuonFatJetThsh
+                dR_leadingMuon_leadingFatJet >self.objectSelector.dRMuonFatJetThshLow
             )
 
         if "leadingFatJetEta" in self.sel_names_all["SR"]:
@@ -964,18 +970,26 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 leadingFatJet.jetId == self.objectSelector.FatJetJetID
             )
 
-        # if "leadingFatJetZHbb_Xbb_avg" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingFatJetZHbb_Xbb_avg",
-        #         leadingFatJetZHbb_Xbb_avg > self.objectSelector.FatJetZHbb_Xbb_avg_Thsh
-        #     )
-
-        if "leadingFatJetMsoftdropHiggsVeto"  in self.sel_names_all["SR"]:
+        if "leadingFatJetZHbb_Xbb_avg" in self.sel_names_all["SR"]:
             selection.add(
-                "leadingFatJetMsoftdropHiggsVeto",
-                #~( (leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshLow) &
-                leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh
+                "leadingFatJetZHbb_Xbb_avg",
+                leadingFatJetZHbb_Xbb_avg > self.objectSelector.FatJetZHbb_Xbb_avg_Thsh
             )
+
+        # if "leadingFatJetMsoftdropHiggsVeto"  in self.sel_names_all["SR"]:
+        #     selection.add(
+        #         "leadingFatJetMsoftdropHiggsVeto",
+        #         ~( (leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshLow) &
+        #         (leadingFatJet.msoftdrop < self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh) )
+        #    )
+
+        if 'Mass140' in self.sel_names_all['SR']:
+            selection.add('Mass140', leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh)
+
+
+        if 'Mass140_dR_2p75' in self.sel_names_all['SR']:
+            selection.add('Mass140_dR_2p75', dR_leadingMuon_leadingFatJet
+                          < self.objectSelector.dRMuonFatJetThshHigh)
 
         # HLT triggers selection
         for selName_, TrgOrDict in self.sel_TrgHLTs[self.datasetInfo["era"]].items():
@@ -1249,12 +1263,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                             nGenBInFatJet = 1
                         elif '2b' in sHExt_0:
                             nGenBInFatJet = 2
-                        elif '3b' in sHExt_0:
-                            nGenBInFatJet = 3
-                        elif '4b' in sHExt_0:
-                            nGenBInFatJet = 4
-                        elif '5b' in sHExt_0:
-                            nGenBInFatJet = 5
+                        # elif '3b' in sHExt_0:
+                        #     nGenBInFatJet = 3
+                        # elif '4b' in sHExt_0:
+                        #     nGenBInFatJet = 4
+                        # elif '5b' in sHExt_0:
+                        #     nGenBInFatJet = 5
 
                         if 'AndMore' in sHExt_0:
                             mask_HExt = (n_leadingFatJat_matched_genB >= nGenBInFatJet)
@@ -1311,6 +1325,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         weight=evtWeight[sel_SR_forHExt]
                     )
 
+
                     ## leading Muon
                     sel_tmp_ = sel_SR_forHExt & (~ ak.is_none(leadingMuon.pt))
                     output['hLeadingMuonPt'+sHExt].fill(
@@ -1335,6 +1350,16 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     # "HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4"
                     ## leading FatJet
                     sel_tmp_ = sel_SR_forHExt & (~ ak.is_none(leadingFatJet.pt))
+
+                    ## ---- nbhadron for checking ttbar splitting
+                    if self.datasetInfo['isMC'] :
+                        output['hLeadingFatJet_nBHadrons'+sHExt].fill(
+                            dataset=dataset,
+                            nBHadrons=(leadingFatJet.nBHadrons[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
+                    ## --------------------------------------------
 
                     output['hdR_leadingMuon_leadingFatJet'+sHExt].fill(
                         dataset=dataset,
@@ -2071,9 +2096,18 @@ if __name__ == '__main__':
             for key, value in output.items():
                 sHistoName_toUse = key
                 sHExt_toUse = ''
+                '''
                 if isMC and \
                     MCSamplesStitchOption == MCSamplesStitchOptions.PhSpOverlapRewgt and \
-                    "QCD" in sample_category:
+                    "QCD" in sample_category or 'TTT' in sample_category:
+                    for sHExt in HistogramNameExtensions_QCD:
+                        if sHExt in key:
+                            sHExt_toUse = '_%s' % (sHExt)
+                            sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
+                            break
+                '''
+                if isMC and 'TTT' in sample_category:
+
                     for sHExt in HistogramNameExtensions_QCD:
                         if sHExt in key:
                             sHExt_toUse = '_%s' % (sHExt)
