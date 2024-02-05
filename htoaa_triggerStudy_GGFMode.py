@@ -804,14 +804,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             )
             idx_FatJet_PNetMD_Hto4b_Haa4bOverQCD_max = ak.argmax(FatJet_PNetMD_Hto4b_Htoaa4bOverQCD, axis=-1, keepdims=True)
             #leadingBtagFatJet = ak.firsts(events.FatJet[idx_FatJet_PNetMD_Hto4b_Haa4bOverQCD_max])
+
             leadingFatJet = ak.firsts(events.FatJet[idx_FatJet_PNetMD_Hto4b_Haa4bOverQCD_max])
         else:
-
             #idx_FatJet_PNetMD_XbbvsQCD_max = ak.argmax(FatJetParticleNetMD_XbbvsQCD, axis=-1, keepdims=True)
             #leadingBtagFatJet = ak.firsts(events.FatJet[idx_FatJet_PNetMD_XbbvsQCD_max])
             #leadingFatJet = ak.firsts(events.FatJet[idx_FatJet_PNetMD_XbbvsQCD_max])
             leadingFatJet = ak.firsts(events.FatJet[idx_FatJet_ZHbb_plus_Xbb_max])
-
 
         #leadingFatJet = ak.firsts(events.FatJet)
         leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
@@ -824,7 +823,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         leadingFatJetParticleNetMD_XbbvsQCD = ak.where(
             (leadingFatJet.particleNetMD_Xbb + leadingFatJet.particleNetMD_QCD) > 0,
             leadingFatJet.particleNetMD_Xbb / (leadingFatJet.particleNetMD_Xbb + leadingFatJet.particleNetMD_QCD),
-            np.full(len(events), 0)
+            np.full(len(leadingFatJet), 0)#np.full(len(events), 0)
         )
         #leadingFatJetZHbb_plus_Xbb =  leadingFatJetDeepTagMD_ZHbbvsQCD + leadingFatJetParticleNetMD_XbbvsQCD
         leadingFatJetZHbb_Xbb_avg  = (leadingFatJetDeepTagMD_ZHbbvsQCD + leadingFatJetParticleNetMD_XbbvsQCD) / 2
@@ -969,6 +968,18 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "JetID",
                 leadingFatJet.jetId == self.objectSelector.FatJetJetID
             )
+            ## in skimmed files, high pt muons might look like signal to hto4b tagger. This selections out the ones with high muon hto4b score
+            ## TODO: FIGURE OUT HOW TO ONLY MAKE THIS RUN FOR SKIMMED FILES
+            ## CHECKING 'SKIM' IN INPUTFILE NAME DOES NOT ALWAYS WORK
+            cut1 = (leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b) > 0.8
+            cut2 = leadingFatJet.particleNetMD_Hto4b_binary_Haa4b > 0.8
+            cut3 = leadingFatJet.particleNetMD_Hto4b_binaryLF_Haa4b > 0.8
+            Hto4b_FatJet_notMuon_mask = cut1 | cut2 | cut3
+            selection.add(
+                'Hto4b_FatJet_notMuon_mask',
+                Hto4b_FatJet_notMuon_mask
+            )
+
 
         if "leadingFatJetZHbb_Xbb_avg" in self.sel_names_all["SR"]:
             selection.add(
