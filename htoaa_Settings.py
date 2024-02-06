@@ -13,7 +13,7 @@ xrootd_redirectorNames = [
     "root://cmsxrootd.fnal.gov/",
     "root://cms-xrd-global.cern.ch:1094/",
 ]
-sampleFormat = "nanoAOD" 
+sampleFormat = "nanoAOD"
 
 ### Miscellaneous constants
 kPt_Max     = 99999.0
@@ -37,11 +37,11 @@ sPathSkimmedNanoAODs = {
     Era_2018: {
         'unskimmed': {
             'Data': '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/PNet_v1_2023_10_06/$SAMPLETAG/$SAMPLENAME/r*/PNet_*.root',
-            'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/r1/PNet_*.root' 
+            'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/r1/PNet_*.root'
         },
         'skim_Hto4b_0p8': {
             'Data': '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/PNet_v1_2023_10_06/$SAMPLETAG/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root',
-            'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root' 
+            'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root'
         },
     }
 }
@@ -56,12 +56,12 @@ Luminosities_forGGFMode = { # [<lumi>, <uncertainty in percent> ] in fb^-1
     Era_2016: [36.31, 1.2],
     Era_2017: [41.48, 2.3],
     Era_2018: {
-        'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': [54.54, 2.5], # for HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v* trigger. See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_Final.xlsx 
+        'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': [54.54, 2.5], # for HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v* trigger. See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_Final.xlsx
         'Trg_Combo_AK4AK8Jet_HT':                             [59.83, 2.5], # See ./data/luminosity/2018/Luminosity_HLTPaths.xlsx
         'HLT_IsoMu24':                                        [59.82, 2.5], # See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_IsoMu24_v.xlsx
         'HLT_IsoMu27':                                        [59.83, 2.5], # See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_IsoMu27_v.xlsx
         'Trg_Combo_Mu':                                       [59.83, 2.5], # See ./data/luminosity/2018/Luminosity_HLTPaths.xlsx
-    }, 
+    },
 }
 Luminosities_forGGFMode_perEra = {
     Era_2018: {
@@ -82,25 +82,25 @@ Luminosities_forGGFMode_perEra = {
             'B':  7.067,
             'C':  6.895,
             'D': 31.839
-        }, 
+        },
         'HLT_IsoMu27': {
             'A': 14.027,
             'B':  7.067,
             'C':  6.895,
             'D': 31.839
-        },  
+        },
         'Trg_Combo_Mu': {
             'A': 14.027,
             'B':  7.067,
             'C':  6.895,
             'D': 31.839
-        }, 
+        },
     }
 }
 Triggers_perEra = {
     Era_2018: {
         'Trg_Combo_AK4AK8Jet_HT': {
-            'HLT_PFJet500':                                       ['L1_SingleJet180'], 
+            'HLT_PFJet500':                                       ['L1_SingleJet180'],
             'HLT_PFHT1050':                                       ['L1_HTT360er'],
             'HLT_AK8PFHT800_TrimMass50':                          ['L1_HTT360er'],
             'HLT_AK8PFJet500':                                    ['L1_SingleJet180'],
@@ -118,12 +118,12 @@ Triggers_perEra = {
 
 sFilesGoldenJSON = {
     Era_2016: '',
-    Era_2017: '',    
-    Era_2018: 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt',    
+    Era_2017: '',
+    Era_2018: 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt',
 }
 
 # List of recommended MET filters. https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2
-MET_Filters = {} 
+MET_Filters = {}
 MET_Filters[Era_2016] = {
     "Data": [
         "goodVertices",                       # primary vertex filter ("Flag_goodVertices")
@@ -137,7 +137,7 @@ MET_Filters[Era_2016] = {
         "hfNoisyHitsFilter",                  # HF noisy hits filter ("Flag_hfNoisyHitsFilter")
     ]
 }
-MET_Filters[Era_2016]["MC"]  = MET_Filters[Era_2016]["Data"] 
+MET_Filters[Era_2016]["MC"]  = MET_Filters[Era_2016]["Data"]
 
 MET_Filters[Era_2018] = {
     "Data": [
@@ -168,7 +168,7 @@ kMCSamplesStitch_PhSpOverlapRewgt  = 'MCSamplesStitch_PhSpOverlapRewgt'
 
 class MCSamplesStitchOptions(enum.Enum):
     PhSpOverlapRemove = 'PhSpOverlapRemove'
-    PhSpOverlapRewgt  = 'PhSpOverlapRewgt' 
+    PhSpOverlapRewgt  = 'PhSpOverlapRewgt'
 
 
 sFileLumiScalesPhSpOverlapRewgt = {
@@ -179,7 +179,7 @@ sFileLumiScalesPhSpOverlapRewgt = {
 }
 
 HEM1516Issue2018_AffectedRunRange = [319077, 325175]
-DataFractionAffectedBy2018HEM1516Issue = 0.7105 # factor = (luminosity for run >= 319077) / (2018 luminosity) = 38.7501 / 54.5365. Calculated for 2018 HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4 trigger 
+DataFractionAffectedBy2018HEM1516Issue = 0.7105 # factor = (luminosity for run >= 319077) / (2018 luminosity) = 38.7501 / 54.5365. Calculated for 2018 HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4 trigger
 
 bTagWPs = { # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
     Era_2018: {
@@ -193,13 +193,13 @@ bTagWPs = { # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
         'DDBvLV2': { # not provided for UL samples
             'M': 0.8, # taken from Si's code
         },
-        'ParticleNetMD_XbbvsQCD': { # BTV-22-001 
+        'ParticleNetMD_XbbvsQCD': { # BTV-22-001
             # https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=BTV-22-001&tp=an&id=2622&ancode=BTV-22-001
             # https://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2021/005
             'L': 0.9172
         },
         'ParticleNetMD_Hto4b_Htoaa4bOverQCD': {
-            # https://ssawant.web.cern.ch/ssawant/HToAA/DatavsMC/20231106_PNetSignificanceScan_Msd90to140/?match=ParticleNetMD_Hto4b_Htoaa4bOverQCD         
+            # https://ssawant.web.cern.ch/ssawant/HToAA/DatavsMC/20231106_PNetSignificanceScan_Msd90to140/?match=ParticleNetMD_Hto4b_Htoaa4bOverQCD
             'WP-80': 0.920,
             #'WP-60': 0.978,
             'WP-60': 0.975, # https://indico.cern.ch/event/1348321/?note=257291#31-saswati-nandan
@@ -218,7 +218,7 @@ Corrections = {
         }
 
     },
-        
+
     "HTRewgt" : { # ./data/correction/mc/HTSamplesStitch/HTSamplesStitchSF_2018.root
         "QCD_bGen": {
             "2018": {
@@ -233,7 +233,7 @@ Corrections = {
                 "HT2000to3000": "1.006649 + (0.000030 * (x - 2000))"
             }
         }
-    }, 
+    },
 
     "TopPtRewgt": { # Top pT reweights for ttbat sample. https://indico.cern.ch/event/904971/contributions/3857701/attachments/2036949/3410728/TopPt_20.05.12.pdf#page=12
         "TuneCP5": {
@@ -247,8 +247,8 @@ Corrections = {
             "FitRange": [0, 3000],
         }
     },
-    
-    'ParticleNetMD_XbbvsQCD': { # Data-to-MC SFs for ParticleNetMD_XbbvsQCD:  BTV-22-001 
+
+    'ParticleNetMD_XbbvsQCD': { # Data-to-MC SFs for ParticleNetMD_XbbvsQCD:  BTV-22-001
         # https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=BTV-22-001&tp=an&id=2622&ancode=BTV-22-001
         # https://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2021/005
         Era_2018: {
@@ -271,11 +271,11 @@ massPseudoscalarA_windows_dict = OD([
 
 
 ### Miscellaneous variables
-HistogramNameExtensions_QCD = ['0bCat', '1bCat', '2bCat', '3bCat', '4bCat', '5bAndMoreCat'] 
+HistogramNameExtensions_QCD = ['0bCat', '1bCat', '2bAndMoreCat' ]#, '3bCat', '4bCat', '5bAndMoreCat']
 
 
 
-### GEN-level variables 
+### GEN-level variables
 PDGID_BottomQuark = 5
 PDGID_TopQuark    = 6
 
@@ -320,7 +320,7 @@ class GENPART_STATUSFLAGS(enum.IntEnum):
 config_Template = OD([
     ("nEventsToAnalyze", -1),
     ("era", ''),
-    ("dataset", ''), 
+    ("dataset", ''),
     ("inputFiles", ''),
     ("outputFile", ''),
     ("sampleCategory", ''),
@@ -329,6 +329,6 @@ config_Template = OD([
     ("crossSection", 0),
     ("nEvents", -1),
     ("sumEvents", -1),
-    ("downloadIpFiles", False),   
-    ("server", ''),   
+    ("downloadIpFiles", False),
+    ("server", ''),
 ])

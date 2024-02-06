@@ -896,9 +896,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "METFilters",
                 selectMETFilters(events.Flag, self.datasetInfo["era"], self.datasetInfo['isMC'])
             )
-            print('-------------------------------')
-            print('events flag', events.Flag)
-            print('---------------------------------')
 
         if "leadingMuonPt" in self.sel_names_all["SR"]:
             selection.add(
@@ -975,6 +972,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             cut2 = leadingFatJet.particleNetMD_Hto4b_binary_Haa4b > 0.8
             cut3 = leadingFatJet.particleNetMD_Hto4b_binaryLF_Haa4b > 0.8
             Hto4b_FatJet_notMuon_mask = cut1 | cut2 | cut3
+            print('-----------------------------------------------')
+            print(Hto4b_FatJet_notMuon_mask)
+            print('-------------------------------------------------')
             selection.add(
                 'Hto4b_FatJet_notMuon_mask',
                 Hto4b_FatJet_notMuon_mask
