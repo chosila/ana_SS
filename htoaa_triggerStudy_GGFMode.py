@@ -126,9 +126,10 @@ class ObjectSelection:
         )
         return eventsObj[maskSelElectrons]
 
-    def selectGenB(self, events):
+    def selectBFromTop(self, events):
         maskGenB = (
-            (events.GenPart.pdgId == 5)
+            (abs(events.GenPart.pdgId) == 5) & # bottom
+            (events.GenPart.status == 23) # initial state bottom
         )
         if printLevel >= 15:
             print(f"\n maskGenA:  {maskGenA.to_list()} ")
@@ -649,7 +650,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         # print(f'axis1 {len(np.count_nonzero((events.GenPart.pdgId == 5) & (events.GenPart.status ==23), axis=1))}')
         if self.datasetInfo['isMC']:
-            nBQuarkFromTop = np.count_nonzero((events.GenPart.pdgId == 5) & (events.GenPart.status ==23), axis=1)
+            genPartBFromTop = selectBFromTop(events)
+            print(f'{genPartBFromTop=}')
+            print('flush\n'*3)
+            sys.exit()
+            nBQuarkFromTop = np.count_nonzero((abs(events.GenPart.pdgId) == 5) & (events.GenPart.status ==23), axis=1)
+
 
 
         #gentops = events.GenPart[events.GenPart.genPartIdxMother] #events[events.GenPart[events.GenPart.genPartIdxMother].pdgId == 6]
