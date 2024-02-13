@@ -71,8 +71,8 @@ histograms_dict = OD([
     # ("hLeadingFatJetBtagHbb_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetBtagHbb_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [-1, 1], sNRebinX: 2 }),
     # ("hLeadingFatJetParticleNetMD_XbbOverQCD_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
     # ("hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 4 }),
-    ("hLeadingFatJet_nBHadrons", {sXLabel: 'nBHadrons', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1})
-
+    ("hLeadingFatJet_nBHadrons", {sXLabel: 'nBHadrons', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
+    ("nBQuarkFromTop", {sXLabel: 'nBQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1})
 
 ])
 

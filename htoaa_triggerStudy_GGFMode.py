@@ -126,6 +126,15 @@ class ObjectSelection:
         )
         return eventsObj[maskSelElectrons]
 
+    def selectGenB(self, events):
+        maskGenB = (
+            (events.GenPart.pdgId == 5)
+        )
+        if printLevel >= 15:
+            print(f"\n maskGenA:  {maskGenA.to_list()} ")
+            print(f"\n events.GenPart[maskGenA]:  {events.GenPart[maskGenA].to_list()} ")
+            print(f"\n events.GenPart[maskGenA].mass:  {events.GenPart[maskGenA].mass.to_list()} ")
+        return events.GenPart[maskGenB]
 
 
 
@@ -395,7 +404,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         pdgId_axis            = hist.Bin("PdgId",                  r"PdgId",                     101,    -0.5,   100.5)
         alphaS_axis           = hist.Bin("alphaS",                 r"alphaS",                    101,    0.01,     0.2)
         PU_axis               = hist.Bin("PU",                     r"PU",                         99,     0.0,    99.0)
-        nB_axis               = hist.Bin('nBHadrons',               r'nBHadrons',                  6,      0,      6.0)
+        nB_axis               = hist.Bin('nBHadrons',              r'nBHadrons',                  6,      0,      6.0)
+        nBFromTop_axis        = hist.Bin('nBQuarkFromTop',         r'nBQuarkFromTop',             6,      0,      6.0)
         sXaxis      = 'xAxis'
         sXaxisLabel = 'xAxisLabel'
         sYaxis      = 'yAxis'
@@ -467,6 +477,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
                     ## nbhadron for checkint ttbar splitting
                     ('hLeadingFatJet_nBHadrons'+sHExt, {sXaxis: nB_axis, sXaxisLabel: r'nBHadrons'}),
+                    ('nBQuarkFromTop'+sHExt, {sXaxis: nBFromTop_axis, sXaxisLabel: r'nBQuarkFromTop'}),
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -612,6 +623,40 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
         # Gen-level selection ---------------------------------------------------------------------
+
+        ## calculate nBQuarksFromTop
+        #if self.datasetInfo['isTTbar']:
+        # genBCollection = self.objectSelector.selectGenB(events)
+        #genA_First  = genACollection[:, 0]
+        #genA_Second = genACollection[:, 1]
+        # idxGenA_sortByMass = ak.argsort(genACollection.mass, axis=-1, ascending=False)
+        # genBBar_pairs_all = ak.argcombinations(events.GenPart, 2, fields=['b', 'bbar'])
+        # genBBar_pairs = genBBar_pairs_all[(
+        #     (abs(events.GenPart[genBBar_pairs_all['b'   ]].pdgId) == 5) &
+        #     (abs(events.GenPart[genBBar_pairs_all['bbar']].pdgId) == 5) &
+        #     ((events.GenPart[genBBar_pairs_all['b']].pdgId) == (-1*events.GenPart[genBBar_pairs_all['bbar']].pdgId)  ) &
+        #     (events.GenPart[genBBar_pairs_all['b']].genPartIdxMother == events.GenPart[genBBar_pairs_all['bbar']].genPartIdxMother) &
+        #     (events.GenPart[ events.GenPart[genBBar_pairs_all['b'   ]].genPartIdxMother ].pdgId == 6) &
+        #     (events.GenPart[ events.GenPart[genBBar_pairs_all['bbar']].genPartIdxMother ].pdgId ==  6)
+        # )]
+        # idx_GenB_fromTop = ak.concatenate([genBBar_pairs['b'], genBBar_pairs['bbar']], axis=-1)
+
+        #`genBFromTop = genTopCollection.GenPart
+
+        #print(f'{genBCollection.fields=}')
+        #print(f'{genTopCollection.childrenIdxG=}')
+
+
+        # print(f'axis1 {len(np.count_nonzero((events.GenPart.pdgId == 5) & (events.GenPart.status ==23), axis=1))}')
+        if self.datasetInfo['isMC']:
+            nBQuarkFromTop = np.count_nonzero((events.GenPart.pdgId == 5) & (events.GenPart.status ==23), axis=1)
+
+
+        #gentops = events.GenPart[events.GenPart.genPartIdxMother] #events[events.GenPart[events.GenPart.genPartIdxMother].pdgId == 6]
+        #bfromtops = gentops[gentops.pdgId == 5]
+
+
+
 
 
         # QCD MC ----------------------------------------------
@@ -855,8 +900,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             #mask_leadingFatJat_matched_genB = leadingFatJet.delta_r(vGenBQuarksHardSctred_genBHadronsStatus2_sel) < 0.8
             #n_leadingFatJat_matched_genB = ak.sum(mask_leadingFatJat_matched_genB, axis=1)
             n_leadingFatJat_matched_genB = leadingFatJet.nBHadrons
-
-
 
 
         if printLevel >= 5:
@@ -1285,9 +1328,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         #     nGenBInFatJet = 5
 
                         if 'AndMore' in sHExt_0:
-                            mask_HExt = (n_leadingFatJat_matched_genB >= nGenBInFatJet)
+                            mask_HExt = (nBQuarkFromTop >= nGenBInFatJet) # (n_leadingFatJat_matched_genB >= nGenBInFatJet)
                         else:
-                            mask_HExt = (n_leadingFatJat_matched_genB == nGenBInFatJet)
+                            mask_HExt = (nBQuarkFromTop == nGenBInFatJet) #(n_leadingFatJat_matched_genB == nGenBInFatJet)
 
                         mask_HExt = ak.fill_none(mask_HExt, False) # mask for events without FatJet are None. It causes error at the later stage.
                         sel_SR_forHExt = sel_SR_toUse & mask_HExt
@@ -1373,6 +1416,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                             systematic=syst,
                             weight=evtWeight[sel_tmp_]
                         )
+                    if self.datasetInfo['isMC'] :
+                        output['nBQuarkFromTop'+sHExt].fill(
+                            dataset=dataset,
+                            nBQuarkFromTop=(nBQuarkFromTop[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
+
                     ## --------------------------------------------
 
                     output['hdR_leadingMuon_leadingFatJet'+sHExt].fill(
