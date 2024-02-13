@@ -649,12 +649,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
         # print(f'axis1 {len(np.count_nonzero((events.GenPart.pdgId == 5) & (events.GenPart.status ==23), axis=1))}')
-        if self.datasetInfo['isMC']:
-            genPartBFromTop = selectBFromTop(events)
-            print(f'{genPartBFromTop=}')
-            print('flush\n'*3)
-            sys.exit()
-            nBQuarkFromTop = np.count_nonzero((abs(events.GenPart.pdgId) == 5) & (events.GenPart.status ==23), axis=1)
+        # if self.datasetInfo['isMC']:
+        #     genPartBFromTop = self.objectSelector.selectBFromTop(events)
+        #     print(f'{genPartBFromTop.pt=}')
+        #     print('flush\n'*3)
+
+
+        #     sys.exit()
+        #     nBQuarkFromTop = np.count_nonzero((abs(events.GenPart.pdgId) == 5) & (events.GenPart.status ==23), axis=1)
 
 
 
@@ -866,6 +868,41 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         #leadingFatJet = ak.firsts(events.FatJet)
         leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
+
+        ## ----------------- nbquark from top that is <0.8 the candidate fatjet --------------
+        nBQuarkFromTop = np.zeros(len(events))
+        if self.datasetInfo['isTTbar']:
+             genPartBFromTop = self.objectSelector.selectBFromTop(events)
+
+             LVGenB_0 = ak.zip(
+                 {
+                     'pt'   : genPartBFromTop.pt[:,0],
+                     'eta'  : genPartBFromTop.eta[:,0],
+                     'phi'  : genPartBFromTop.phi[:,0],
+                     'mass' : genPartBFromTop.mass[:,0]
+                 },
+                 with_name='PtEtaPhiMLorentzVector',
+                 behavior=vector.behavior,
+             )
+
+             LVGenB_1 = ak.zip(
+                 {
+                     'pt'   : genPartBFromTop.pt[:,  1],
+                     'eta'  : genPartBFromTop.eta[:, 1],
+                     'phi'  : genPartBFromTop.phi[:, 1],
+                     'mass' : genPartBFromTop.mass[:,1]
+                 },
+                 with_name='PtEtaPhiMLorentzVector',
+                 behavior=vector.behavior,
+             )
+
+             dr_leadingFatJet_GenBFromTop = np.column_stack([leadingFatJet.delta_r(LVGenB_0), leadingFatJet.delta_r(LVGenB_1)])
+
+
+             nBQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenBFromTop < 0.8, axis=1)
+
+             print(f'{nBQuarkFromTop=}')
+        #-------------------------------------------------------------------------------------
 
         leadingFatJetDeepTagMD_ZHbbvsQCD = ak.where(
             leadingFatJet.deepTagMD_ZHbbvsQCD >= 0,
