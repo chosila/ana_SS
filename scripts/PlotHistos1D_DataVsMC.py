@@ -523,8 +523,16 @@ for sData, ExpData_list in ExpData_dict.items():
                         #hep.histplot(hStack_values_list, bins=hStack_edges, ax=ax[0], yerr=hStack_error_list, histtype='step', stack=True, label=sStack_list, linestyle="--", color=["green", "black", (1, 0, 0, 0.4)])
                         #hep.histplot(hStack_values_list, bins=hStack_edges, ax=ax[0], histtype='fill', stack=True, label=sStack_list, color=["green", "darkorange", "red"])
 
-                        # https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_style_reference.html
+                        ## shortening some labels in sStack_list
+                        renamed_sStack_list = []
+                        for n in sStack_list:
+                            newn = n.replace('Hadronic', 'Had')
+                            newn = newn.replace('SemiLeptonic', '1L1Nu')
+                            newn = newn.replace('_Incl', '')
+                            newn = newn.replace('_powheg', '')
+                            renamed_sStack_list.append(newn)
 
+                        # https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_style_reference.html
                         if nHistoDimemsions == 1: # 1-D histogram
                             hep.histplot(
                                 hStack_values_list,
@@ -532,7 +540,7 @@ for sData, ExpData_list in ExpData_dict.items():
                                 ax=ax[0],
                                 histtype='fill',
                                 stack=True,
-                                label=sStack_list,
+                                label=renamed_sStack_list,
                                 color=colors_toUse,
                                 alpha=alpha_toUse,
                                 hatch=hatch_toUse,

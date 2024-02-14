@@ -21,11 +21,11 @@ MCBkg_list = [
     'TTToSemiLeptonic_powheg_0bCat', 'TTToSemiLeptonic_powheg_1bCat', 'TTToSemiLeptonic_powheg_2bAndMoreCat', # 'TTToSemiLeptonic_powheg_3bCat', 'TTToSemiLeptonic_powheg_4bCat', 'TTToSemiLeptonic_powheg_5bAndMoreCat',
     'TTTo2L2Nu_powheg_0bCat',        'TTTo2L2Nu_powheg_1bCat',        'TTTo2L2Nu_powheg_2bAndMoreCat',  #       'TTTo2L2Nu_powheg_3bCat',        'TTTo2L2Nu_powheg_4bCat',        'TTTo2L2Nu_powheg_5bAndMoreCat',
     "SingleTop",
-    'ZJetsToQQ_HT',
+    #'ZJetsToQQ_HT',
     #"DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO", #"DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
     #"DYJets_M-10to50_Incl_LO", "DYJets_HT_LO",
     "DYJets_M-50_Incl_NLO",
-    'WJetsToQQ_HT',
+    #'WJetsToQQ_HT',
     'WJetsToLNu_HT_LO', #'WJetsToLNu_Incl_NLO', #'WJetsToLNu_HT_LO', #'WJetsToLNu_Incl_NLO',
 ]
 
