@@ -137,7 +137,12 @@ class ObjectSelection:
             print(f"\n events.GenPart[maskGenA].mass:  {events.GenPart[maskGenA].mass.to_list()} ")
         return events.GenPart[maskGenB]
 
-
+    def selectLightFromTop(self, events):
+        maskGenLight = (
+            (abs(events.GenPart.pdgId) < 5) &
+            (events.GenPart.status == 23)
+        )
+        return events.GenPart[maskGenLight]
 
 
 class HToAATo4bProcessor(processor.ProcessorABC):
@@ -351,8 +356,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 self.datasetInfo["MCSamplesStitchOption"] == MCSamplesStitchOptions.PhSpOverlapRewgt):
                 # for QCD or ttbar, make histograms in category of number of GEN b quarks matching to leading fat jet (AK8)
                 self.histosExtensions = HistogramNameExtensions_QCD'''
-            if self.datasetInfo['isTTbar']:
-                self.histosExtensions = HistogramNameExtensions_QCD
+            if datasetInfo['sample_category'] == "TTToSemiLeptonic_powheg":
+                self.histosExtensions = HistogramNameExtensions_TTTo1L1Nu
+            if datasetInfo['sample_category'] == "TTTo2L2Nu_powheg":
+                self.histosExtensions = HistogramNameExtensions_TTTo2L2Nu
 
             ## MC ParticleNetMD_XbbvsQCD SFs
             print(f" {Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo['era']][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['SFs'] = } "); sys.stdout.flush()
@@ -407,6 +414,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         PU_axis               = hist.Bin("PU",                     r"PU",                         99,     0.0,    99.0)
         nB_axis               = hist.Bin('nBHadrons',              r'nBHadrons',                  6,      0,      6.0)
         nBFromTop_axis        = hist.Bin('nBQuarkFromTop',         r'nBQuarkFromTop',             6,      0,      6.0)
+        nLightQuarkFromTop_axis= hist.Bin('nLightQuarkFromTop',    r'nLightQuarkFromTop',         6,      0,      6.0)
+        dR_axis               = hist.Bin('dR',                     r'dR',                         50,     0,     3.14)
         sXaxis      = 'xAxis'
         sXaxisLabel = 'xAxisLabel'
         sYaxis      = 'yAxis'
@@ -479,6 +488,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ## nbhadron for checkint ttbar splitting
                     ('hLeadingFatJet_nBHadrons'+sHExt, {sXaxis: nB_axis, sXaxisLabel: r'nBHadrons'}),
                     ('nBQuarkFromTop'+sHExt, {sXaxis: nBFromTop_axis, sXaxisLabel: r'nBQuarkFromTop'}),
+                    ('nLightQuarkFromTop'+sHExt, {sXaxis: nLightQuarkFromTop_axis, sXaxisLabel: r'nLightQuarkFromTop'}),
+                    ## bdt variables
+                    ('bdt_mass_fat' +sHExt, {sXaxis: mass_axis,     sXaxisLabel: r'bdt_mass_fat'}),
+                    ('flavB_max_jet'+sHExt, {sXaxis: mlScore_axis , sXaxisLabel: r'flavB_max_jet'}),
+                    ('mass_lvJ'     +sHExt, {sXaxis: mass_axis,     sXaxisLabel: r'masslvJ'}),
+                    ('dR_lep_fat'   +sHExt, {sXaxis: dR_axis,       sXaxisLabel: r'dR_lep_fat'}),
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -624,48 +639,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
         # Gen-level selection ---------------------------------------------------------------------
-
-        ## calculate nBQuarksFromTop
-        #if self.datasetInfo['isTTbar']:
-        # genBCollection = self.objectSelector.selectGenB(events)
-        #genA_First  = genACollection[:, 0]
-        #genA_Second = genACollection[:, 1]
-        # idxGenA_sortByMass = ak.argsort(genACollection.mass, axis=-1, ascending=False)
-        # genBBar_pairs_all = ak.argcombinations(events.GenPart, 2, fields=['b', 'bbar'])
-        # genBBar_pairs = genBBar_pairs_all[(
-        #     (abs(events.GenPart[genBBar_pairs_all['b'   ]].pdgId) == 5) &
-        #     (abs(events.GenPart[genBBar_pairs_all['bbar']].pdgId) == 5) &
-        #     ((events.GenPart[genBBar_pairs_all['b']].pdgId) == (-1*events.GenPart[genBBar_pairs_all['bbar']].pdgId)  ) &
-        #     (events.GenPart[genBBar_pairs_all['b']].genPartIdxMother == events.GenPart[genBBar_pairs_all['bbar']].genPartIdxMother) &
-        #     (events.GenPart[ events.GenPart[genBBar_pairs_all['b'   ]].genPartIdxMother ].pdgId == 6) &
-        #     (events.GenPart[ events.GenPart[genBBar_pairs_all['bbar']].genPartIdxMother ].pdgId ==  6)
-        # )]
-        # idx_GenB_fromTop = ak.concatenate([genBBar_pairs['b'], genBBar_pairs['bbar']], axis=-1)
-
-        #`genBFromTop = genTopCollection.GenPart
-
-        #print(f'{genBCollection.fields=}')
-        #print(f'{genTopCollection.childrenIdxG=}')
-
-
-        # print(f'axis1 {len(np.count_nonzero((events.GenPart.pdgId == 5) & (events.GenPart.status ==23), axis=1))}')
-        # if self.datasetInfo['isMC']:
-        #     genPartBFromTop = self.objectSelector.selectBFromTop(events)
-        #     print(f'{genPartBFromTop.pt=}')
-        #     print('flush\n'*3)
-
-
-        #     sys.exit()
-        #     nBQuarkFromTop = np.count_nonzero((abs(events.GenPart.pdgId) == 5) & (events.GenPart.status ==23), axis=1)
-
-
-
-        #gentops = events.GenPart[events.GenPart.genPartIdxMother] #events[events.GenPart[events.GenPart.genPartIdxMother].pdgId == 6]
-        #bfromtops = gentops[gentops.pdgId == 5]
-
-
-
-
 
         # QCD MC ----------------------------------------------
         mask_genBHadrons_status2_eventwise                            = None
@@ -871,38 +844,116 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## ----------------- nbquark from top that is <0.8 the candidate fatjet --------------
         nBQuarkFromTop = np.zeros(len(events))
+        nLightQuarkFromTop = np.zeros(len(events))
         if self.datasetInfo['isTTbar']:
              genPartBFromTop = self.objectSelector.selectBFromTop(events)
+             if len(genPartBFromTop) > 0:
+                 LVGenB_0 = ak.zip(
+                     {
+                         'pt'   : genPartBFromTop.pt[:,0],
+                         'eta'  : genPartBFromTop.eta[:,0],
+                         'phi'  : genPartBFromTop.phi[:,0],
+                         'mass' : genPartBFromTop.mass[:,0]
+                     },
+                     with_name='PtEtaPhiMLorentzVector',
+                     behavior=vector.behavior,
+                 )
+                 LVGenB_1 = ak.zip(
+                     {
+                         'pt'   : genPartBFromTop.pt[:,  1],
+                         'eta'  : genPartBFromTop.eta[:, 1],
+                         'phi'  : genPartBFromTop.phi[:, 1],
+                         'mass' : genPartBFromTop.mass[:,1]
+                     },
+                     with_name='PtEtaPhiMLorentzVector',
+                     behavior=vector.behavior,
+                 )
 
-             LVGenB_0 = ak.zip(
-                 {
-                     'pt'   : genPartBFromTop.pt[:,0],
-                     'eta'  : genPartBFromTop.eta[:,0],
-                     'phi'  : genPartBFromTop.phi[:,0],
-                     'mass' : genPartBFromTop.mass[:,0]
-                 },
-                 with_name='PtEtaPhiMLorentzVector',
-                 behavior=vector.behavior,
-             )
-
-             LVGenB_1 = ak.zip(
-                 {
-                     'pt'   : genPartBFromTop.pt[:,  1],
-                     'eta'  : genPartBFromTop.eta[:, 1],
-                     'phi'  : genPartBFromTop.phi[:, 1],
-                     'mass' : genPartBFromTop.mass[:,1]
-                 },
-                 with_name='PtEtaPhiMLorentzVector',
-                 behavior=vector.behavior,
-             )
-
-             dr_leadingFatJet_GenBFromTop = np.column_stack([leadingFatJet.delta_r(LVGenB_0), leadingFatJet.delta_r(LVGenB_1)])
+                 dr_leadingFatJet_GenBFromTop = np.column_stack([leadingFatJet.delta_r(LVGenB_0), leadingFatJet.delta_r(LVGenB_1)])
+                 nBQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenBFromTop < 0.8, axis=1)
 
 
-             nBQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenBFromTop < 0.8, axis=1)
+        if  self.datasetInfo['sample_category'] == "TTToSemiLeptonic_powheg":
+             genPartLightFromTop = self.objectSelector.selectLightFromTop(events)
+             if len(genPartLightFromTop) > 0:
 
-             print(f'{nBQuarkFromTop=}')
+                 LVGenLight_0 = ak.zip(
+                     {
+                         'pt'   : genPartLightFromTop.pt[:,   0],
+                         'eta'  : genPartLightFromTop.eta[:,  0],
+                         'phi'  : genPartLightFromTop.phi[:,  0],
+                         'mass' : genPartLightFromTop.mass[:, 0],
+                     },
+                     with_name='PtEtaPhiMLorentzVector',
+                     behavior=vector.behavior,
+                 )
+                 LVGenLight_1 = ak.zip(
+                     {
+                         'pt'   : genPartLightFromTop.pt[:,   1],
+                         'eta'  : genPartLightFromTop.eta[:,  1],
+                         'phi'  : genPartLightFromTop.phi[:,  1],
+                         'mass' : genPartLightFromTop.mass[:, 1],
+                     },
+                     with_name='PtEtaPhiMLorentzVector',
+                     behavior=vector.behavior,
+                 )
+
+                 dr_leadingFatJet_GenLightFromTop = np.column_stack([leadingFatJet.delta_r(LVGenLight_0), leadingFatJet.delta_r(LVGenLight_1)])
+                 nLightQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenLightFromTop < 0.8, axis=1)
+
         #-------------------------------------------------------------------------------------
+
+        ##------------------------------- ak4 jet variables for bdt
+        ak4Jets = events.Jet
+        ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & \
+            ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
+        ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
+        ak4_Muon_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
+        ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Muon_dR_mask
+        flavB_max_jet = ak.where(ak4SelectionMask,
+                                 ak4Jets.btagDeepFlavB,
+                                 ak.zeros_like(ak4SelectionMask)
+                                 )
+        flavB_max_jet = ak.max(flavB_max_jet, axis=1)
+
+
+        # mass_lvJ : Invariant mass of 4-vectors of selected lepton, MET, and AK8 candidate
+        leadingFatJet4Vec = ak.zip(
+            {
+                'pt'   : leadingFatJet.pt,
+                'eta'  : leadingFatJet.eta,
+                'phi'  : leadingFatJet.phi,
+                'mass' : leadingFatJet.mass,
+            },
+            with_name='PtEtaPhiMLorentzVector',
+            behavior = vector.behavior
+        )
+        leadingMuon4Vec = ak.zip(
+            {
+                'pt'   : leadingMuon.pt,
+                'eta'  : leadingMuon.eta,
+                'phi'  : leadingMuon.phi,
+                'mass' : leadingMuon.mass
+            },
+            with_name = 'PtEtaPhiMLorentzVector',
+            behavior  = vector.behavior
+        )
+        MET4Vec = ak.zip(
+            {
+                'pt'   : events.MET.pt,
+                'eta'  : (leadingMuon4Vec+leadingFatJet4Vec).eta,
+                'phi'  : events.MET.phi,
+                'mass' : ak.zeros_like(leadingFatJet.mass),
+            },
+            with_name = 'PtEtaPhiMLorentzVector',
+            behavior  = vector.behavior
+        )
+        mass_lvj = (leadingFatJet4Vec + leadingMuon4Vec + MET4Vec).mass
+
+        dR_lep_fat = leadingFatJet4Vec.delta_r(leadingMuon4Vec)
+
+
+        ## --------------------------------------------------------
 
         leadingFatJetDeepTagMD_ZHbbvsQCD = ak.where(
             leadingFatJet.deepTagMD_ZHbbvsQCD >= 0,
@@ -1059,6 +1110,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 'Hto4b_FatJet_notMuon',
                 Hto4b_FatJet_notMuon
             )
+
+        ##------------ slim jet selections for bdt -------------------------------
+        #selection.add(
+
+        #)
+
+        ## -----------------------------------------------------------------------
+
 
         if "JetID"  in self.sel_names_all["SR"]:
             selection.add(
@@ -1356,13 +1415,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         sel_SR_woSel2018HEM1516_forHExt = sel_SR_woSel2018HEM1516_toUse
                     else:
                         # Split in GEN-level categories
-                        nGenBInFatJet = 0
-                        if   '0b' in sHExt_0:
-                            nGenBInFatJet = 0
-                        elif '1b' in sHExt_0:
-                            nGenBInFatJet = 1
-                        elif '2b' in sHExt_0:
-                            nGenBInFatJet = 2
+                        # nGenBInFatJet = 0
+
+                        # if   '0b' in sHExt_0:
+                        #     nGenBInFatJet = 0
+                        # elif '1b' in sHExt_0:
+                        #     nGenBInFatJet = 1
+                        # elif '2b' in sHExt_0:
+                        #     nGenBInFatJet = 2
                         # elif '3b' in sHExt_0:
                         #     nGenBInFatJet = 3
                         # elif '4b' in sHExt_0:
@@ -1370,10 +1430,29 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         # elif '5b' in sHExt_0:
                         #     nGenBInFatJet = 5
 
-                        if 'AndMore' in sHExt_0:
-                            mask_HExt = (nBQuarkFromTop >= nGenBInFatJet) # (n_leadingFatJat_matched_genB >= nGenBInFatJet)
-                        else:
-                            mask_HExt = (nBQuarkFromTop == nGenBInFatJet) #(n_leadingFatJat_matched_genB == nGenBInFatJet)
+                        # if 'AndMore' in sHExt_0:
+                        #     mask_HExt = (nBQuarkFromTop >= nGenBInFatJet) # (n_leadingFatJat_matched_genB >= nGenBInFatJet)
+                        # else:
+                        #     mask_HExt = (nBQuarkFromTop == nGenBInFatJet) #(n_leadingFatJat_matched_genB == nGenBInFatJet)
+
+                        # extensions are 'bbqq', 'bbq' , 'bqq', 'bb', '1b', '0b'
+                        nBCut = 0
+                        nLightCut = 0
+                        if 'bbqq' in sHExt_0:
+                            nBCut = 2
+                            nLightCut = 2
+                        elif 'bbq' in sHExt_0:
+                            nBCut = 2
+                            nLightCut = 1
+                        elif 'bqq' in sHExt_0:
+                            nBCut = 1
+                            nLightCut = 2
+                        elif 'bb' in sHExt_0:
+                            nBCut = 2
+                        elif '1b' in sHExt_0:
+                            nBCut = 1
+
+                        mask_HExt = (nBQuarkFromTop == nBCut) & (nLightQuarkFromTop == nLightCut)
 
                         mask_HExt = ak.fill_none(mask_HExt, False) # mask for events without FatJet are None. It causes error at the later stage.
                         sel_SR_forHExt = sel_SR_toUse & mask_HExt
@@ -1466,8 +1545,44 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                             systematic=syst,
                             weight=evtWeight[sel_tmp_]
                         )
-
+                        output['nLightQuarkFromTop'+sHExt].fill(
+                            dataset=dataset,
+                            nLightQuarkFromTop=(nLightQuarkFromTop[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
                     ## --------------------------------------------
+
+                    ## ------------------- bdt variables --------------
+                    output['bdt_mass_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Mass=(leadingFatJet.mass[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['flavB_max_jet'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(flavB_max_jet[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['mass_lvJ'+sHExt].fill(
+                        dataset=dataset,
+                        Mass=(mass_lvj[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['dR_lep_fat'+sHExt].fill(
+                        dataset=dataset,
+                        dR=(dR_lep_fat[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+
+
+
+
+                    ## ----------------------------------------------
 
                     output['hdR_leadingMuon_leadingFatJet'+sHExt].fill(
                         dataset=dataset,
@@ -2215,12 +2330,18 @@ if __name__ == '__main__':
                             break
                 '''
                 if isMC and 'TTT' in sample_category:
-
-                    for sHExt in HistogramNameExtensions_QCD:
+                    sHExtList = []
+                    if sample_category == 'TTToSemiLeptonic_powheg':
+                        sHExtList = HistogramNameExtensions_TTTo1L1Nu
+                    elif sample_category == 'TTTo2L2Nu_powheg':
+                        sHExtList = HistogramNameExtensions_TTTo2L2Nu
+                    for sHExt in sHExtList:#HistogramNameExtensions_QCD:
                         if sHExt in key:
                             sHExt_toUse = '_%s' % (sHExt)
                             sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
                             break
+
+
 
                 sDir1_toUse = '%s%s' % (sDir1, sHExt_toUse)
 

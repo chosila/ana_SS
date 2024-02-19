@@ -17,9 +17,9 @@ ExpData_dict = {
 MCBkg_list = [
     'QCD', #'QCD_0bCat', 'QCD_1bCat', 'QCD_2bCat', 'QCD_3bCat', 'QCD_4bCat', 'QCD_5bAndMoreCat',
     # 'TTToHadronic_powheg', 'TTToSemiLeptonic_powheg', 'TTTo2L2Nu_powheg', .
-    'TTToHadronic_powheg_0bCat',     'TTToHadronic_powheg_1bCat',     'TTToHadronic_powheg_2bAndMoreCat', #     'TTToHadronic_powheg_3bCat',     'TTToHadronic_powheg_4bCat',     'TTToHadronic_powheg_5bAndMoreCat',
-    'TTToSemiLeptonic_powheg_0bCat', 'TTToSemiLeptonic_powheg_1bCat', 'TTToSemiLeptonic_powheg_2bAndMoreCat', # 'TTToSemiLeptonic_powheg_3bCat', 'TTToSemiLeptonic_powheg_4bCat', 'TTToSemiLeptonic_powheg_5bAndMoreCat',
-    'TTTo2L2Nu_powheg_0bCat',        'TTTo2L2Nu_powheg_1bCat',        'TTTo2L2Nu_powheg_2bAndMoreCat',  #       'TTTo2L2Nu_powheg_3bCat',        'TTTo2L2Nu_powheg_4bCat',        'TTTo2L2Nu_powheg_5bAndMoreCat',
+    'TTToHadronic_powheg',
+    'TTToSemiLeptonic_powheg_bbqq', 'TTToSemiLeptonic_powheg_bqq', 'TTToSemiLeptonic_powheg_bbq' ,'TTToSemiLeptonic_powheg_bb', 'TTToSemiLeptonic_powheg_1b', 'TTToSemiLeptonic_powheg_0b',
+    'TTTo2L2Nu_powheg_bb',        'TTTo2L2Nu_powheg_1b',        'TTTo2L2Nu_powheg_0b',
     "SingleTop",
     #'ZJetsToQQ_HT',
     #"DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO", #"DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
@@ -72,8 +72,12 @@ histograms_dict = OD([
     # ("hLeadingFatJetParticleNetMD_XbbOverQCD_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
     # ("hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 4 }),
     ("hLeadingFatJet_nBHadrons", {sXLabel: 'nBHadrons', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
-    ("nBQuarkFromTop", {sXLabel: 'nBQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1})
-
+    ("nBQuarkFromTop", {sXLabel: 'nBQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
+    ("nLightQuarkFromTop", {sXLabel: 'nLightQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
+    ('bdt_mass_fat', {sXLabel: 'bdt_mass_fat', sYLabel: 'Events', sXRange: [0,300], sNRebinX:1}),
+    ('flavB_mass_jet', {sXLabel: 'flavB_mass_jet', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('mass_lvJ', {sXLabel: 'mass_lvJ', sYLabel: 'Events', sXRange: [0,300], sNRebinX:1}),
+    ('dR_lep_fat', {sXLabel: 'dR_lep_fat', sYLabel: 'Events', sXRange [0,3.14], sNRebinX:1}),
 ])
 
 # histograms_dict = OD([

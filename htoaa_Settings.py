@@ -271,8 +271,9 @@ massPseudoscalarA_windows_dict = OD([
 
 
 ### Miscellaneous variables
-HistogramNameExtensions_QCD = ['0bCat', '1bCat', '2bAndMoreCat' ]#, '3bCat', '4bCat', '5bAndMoreCat']
-
+# HistogramNameExtensions_QCD = ['0bCat', '1bCat', '2bAndMoreCat' ]#, '3bCat', '4bCat', '5bAndMoreCat']
+HistogramNameExtensions_TTTo1L1Nu = ['bbqq', 'bbq' , 'bqq', 'bb', '1b', '0b' ]
+HistogramNameExtensions_TTTo2L2Nu = ['bb', '1b', '0b']
 
 
 ### GEN-level variables
