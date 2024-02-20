@@ -415,7 +415,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         nB_axis               = hist.Bin('nBHadrons',              r'nBHadrons',                  6,      0,      6.0)
         nBFromTop_axis        = hist.Bin('nBQuarkFromTop',         r'nBQuarkFromTop',             6,      0,      6.0)
         nLightQuarkFromTop_axis= hist.Bin('nLightQuarkFromTop',    r'nLightQuarkFromTop',         6,      0,      6.0)
-        dR_axis               = hist.Bin('dR',                     r'dR',                         50,     0,     3.14)
+        mass_lvJ_axis         = hist.Bin('mass_lvJ',               r'mass_lvJ',                   1500,   0,       30)
         sXaxis      = 'xAxis'
         sXaxisLabel = 'xAxisLabel'
         sYaxis      = 'yAxis'
@@ -490,10 +490,17 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('nBQuarkFromTop'+sHExt, {sXaxis: nBFromTop_axis, sXaxisLabel: r'nBQuarkFromTop'}),
                     ('nLightQuarkFromTop'+sHExt, {sXaxis: nLightQuarkFromTop_axis, sXaxisLabel: r'nLightQuarkFromTop'}),
                     ## bdt variables
-                    ('bdt_mass_fat' +sHExt, {sXaxis: mass_axis,     sXaxisLabel: r'bdt_mass_fat'}),
-                    ('flavB_max_jet'+sHExt, {sXaxis: mlScore_axis , sXaxisLabel: r'flavB_max_jet'}),
-                    ('mass_lvJ'     +sHExt, {sXaxis: mass_axis,     sXaxisLabel: r'masslvJ'}),
-                    ('dR_lep_fat'   +sHExt, {sXaxis: dR_axis,       sXaxisLabel: r'dR_lep_fat'}),
+                    ('bdt_mass_fat'  +sHExt, {sXaxis: mass_axis,      sXaxisLabel: r'bdt_mass_fat'}),
+                    ('flavB_max_jet' +sHExt, {sXaxis: mlScore_axis ,  sXaxisLabel: r'flavB_max_jet'}),
+                    ('mass_lvJ'      +sHExt, {sXaxis: mass_lvJ_axis,  sXaxisLabel: r'masslvJ'}),
+                    ('dR_lep_fat'    +sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_lep_fat'}),
+                    ('flavB_near_lJ' +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'flavB_near_lJ'}),
+                    ('pt_jet1'       +sHExt, {sXaxis: pt_axis,        sXaxisLabel: r'pt_jet1'}),
+                    ('dEta_lep_fat'  +sHExt, {sXaxis: eta_axis,       sXaxisLabel: r'dEta_lep_fat'}),
+                    ('pt_jet3'       +sHExt, {sXaxis: pt_axis,        sXaxisLabel: r'pt_jet3'}),
+                    ('dPhi_lv_fat'   +sHExt, {sXaxis: phi_axis,       sXaxisLabel: r'dPhi_lv_fat'}),
+                    ('dR_fat_jet_min'+sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_fatJet_min'}),
+
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -904,17 +911,20 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #-------------------------------------------------------------------------------------
 
         ##------------------------------- ak4 jet variables for bdt
+        # flavB_max_jet : Maximum Jet_btagDeepFlavB for selected AK4 jets (if one exists)
+        # AK4 jet pT > 25, |eta| < 4.7, jetId >= 6, (pT > 50 or puId >= 4)
+        # Separated by dR > 0.8 from candidate AK8 jet and dR > 0.4 from selected lepton
         ak4Jets = events.Jet
         ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & \
             ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         ak4_Muon_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
         ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Muon_dR_mask
-        flavB_max_jet = ak.where(ak4SelectionMask,
+        flavB_jet = ak.where(ak4SelectionMask,
                                  ak4Jets.btagDeepFlavB,
-                                 ak.zeros_like(ak4SelectionMask)
+                                 ak.ones_like(ak4SelectionMask)*-0.099
                                  )
-        flavB_max_jet = ak.max(flavB_max_jet, axis=1)
+        flavB_max_jet = ak.max(flavB_jet, axis=1)
 
 
         # mass_lvJ : Invariant mass of 4-vectors of selected lepton, MET, and AK8 candidate
@@ -951,6 +961,19 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         mass_lvj = (leadingFatJet4Vec + leadingMuon4Vec + MET4Vec).mass
 
         dR_lep_fat = leadingFatJet4Vec.delta_r(leadingMuon4Vec)
+
+        # flavB_near_lJ : btagDeepFlavB of selected AK4 jet with lowest dR to (lepton+AK8) 4-vector (if it exists)
+        dR_ak4_lJ = (leadingFatJet4Vec + leadingMuon4Vec).delta_r(ak4Jets)
+        dR_ak4_lJ = ak.where(ak4SelectionMask, dR_ak4_lJ, ak.ones_like(dR_ak4_lJ)*99)
+        idx_dR_ak4_lJ_min = ak.argmin(dR_ak4_lJ, axis=1)
+        #flavB_near_lJ = ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min]
+        # None values in idx_dR_ak4_lJ_min (due to some leading muons missing) are causing problems when trying to select the btagDeepFlavB using numpy array indexing. Need to build this from loop
+        flavB_near_lJ = []
+        for i,arr in zip(idx_dR_ak4_lJ_min, ak4Jets.btagDeepFlavB):
+            if i is None:
+                flavB_near_lJ.append(None)
+            else:
+                flavB_near_lJ.append(arr[i])
 
 
         ## --------------------------------------------------------
@@ -1568,13 +1591,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     )
                     output['mass_lvJ'+sHExt].fill(
                         dataset=dataset,
-                        Mass=(mass_lvj[sel_tmp_]),
+                        mass_lvJ=(mass_lvj[sel_tmp_]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
                     output['dR_lep_fat'+sHExt].fill(
                         dataset=dataset,
-                        dR=(dR_lep_fat[sel_tmp_]),
+                        deltaR=(dR_lep_fat[sel_tmp_]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
