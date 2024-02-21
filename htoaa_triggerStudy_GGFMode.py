@@ -965,16 +965,28 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         # flavB_near_lJ : btagDeepFlavB of selected AK4 jet with lowest dR to (lepton+AK8) 4-vector (if it exists)
         dR_ak4_lJ = (leadingFatJet4Vec + leadingMuon4Vec).delta_r(ak4Jets)
         dR_ak4_lJ = ak.where(ak4SelectionMask, dR_ak4_lJ, ak.ones_like(dR_ak4_lJ)*99)
-        idx_dR_ak4_lJ_min = ak.argmin(dR_ak4_lJ, axis=1)
-        #flavB_near_lJ = ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min]
-        # None values in idx_dR_ak4_lJ_min (due to some leading muons missing) are causing problems when trying to select the btagDeepFlavB using numpy array indexing. Need to build this from loop
-        flavB_near_lJ = []
-        for i,arr in zip(idx_dR_ak4_lJ_min, ak4Jets.btagDeepFlavB):
-            if i is None:
-                flavB_near_lJ.append(None)
-            else:
-                flavB_near_lJ.append(arr[i])
+        idx_dR_ak4_lJ_min = ak.argmin(dR_ak4_lJ,keepdims=True, axis=1) # keepdims=True allows usage of this array as indexing for flavB https://awkward-array.org/doc/main/user-guide/how-to-filter-masked.html
+        flavB_near_lJ = ak.flatten(ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min])
 
+        ## still need to replace the invalid values with dummy variables. HOw
+        print(flavB_near_lJ)
+        print(ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min])
+        print('flush')
+        sys.exit()
+
+        idx_highest_pt_jet = ak.argmax(ak4Jets.pt[ak4SelectionMask], keepdims=True, axis=1)
+        pt_jet1 = ak4Jets.pt[idx_highest_pt_jet]
+
+        dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
+
+        loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
+        pt_jet3 = ak4Jets.pt[ak4SelectionMask][loc_3rd_highest_pt_jet]
+
+        dPhi_lv_fat = abs(leadingFatJet.delta_phi(leadingMuon+MET4Vec))
+
+        # dR_fat_jet_min : dR between AK8 and closest selected AK4 jet (if any exists)
+        # si --> calculate the dR between the leading fatjet and selected ak4 jet then do a mininum
+        dR_fat_jet_min = ak.min(leadingFatJet.delta_r(ak4Jets[ak4SelectionMask]), axis=1)
 
         ## --------------------------------------------------------
 
@@ -1133,13 +1145,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 'Hto4b_FatJet_notMuon',
                 Hto4b_FatJet_notMuon
             )
-
-        ##------------ slim jet selections for bdt -------------------------------
-        #selection.add(
-
-        #)
-
-        ## -----------------------------------------------------------------------
 
 
         if "JetID"  in self.sel_names_all["SR"]:
@@ -1601,7 +1606,42 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
-
+                    output['flavB_near_lJ'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(flavB_near_lJ[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['pt_jet1'+sHExt].fill(
+                        dataset=dataset,
+                        Pt=pt_jet1[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['dEta_lep_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Eta=dEta_lep_fat[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['pt_jet3'+sHExt].fill(
+                        dataset=dataset,
+                        Pt=pt_jet3[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['dPhi_lv_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Phi=dPhi_lv_fat[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['dR_fat_jet_min'+sHExt].fill(
+                        dataset=dataset,
+                        deltaR=dR_fat_jet_min[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
 
 
 
