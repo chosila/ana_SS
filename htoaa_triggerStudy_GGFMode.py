@@ -922,7 +922,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Muon_dR_mask
         flavB_jet = ak.where(ak4SelectionMask,
                                  ak4Jets.btagDeepFlavB,
-                                 ak.ones_like(ak4SelectionMask)*-0.099
+                                 -0.099
                                  )
         flavB_max_jet = ak.max(flavB_jet, axis=1)
 
@@ -966,27 +966,53 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         dR_ak4_lJ = (leadingFatJet4Vec + leadingMuon4Vec).delta_r(ak4Jets)
         dR_ak4_lJ = ak.where(ak4SelectionMask, dR_ak4_lJ, ak.ones_like(dR_ak4_lJ)*99)
         idx_dR_ak4_lJ_min = ak.argmin(dR_ak4_lJ,keepdims=True, axis=1) # keepdims=True allows usage of this array as indexing for flavB https://awkward-array.org/doc/main/user-guide/how-to-filter-masked.html
-        flavB_near_lJ = ak.flatten(ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min])
-
-        ## still need to replace the invalid values with dummy variables. HOw
-        print(flavB_near_lJ)
-        print(ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min])
-        print('flush')
-        sys.exit()
+        flavB_near_lJ = ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min]
+        flavB_near_lJ = ak.flatten(ak.where(
+            ~ak.is_none(flavB_near_lJ),
+            flavB_near_lJ,
+            np.ones([len(flavB_near_lJ),1])*-.099
+        ))
+        ## the np.ones([len(),1]) is so that the replacement array has the same shape as the original. Cannot use ones like as the "None" rows in the original has different shapes than filled and cause problems when flattening for fill into histograms
 
         idx_highest_pt_jet = ak.argmax(ak4Jets.pt[ak4SelectionMask], keepdims=True, axis=1)
         pt_jet1 = ak4Jets.pt[idx_highest_pt_jet]
+        pt_jet1 = ak.flatten(ak.where(
+            ~ak.is_none(pt_jet1),
+            pt_jet1,
+            np.ones([len(pt_jet1), 1])*-99
+        ))
 
         dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
+        dEta_lep_fat = ak.flatten(ak.where(
+            ~ak.is_none(dEta_lep_fat),
+            dEta_lep_fat,
+            np.ones([len(dEta_lep_fat),1])*-99
+        ))
+
 
         loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
         pt_jet3 = ak4Jets.pt[ak4SelectionMask][loc_3rd_highest_pt_jet]
+        pt_jet3 = ak.flatten(ak.where(
+            ~ak.is_none(pt_jet3),
+            pt_jet3,
+            np.ones([len(pt_jet3),1])*-99
+        ))
 
         dPhi_lv_fat = abs(leadingFatJet.delta_phi(leadingMuon+MET4Vec))
+        dPhi_lv_fat = ak.flatten(ak.where(
+            ~ak.is_none(dPhi_lv_fat),
+            dPhi_lv_fat,
+            np.ones([len(dPhi_lv_fat),1])*-99
+        ))
 
         # dR_fat_jet_min : dR between AK8 and closest selected AK4 jet (if any exists)
         # si --> calculate the dR between the leading fatjet and selected ak4 jet then do a mininum
         dR_fat_jet_min = ak.min(leadingFatJet.delta_r(ak4Jets[ak4SelectionMask]), axis=1)
+        dR_fat_jet_min = ak.flatten(ak.where(
+            ~ak.is_none(dR_fat_jet_min),
+            dR_fat_jet_min,
+            np.ones([len(dR_fat_jet_min),1])-99
+        ))
 
         ## --------------------------------------------------------
 
