@@ -778,14 +778,13 @@ for sData, ExpData_list in ExpData_dict.items():
                                 ax=ax[0]
                             )
 
-
-
                     # Upper plot cosmetics ---------
                     if xAxisRange: ax[0].set_xlim(xAxisRange[0], xAxisRange[1])
                     print(f"\nAt the end {yAxisRange_cal = }")
+
                     if yAxisRange: ax[0].set_ylim(yAxisRange[0], yAxisRange[1])
                     elif nHistoDimemsions == 1:
-                        yMaxOffset = 10**(math.log10(yAxisRange_cal[1] / abs(yAxisRange_cal[0])) * 0.4) if yAxisScale == 'logY' else 1.6
+                        yMaxOffset = 10**(math.log10(yAxisRange_cal[1] / abs(yAxisRange_cal[0])) * 0.4) if ((yAxisScale == 'logY')) else 1.6
                         #print(f"{yMaxOffset = }, {yAxisRange_cal[1] * yMaxOffset = }, \t\t {abs(yAxisRange_cal[0]) * logYMinScaleFactor = }")
                         if yAxisScale == 'logY':
                             yAxisRange_cal[0] = abs(yAxisRange_cal[0]) * logYMinScaleFactor

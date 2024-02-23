@@ -21,7 +21,7 @@ import uproot as uproot
 #import parse
 from parse import *
 import logging
-
+import xgboost as xgb
 
 '''
 Trigger efficiency calculation for
@@ -415,7 +415,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         nB_axis               = hist.Bin('nBHadrons',              r'nBHadrons',                  6,      0,      6.0)
         nBFromTop_axis        = hist.Bin('nBQuarkFromTop',         r'nBQuarkFromTop',             6,      0,      6.0)
         nLightQuarkFromTop_axis= hist.Bin('nLightQuarkFromTop',    r'nLightQuarkFromTop',         6,      0,      6.0)
-        mass_lvJ_axis         = hist.Bin('mass_lvJ',               r'mass_lvJ',                   1500,   0,       30)
+        mass_lvJ_axis         = hist.Bin('mass_lvJ',               r'mass_lvJ',                   30,   0,       1500)
         sXaxis      = 'xAxis'
         sXaxisLabel = 'xAxisLabel'
         sYaxis      = 'yAxis'
@@ -500,7 +500,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('pt_jet3'       +sHExt, {sXaxis: pt_axis,        sXaxisLabel: r'pt_jet3'}),
                     ('dPhi_lv_fat'   +sHExt, {sXaxis: phi_axis,       sXaxisLabel: r'dPhi_lv_fat'}),
                     ('dR_fat_jet_min'+sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_fatJet_min'}),
-
+                    ('xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -921,10 +921,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ak4_Muon_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
         ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Muon_dR_mask
         flavB_jet = ak.where(ak4SelectionMask,
-                                 ak4Jets.btagDeepFlavB,
-                                 -0.099
-                                 )
+                             ak4Jets.btagDeepFlavB,
+                             -0.099
+                             )
         flavB_max_jet = ak.max(flavB_jet, axis=1)
+        flavB_max_jet = ak.fill_none(flavB_max_jet, -0.099)
 
 
         # mass_lvJ : Invariant mass of 4-vectors of selected lepton, MET, and AK8 candidate
@@ -959,60 +960,69 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             behavior  = vector.behavior
         )
         mass_lvj = (leadingFatJet4Vec + leadingMuon4Vec + MET4Vec).mass
+        mass_lvj = ak.fill_none(mass_lvj, -99)
 
         dR_lep_fat = leadingFatJet4Vec.delta_r(leadingMuon4Vec)
+        dR_lep_fat = ak.fill_none(dR_lep_fat, -99)
 
         # flavB_near_lJ : btagDeepFlavB of selected AK4 jet with lowest dR to (lepton+AK8) 4-vector (if it exists)
         dR_ak4_lJ = (leadingFatJet4Vec + leadingMuon4Vec).delta_r(ak4Jets)
         dR_ak4_lJ = ak.where(ak4SelectionMask, dR_ak4_lJ, ak.ones_like(dR_ak4_lJ)*99)
         idx_dR_ak4_lJ_min = ak.argmin(dR_ak4_lJ,keepdims=True, axis=1) # keepdims=True allows usage of this array as indexing for flavB https://awkward-array.org/doc/main/user-guide/how-to-filter-masked.html
         flavB_near_lJ = ak4Jets.btagDeepFlavB[idx_dR_ak4_lJ_min]
-        flavB_near_lJ = ak.flatten(ak.where(
-            ~ak.is_none(flavB_near_lJ),
-            flavB_near_lJ,
-            np.ones([len(flavB_near_lJ),1])*-.099
-        ))
+        flavB_near_lJ = ak.firsts(flavB_near_lJ, axis=-1)
+        flavB_near_lJ = ak.fill_none(flavB_near_lJ, -0.099)
+
+
         ## the np.ones([len(),1]) is so that the replacement array has the same shape as the original. Cannot use ones like as the "None" rows in the original has different shapes than filled and cause problems when flattening for fill into histograms
 
         idx_highest_pt_jet = ak.argmax(ak4Jets.pt[ak4SelectionMask], keepdims=True, axis=1)
         pt_jet1 = ak4Jets.pt[idx_highest_pt_jet]
-        pt_jet1 = ak.flatten(ak.where(
-            ~ak.is_none(pt_jet1),
-            pt_jet1,
-            np.ones([len(pt_jet1), 1])*-99
-        ))
+        pt_jet1 = ak.firsts(pt_jet1, axis=-1)
+        pt_jet1 = ak.fill_none(pt_jet1, -99)
 
-        dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
-        dEta_lep_fat = ak.flatten(ak.where(
-            ~ak.is_none(dEta_lep_fat),
-            dEta_lep_fat,
-            np.ones([len(dEta_lep_fat),1])*-99
-        ))
+        ##### for some reason the pt_jet1 still contain non values. it is not being filtered and repalced by ak.where. When try to simply apply the ak.where again to filter 2nd time, throws error
+
+        # dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
+        # dEta_lep_fat = ak.flatten(ak.where(
+        #     ~ak.is_none(dEta_lep_fat),
+        #     dEta_lep_fat,
+        #     np.ones([len(dEta_lep_fat),1])*-99
+        # ))
 
 
-        loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
-        pt_jet3 = ak4Jets.pt[ak4SelectionMask][loc_3rd_highest_pt_jet]
-        pt_jet3 = ak.flatten(ak.where(
-            ~ak.is_none(pt_jet3),
-            pt_jet3,
-            np.ones([len(pt_jet3),1])*-99
-        ))
+        # loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
+        # pt_jet3 = ak4Jets.pt[ak4SelectionMask][loc_3rd_highest_pt_jet]
+        # pt_jet3 = ak.flatten(ak.where(
+        #     ~ak.is_none(pt_jet3),
+        #     pt_jet3,
+        #     np.ones([len(pt_jet3),1])*-99
+        # ))
 
-        dPhi_lv_fat = abs(leadingFatJet.delta_phi(leadingMuon+MET4Vec))
-        dPhi_lv_fat = ak.flatten(ak.where(
-            ~ak.is_none(dPhi_lv_fat),
-            dPhi_lv_fat,
-            np.ones([len(dPhi_lv_fat),1])*-99
-        ))
+        # dPhi_lv_fat = abs(leadingFatJet.delta_phi(leadingMuon+MET4Vec))
+        # dPhi_lv_fat = ak.flatten(ak.where(
+        #     ~ak.is_none(dPhi_lv_fat),
+        #     dPhi_lv_fat,
+        #     np.ones([len(dPhi_lv_fat),1])*-99
+        # ))
 
-        # dR_fat_jet_min : dR between AK8 and closest selected AK4 jet (if any exists)
-        # si --> calculate the dR between the leading fatjet and selected ak4 jet then do a mininum
-        dR_fat_jet_min = ak.min(leadingFatJet.delta_r(ak4Jets[ak4SelectionMask]), axis=1)
-        dR_fat_jet_min = ak.flatten(ak.where(
-            ~ak.is_none(dR_fat_jet_min),
-            dR_fat_jet_min,
-            np.ones([len(dR_fat_jet_min),1])-99
-        ))
+        # # dR_fat_jet_min : dR between AK8 and closest selected AK4 jet (if any exists)
+        # # si --> calculate the dR between the leading fatjet and selected ak4 jet then do a mininum
+        # dR_fat_jet_min = ak.min(leadingFatJet.delta_r(ak4Jets[ak4SelectionMask]), axis=1)
+        # dR_fat_jet_min = ak.flatten(ak.where(
+        #     ~ak.is_none(dR_fat_jet_min),
+        #     dR_fat_jet_min,
+        #     np.ones([len(dR_fat_jet_min),1])-99
+        #     ))
+
+
+        ##---------------------- loading the bdt and scoring
+        xgb_model = xgb.Booster()
+        xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/4.model')
+
+        xgb_dmatrix = xgb.DMatrix(np.array([leadingFatJet.mass, mass_lvj, flavB_max_jet, dR_lep_fat]).T,
+                                  feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat'])
+        predictions = xgb_model.predict(xgb_dmatrix)
 
         ## --------------------------------------------------------
 
@@ -1393,10 +1403,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             output['cutflow'][iName] += sel_i.sum()
             output['cutflow'][sWeighted+iName] +=  weights.weight()[sel_i].sum()
 
-            print('----------------------------------------')
-            print(iSelection, np.count_nonzero(sel_i))
-            print('-----------------------------------------')
-        print('flush'*8)
 
         for syst in systList:
 
@@ -1616,55 +1622,64 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     )
                     output['flavB_max_jet'+sHExt].fill(
                         dataset=dataset,
-                        MLScore=(flavB_max_jet[sel_tmp_]),
+                        MLScore=(flavB_max_jet[sel_tmp_ & (flavB_max_jet > 0)]),
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (flavB_max_jet > 0)]
                     )
                     output['mass_lvJ'+sHExt].fill(
                         dataset=dataset,
-                        mass_lvJ=(mass_lvj[sel_tmp_]),
+                        mass_lvJ=(mass_lvj[sel_tmp_ & (mass_lvj > 0)]),
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (mass_lvj > 0)]
                     )
+                    print('mass_lvj[sel_tmp_ & (mass_lvj > 0)]', mass_lvj[sel_tmp_ & (mass_lvj > 0)])
+
+
                     output['dR_lep_fat'+sHExt].fill(
                         dataset=dataset,
-                        deltaR=(dR_lep_fat[sel_tmp_]),
+                        deltaR=(dR_lep_fat[sel_tmp_ & (dR_lep_fat > 0)]),
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (dR_lep_fat > 0)]
                     )
                     output['flavB_near_lJ'+sHExt].fill(
                         dataset=dataset,
-                        MLScore=(flavB_near_lJ[sel_tmp_]),
+                        MLScore=(flavB_near_lJ[sel_tmp_ & (flavB_near_lJ > 0)]),
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (flavB_near_lJ > 0)]
                     )
                     output['pt_jet1'+sHExt].fill(
                         dataset=dataset,
-                        Pt=pt_jet1[sel_tmp_],
+                        Pt=(pt_jet1[sel_tmp_ & (pt_jet1 > 0)]),
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (pt_jet1 > 0)]
                     )
-                    output['dEta_lep_fat'+sHExt].fill(
+                    # output['dEta_lep_fat'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     Eta=dEta_lep_fat[sel_tmp_],
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['pt_jet3'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     Pt=pt_jet3[sel_tmp_],
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['dPhi_lv_fat'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     Phi=dPhi_lv_fat[sel_tmp_],
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['dR_fat_jet_min'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     deltaR=dR_fat_jet_min[sel_tmp_],
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    output['xgb_score'+sHExt].fill(
                         dataset=dataset,
-                        Eta=dEta_lep_fat[sel_tmp_],
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['pt_jet3'+sHExt].fill(
-                        dataset=dataset,
-                        Pt=pt_jet3[sel_tmp_],
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['dPhi_lv_fat'+sHExt].fill(
-                        dataset=dataset,
-                        Phi=dPhi_lv_fat[sel_tmp_],
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['dR_fat_jet_min'+sHExt].fill(
-                        dataset=dataset,
-                        deltaR=dR_fat_jet_min[sel_tmp_],
+                        MLScore=(predictions[sel_tmp_]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
