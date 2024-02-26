@@ -914,6 +914,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         # flavB_max_jet : Maximum Jet_btagDeepFlavB for selected AK4 jets (if one exists)
         # AK4 jet pT > 25, |eta| < 4.7, jetId >= 6, (pT > 50 or puId >= 4)
         # Separated by dR > 0.8 from candidate AK8 jet and dR > 0.4 from selected lepton
+        mass_fat = ak.fill_none(leadingFatJet.mass, -99)
+
         ak4Jets = events.Jet
         ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & \
             ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
@@ -965,6 +967,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         dR_lep_fat = leadingFatJet4Vec.delta_r(leadingMuon4Vec)
         dR_lep_fat = ak.fill_none(dR_lep_fat, -99)
 
+
         # flavB_near_lJ : btagDeepFlavB of selected AK4 jet with lowest dR to (lepton+AK8) 4-vector (if it exists)
         dR_ak4_lJ = (leadingFatJet4Vec + leadingMuon4Vec).delta_r(ak4Jets)
         dR_ak4_lJ = ak.where(ak4SelectionMask, dR_ak4_lJ, ak.ones_like(dR_ak4_lJ)*99)
@@ -980,6 +983,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         pt_jet1 = ak4Jets.pt[idx_highest_pt_jet]
         pt_jet1 = ak.firsts(pt_jet1, axis=-1)
         pt_jet1 = ak.fill_none(pt_jet1, -99)
+
 
         ##### for some reason the pt_jet1 still contain non values. it is not being filtered and repalced by ak.where. When try to simply apply the ak.where again to filter 2nd time, throws error
 
@@ -1020,7 +1024,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         xgb_model = xgb.Booster()
         xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/4.model')
 
-        xgb_dmatrix = xgb.DMatrix(np.array([leadingFatJet.mass, mass_lvj, flavB_max_jet, dR_lep_fat]).T,
+        xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat]).T,
                                   feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat'])
         predictions = xgb_model.predict(xgb_dmatrix)
 
@@ -1616,7 +1620,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ## ------------------- bdt variables --------------
                     output['bdt_mass_fat'+sHExt].fill(
                         dataset=dataset,
-                        Mass=(leadingFatJet.mass[sel_tmp_]),
+                        Mass=(mass_fat[sel_tmp_]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
