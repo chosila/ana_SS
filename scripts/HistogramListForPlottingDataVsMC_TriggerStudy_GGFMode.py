@@ -71,14 +71,24 @@ histograms_dict = OD([
     # ("hLeadingFatJetBtagHbb_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetBtagHbb_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [-1, 1], sNRebinX: 2 }),
     # ("hLeadingFatJetParticleNetMD_XbbOverQCD_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
     # ("hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60", {sXLabel: 'hLeadingFatJetPNetMD_Hto4b_Htoaa4bOverQCD_pTGt400_msoftdropGt60', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 4 }),
+    # ('hLeadingFatJetBtagHbb', {sXLabel: 'hLeadingFatJetBtagHbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
     ("hLeadingFatJet_nBHadrons", {sXLabel: 'nBHadrons', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
     ("nBQuarkFromTop", {sXLabel: 'nBQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
     ("nLightQuarkFromTop", {sXLabel: 'nLightQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
     ('bdt_mass_fat', {sXLabel: 'bdt_mass_fat', sYLabel: 'Events', sXRange: [0,300], sNRebinX:4}),
-    ('flavB_max_jet', {sXLabel: 'flavB_mass_jet', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('flavB_max_jet', {sXLabel: 'flavB_max_jet', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('mass_lvJ', {sXLabel: 'mass_lvJ', sYLabel: 'Events', sXRange: [0,1500], sNRebinX:1}),
     ('dR_lep_fat', {sXLabel: 'dR_lep_fat', sYLabel: 'Events', sXRange: [0,5], sNRebinX:10}),
-    ('xgb_score', {sXLabel: 'xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4})
+    ('xgb_score', {sXLabel: 'xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('btagHbb', {sXLabel: 'btagHbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('particleNetMD_Xbb', {sXLabel: 'particleNetMD_Xbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('particleNet_HbbvsQCD', {sXLabel: 'particleNet_HbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('deepTagMD_HbbvsQCD', {sXLabel: 'deepTagMD_HbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('deepTagMD_ZHbbvsQCD', {sXLabel: 'deepTagMD_ZHbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('deepTagMD_ZbbvsQCD', {sXLabel: 'deepTagMD_ZbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+
 ])
 
 # histograms_dict = OD([

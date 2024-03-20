@@ -215,6 +215,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 #"leadingMuonIso",
                 "dR_Muon_FatJet",
                 "leadingFatJetEta",
+                "bdtScoreCut",
                 "Hto4b_FatJet_notMuon",
                 "JetID",
                 #"leadingFatJetParticleNetMD_XbbvsQCD", ## Denominator for trigger efficiency calculation
@@ -501,6 +502,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('dPhi_lv_fat'   +sHExt, {sXaxis: phi_axis,       sXaxisLabel: r'dPhi_lv_fat'}),
                     ('dR_fat_jet_min'+sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_fatJet_min'}),
                     ('xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
+                    ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r"FatJet_PNetMD_Hto4b_Htoaa4bOverQCD"}),
+                    ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'}),
+                    ('btagHbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagHbb'}),
+                    ('btagDDBvLV2'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagDDBvLV2'}),
+                    ('particleNetMD_Xbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'particleNetMD_Xbb'}),
+                    ('deepTagMD_ZHbbvsQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'deepTagMD_ZHbbvsQCD'}),
+
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -1060,6 +1068,23 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa4b, 0) #leadingFatJet.particleNetMD_Hto4b_Haa4b
             )
 
+        if 'particleNetMD_Hto4b_Haa3b' in events.FatJet.fields:
+            leadingFatJet_PNetMD_Hto4b_QCD01234b_sum = (
+                leadingFatJet.particleNetMD_Hto4b_QCD0b +
+                leadingFatJet.particleNetMD_Hto4b_QCD1b +
+                leadingFatJet.particleNetMD_Hto4b_QCD2b +
+                leadingFatJet.particleNetMD_Hto4b_QCD3b +
+                leadingFatJet.particleNetMD_Hto4b_QCD4b )
+
+            leadingFatJet_PNetMD_Hto4b_Htoaa3bOverQCD = ak.where(
+                (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum) > 0.0,
+                (
+                    leadingFatJet.particleNetMD_Hto4b_Haa3b /
+                    (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
+                ),
+                ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0) #leadingFatJet.particleNetMD_Hto4b_Haa3b
+            )
+
 
         dR_leadingMuon_leadingFatJet = ak.fill_none(leadingMuon.delta_r(leadingFatJet), 0)
 
@@ -1173,6 +1198,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 abs(leadingFatJet.eta) < self.objectSelector.FatJetEtaThsh
             )
 
+        if 'bdtScoreCut' in self.sel_names_all['SR']:
+            selection.add(
+                'bdtScoreCut',
+                predictions > 0.3
+            )
+
         if 'Hto4b_FatJet_notMuon' in self.sel_names_all['SR']:
             ## in skimmed files, high pt muons might look like signal to hto4b tagger. This selections out the ones with high muon hto4b score
             ## TODO: FIGURE OUT HOW TO ONLY MAKE THIS RUN FOR SKIMMED FILES
@@ -1185,7 +1216,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 'Hto4b_FatJet_notMuon',
                 Hto4b_FatJet_notMuon
             )
-
 
         if "JetID"  in self.sel_names_all["SR"]:
             selection.add(
@@ -1636,7 +1666,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_ & (mass_lvj > 0)]
                     )
-                    print('mass_lvj[sel_tmp_ & (mass_lvj > 0)]', mass_lvj[sel_tmp_ & (mass_lvj > 0)])
 
 
                     output['dR_lep_fat'+sHExt].fill(
@@ -1687,8 +1716,44 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
-
-
+                    output['btagHbb'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(leadingFatJet.btagHbb[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    if 'particleNetMD_Hto4b_Haa4b' in events.FatJet.fields:
+                        output['FatJet_PNetMD_Hto4b_Htoaa4bOverQCD'+sHExt].fill(
+                            dataset=dataset,
+                            MLScore=(leadingFatJet_PNetMD_Hto4b_Htoaa4bOverQCD[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
+                    if 'particleNetMD_Hto4b_Haa3b' in events.FatJet.fields:
+                        output['FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'+sHExt].fill(
+                            dataset=dataset,
+                            MLScore=(leadingFatJet_PNetMD_Hto4b_Htoaa3bOverQCD[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
+                    output['btagDDBvLV2'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(leadingFatJet.btagDDBvLV2[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['particleNetMD_Xbb'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=( leadingFatJet.particleNetMD_Xbb[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['deepTagMD_ZHbbvsQCD'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(leadingFatJet.deepTagMD_ZHbbvsQCD[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
 
                     ## ----------------------------------------------
 
