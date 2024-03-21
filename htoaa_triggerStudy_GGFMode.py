@@ -1472,14 +1472,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             )
 
 
-
-
-
             ### RECO-level histograms ============================================================================================
 
-
             for sel_name in self.sel_names_all.keys(): # loop of list of selections
-                #print(f"For histogram filling: {sel_name = }, {self.sel_names_all[sel_name] = }")
+                print(f"For histogram filling: {sel_name = }, {self.sel_names_all[sel_name] = }")
+
 
                 if sel_name.startswith('Gen'): continue
 
@@ -1491,11 +1488,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 else:
                     sel_SR_woSel2018HEM1516_toUse = sel_SR_toUse
 
-                if len(sel_SR_toUse) == 0: continue
-
+                #if 'JetID' not in self.sel_names_all[sel_name]: continue
+                #if len(sel_SR_toUse) == 0: continue
 
                 #printVariable('\n sel_SR', sel_SR)
                 for sHExt_0 in self.histosExtensions: # HistogramNameExtensions_QCD = ['_0b', '_1b', '_2b', '_3b', '_4b', '_5bAndMore'], else ['']
+                    print(sHExt_0)
+                    print('------------------------'*4)
+                    sys.stdout.flush()
                     sHExt = "_%s" % (sel_name)
                     if sHExt_0 != '':
                         sHExt += "_%s" % (sHExt_0)
@@ -1508,27 +1508,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         sel_SR_forHExt = sel_SR_toUse
                         sel_SR_woSel2018HEM1516_forHExt = sel_SR_woSel2018HEM1516_toUse
                     else:
-                        # Split in GEN-level categories
-                        # nGenBInFatJet = 0
-
-                        # if   '0b' in sHExt_0:
-                        #     nGenBInFatJet = 0
-                        # elif '1b' in sHExt_0:
-                        #     nGenBInFatJet = 1
-                        # elif '2b' in sHExt_0:
-                        #     nGenBInFatJet = 2
-                        # elif '3b' in sHExt_0:
-                        #     nGenBInFatJet = 3
-                        # elif '4b' in sHExt_0:
-                        #     nGenBInFatJet = 4
-                        # elif '5b' in sHExt_0:
-                        #     nGenBInFatJet = 5
-
-                        # if 'AndMore' in sHExt_0:
-                        #     mask_HExt = (nBQuarkFromTop >= nGenBInFatJet) # (n_leadingFatJat_matched_genB >= nGenBInFatJet)
-                        # else:
-                        #     mask_HExt = (nBQuarkFromTop == nGenBInFatJet) #(n_leadingFatJat_matched_genB == nGenBInFatJet)
-
                         # extensions are 'bbqq', 'bbq' , 'bqq', 'bb', '1b', '0b'
                         nBCut = 0
                         nLightCut = 0
@@ -1554,7 +1533,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
 
-                    if len(sel_SR_forHExt) == 0: continue
+                    #if len(sel_SR_forHExt) == 0: continue
 
 
                     # all events
@@ -1716,12 +1695,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
+
                     output['btagHbb'+sHExt].fill(
                         dataset=dataset,
                         MLScore=(leadingFatJet.btagHbb[sel_tmp_]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
+
                     if 'particleNetMD_Hto4b_Haa4b' in events.FatJet.fields:
                         output['FatJet_PNetMD_Hto4b_Htoaa4bOverQCD'+sHExt].fill(
                             dataset=dataset,
@@ -2271,13 +2252,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                                 ak.fill_none(leadingFatJet.pt > 400, False)
                                 )]
                         )
-
-
-
-
-
-
-
 
         return output
 
