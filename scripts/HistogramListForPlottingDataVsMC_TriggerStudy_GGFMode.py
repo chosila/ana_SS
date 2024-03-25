@@ -18,7 +18,7 @@ MCBkg_list = [
     'QCD', #'QCD_0bCat', 'QCD_1bCat', 'QCD_2bCat', 'QCD_3bCat', 'QCD_4bCat', 'QCD_5bAndMoreCat',
     # 'TTToHadronic_powheg', 'TTToSemiLeptonic_powheg', 'TTTo2L2Nu_powheg', .
     'TTToHadronic_powheg',
-    'TTToSemiLeptonic_powheg_bbqq', 'TTToSemiLeptonic_powheg_bqq', 'TTToSemiLeptonic_powheg_bbq' ,'TTToSemiLeptonic_powheg_bb', 'TTToSemiLeptonic_powheg_1b', 'TTToSemiLeptonic_powheg_0b',
+    'TTToSemiLeptonic_powheg_bbqq',  'TTToSemiLeptonic_powheg_bbq' ,'TTToSemiLeptonic_powheg_bb', 'TTToSemiLeptonic_powheg_bqq', 'TTToSemiLeptonic_powheg_1b', 'TTToSemiLeptonic_powheg_0b',
     'TTTo2L2Nu_powheg_bb',        'TTTo2L2Nu_powheg_1b',        'TTTo2L2Nu_powheg_0b',
     "SingleTop",
     #'ZJetsToQQ_HT',
@@ -80,14 +80,14 @@ histograms_dict = OD([
     ('mass_lvJ', {sXLabel: 'mass_lvJ', sYLabel: 'Events', sXRange: [0,1500], sNRebinX:1}),
     ('dR_lep_fat', {sXLabel: 'dR_lep_fat', sYLabel: 'Events', sXRange: [0,5], sNRebinX:10}),
     ('xgb_score', {sXLabel: 'xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
-    ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('btagHbb', {sXLabel: 'btagHbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('particleNetMD_Xbb', {sXLabel: 'particleNetMD_Xbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('particleNet_HbbvsQCD', {sXLabel: 'particleNet_HbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('deepTagMD_HbbvsQCD', {sXLabel: 'deepTagMD_HbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('deepTagMD_ZHbbvsQCD', {sXLabel: 'deepTagMD_ZHbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
-    ('deepTagMD_ZbbvsQCD', {sXLabel: 'deepTagMD_ZbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:1}),
+    ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('btagHbb', {sXLabel: 'btagHbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('particleNetMD_Xbb', {sXLabel: 'particleNetMD_Xbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('btagDDBvLV2', {sXLabel: 'btagDDBvLV2', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+
+    ('deepTagMD_ZHbbvsQCD', {sXLabel: 'deepTagMD_ZHbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+
 
 ])
 

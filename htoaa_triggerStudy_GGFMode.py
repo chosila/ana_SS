@@ -438,7 +438,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 sHExt = "_%s" % (sel_name)
                 if sHExt_0 != '':
                     sHExt += "_%s" % (sHExt_0)
-
                 histos.update(OD([
 
                     ('hCutFlow'+sHExt,                                  {sXaxis: cutFlow_axis,    sXaxisLabel: 'Cuts'}),
@@ -563,7 +562,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                       sYaxis: mlScore_axis,    sYaxisLabel: r"LeadingFatJet PNetMD_Hto4b_Htoaa4bOverQCD, PtGt400"}),
 
                 ]))
-
 
 
         self._accumulator = processor.dict_accumulator({
@@ -1489,13 +1487,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     sel_SR_woSel2018HEM1516_toUse = sel_SR_toUse
 
                 #if 'JetID' not in self.sel_names_all[sel_name]: continue
-                #if len(sel_SR_toUse) == 0: continue
+                if len(sel_SR_toUse) == 0: continue
 
                 #printVariable('\n sel_SR', sel_SR)
                 for sHExt_0 in self.histosExtensions: # HistogramNameExtensions_QCD = ['_0b', '_1b', '_2b', '_3b', '_4b', '_5bAndMore'], else ['']
-                    print(sHExt_0)
-                    print('------------------------'*4)
-                    sys.stdout.flush()
                     sHExt = "_%s" % (sel_name)
                     if sHExt_0 != '':
                         sHExt += "_%s" % (sHExt_0)
@@ -1533,7 +1528,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
 
-                    #if len(sel_SR_forHExt) == 0: continue
+                    if len(sel_SR_forHExt) == 0: continue
 
 
                     # all events
@@ -2483,9 +2478,10 @@ if __name__ == '__main__':
                     elif sample_category == 'TTTo2L2Nu_powheg':
                         sHExtList = HistogramNameExtensions_TTTo2L2Nu
                     for sHExt in sHExtList:#HistogramNameExtensions_QCD:
-                        if sHExt in key:
+                        if key.endswith(sHExt):#sHExt in key:
                             sHExt_toUse = '_%s' % (sHExt)
                             sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
+                            print(f'sHExt in ttt: {sHExt}, key: {key} ', sHExt)
                             break
 
 
