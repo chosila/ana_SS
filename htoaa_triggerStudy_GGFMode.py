@@ -882,9 +882,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                      behavior=vector.behavior,
                  )
 
-                 dr_leadingFatJet_GenBFromTop = np.column_stack([leadingFatJet.delta_r(LVGenB_0), leadingFatJet.delta_r(LVGenB_1)])
-                 nBQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenBFromTop < 0.8, axis=1)
+                 ## convert to numpy array first to prevent missing values problem
+                 delta_r_leadingFatJetLVGenB_0 = ak.to_numpy(leadingFatJet.delta_r(LVGenB_0), allow_missing=True)
+                 delta_r_leadingFatJetLVGenB_1 = ak.to_numpy(leadingFatJet.delta_r(LVGenB_1), allow_missing=True)
 
+                 dr_leadingFatJet_GenBFromTop = np.column_stack([ delta_r_leadingFatJetLVGenB_0,  delta_r_leadingFatJetLVGenB_1])
+                 nBQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenBFromTop < 0.8, axis=1)
 
         if  self.datasetInfo['sample_category'] == "TTToSemiLeptonic_powheg":
              genPartLightFromTop = self.objectSelector.selectLightFromTop(events)
@@ -911,9 +914,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                      behavior=vector.behavior,
                  )
 
-                 dr_leadingFatJet_GenLightFromTop = np.column_stack([leadingFatJet.delta_r(LVGenLight_0), leadingFatJet.delta_r(LVGenLight_1)])
-                 nLightQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenLightFromTop < 0.8, axis=1)
 
+                 delta_r_leadingFatJetLVGenLight_0 = ak.to_numpy(leadingFatJet.delta_r(LVGenLight_0),allow_missing=True)
+                 delta_r_leadingFatJetLVGenLight_1 = ak.to_numpy(leadingFatJet.delta_r(LVGenLight_1),allow_missing=True)
+
+                 dr_leadingFatJet_GenLightFromTop = np.column_stack([ delta_r_leadingFatJetLVGenLight_0, delta_r_leadingFatJetLVGenLight_1])
+                 nLightQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenLightFromTop < 0.8, axis=1)
         #-------------------------------------------------------------------------------------
 
         ##------------------------------- ak4 jet variables for bdt
