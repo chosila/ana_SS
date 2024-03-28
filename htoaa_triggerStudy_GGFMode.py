@@ -216,7 +216,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "dR_Muon_FatJet",
                 "leadingFatJetEta",
                 "bdtScoreCut",
-                "Hto4b_FatJet_notMuon",
+                "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 "JetID",
                 #"leadingFatJetParticleNetMD_XbbvsQCD", ## Denominator for trigger efficiency calculation
                 #"lFJPNetXbbPlusDZHbb",
@@ -998,46 +998,35 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
         ##### for some reason the pt_jet1 still contain non values. it is not being filtered and repalced by ak.where. When try to simply apply the ak.where again to filter 2nd time, throws error
+        ## ok when doing ak.firsts, if it is only 1 element, it will return a double instead of a array of double. how to screen for only one element
+        ## ak.firsts() should only be used on variables that have [[], [], [],...] shape. if it is a normal 1d array, ak.first will only return the first element
 
-        # dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
-        # dEta_lep_fat = ak.flatten(ak.where(
-        #     ~ak.is_none(dEta_lep_fat),
-        #     dEta_lep_fat,
-        #     np.ones([len(dEta_lep_fat),1])*-99
-        # ))
+        dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
+        dEta_lep_fat = ak.fill_none(dEta_lep_fat, -99)
 
+        loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
+        pt_jet3 = ak4Jets.pt[ak4SelectionMask][loc_3rd_highest_pt_jet]
+        pt_jet3 = ak.firsts(pt_jet3, axis=-1) if len(pt_jet3) > 1 else pt_jet3
+        pt_jet3 = ak.fill_none(pt_jet3, -99)
 
-        # loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
-        # pt_jet3 = ak4Jets.pt[ak4SelectionMask][loc_3rd_highest_pt_jet]
-        # pt_jet3 = ak.flatten(ak.where(
-        #     ~ak.is_none(pt_jet3),
-        #     pt_jet3,
-        #     np.ones([len(pt_jet3),1])*-99
-        # ))
+        dPhi_lv_fat = abs(leadingFatJet.delta_phi(leadingMuon+MET4Vec))
+        dPhi_lv_fat = ak.fill_none(dPhi_lv_fat, -99)
 
-        # dPhi_lv_fat = abs(leadingFatJet.delta_phi(leadingMuon+MET4Vec))
-        # dPhi_lv_fat = ak.flatten(ak.where(
-        #     ~ak.is_none(dPhi_lv_fat),
-        #     dPhi_lv_fat,
-        #     np.ones([len(dPhi_lv_fat),1])*-99
-        # ))
-
-        # # dR_fat_jet_min : dR between AK8 and closest selected AK4 jet (if any exists)
-        # # si --> calculate the dR between the leading fatjet and selected ak4 jet then do a mininum
-        # dR_fat_jet_min = ak.min(leadingFatJet.delta_r(ak4Jets[ak4SelectionMask]), axis=1)
-        # dR_fat_jet_min = ak.flatten(ak.where(
-        #     ~ak.is_none(dR_fat_jet_min),
-        #     dR_fat_jet_min,
-        #     np.ones([len(dR_fat_jet_min),1])-99
-        #     ))
+        # dR_fat_jet_min : dR between AK8 and closest selected AK4 jet (if any exists)
+        # si --> calculate the dR between the leading fatjet and selected ak4 jet then do a mininum
+        dR_fat_jet_min = ak.min(leadingFatJet.delta_r(ak4Jets[ak4SelectionMask]), axis=1)
+        dR_fat_jet_min = ak.fill_none(dR_fat_jet_min, -99)
 
 
         ##---------------------- loading the bdt and scoring
         xgb_model = xgb.Booster()
-        xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/4.model')
+        #xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/4.model')
+        #xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat]).T,
+        #                          feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat'])
 
-        xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat]).T,
-                                  feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat'])
+        xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/10.model')
+        xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T,
+                                  feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
         predictions = xgb_model.predict(xgb_dmatrix)
 
         ## --------------------------------------------------------
@@ -1479,7 +1468,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             ### RECO-level histograms ============================================================================================
 
             for sel_name in self.sel_names_all.keys(): # loop of list of selections
-                print(f"For histogram filling: {sel_name = }, {self.sel_names_all[sel_name] = }")
+                # print(f"For histogram filling: {sel_name = }, {self.sel_names_all[sel_name] = }")
 
 
                 if sel_name.startswith('Gen'): continue
@@ -2487,7 +2476,6 @@ if __name__ == '__main__':
                         if key.endswith(sHExt):#sHExt in key:
                             sHExt_toUse = '_%s' % (sHExt)
                             sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
-                            print(f'sHExt in ttt: {sHExt}, key: {key} ', sHExt)
                             break
 
 
