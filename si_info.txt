@@ -10,3 +10,5 @@ python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_m
 
 skimmed files
 python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v singleLep_fixed -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2 -xrdcpIpAftNResub 4
+
+NOTE: always delete the root files in the inputFiles/ directory before running the htoaa_Wrapper.py. Suspicion that for some reason the rootfiles in the htoaa_Wrapper are not replaced if not deleted

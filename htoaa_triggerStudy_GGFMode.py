@@ -507,7 +507,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('btagDDBvLV2'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagDDBvLV2'}),
                     ('particleNetMD_Xbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'particleNetMD_Xbb'}),
                     ('deepTagMD_ZHbbvsQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'deepTagMD_ZHbbvsQCD'}),
-
+                    ('particleNetMD_XbbOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'particleNetMD_Xbb'}),
+                    ('Htoaa3b_Htoaa4bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'Htoaa3b_Htoaa4bOverQCD'}),
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -1080,6 +1081,25 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
         dR_leadingMuon_leadingFatJet = ak.fill_none(leadingMuon.delta_r(leadingFatJet), 0)
+
+        ## (Htoaa3b + Htoaa4b)/QCD
+        if ('particleNetMD_Hto4b_Haa3b' in events.FatJet.fields) and ('particleNetMD_Hto4b_Haa4b' in events.FatJet.fields):
+            leadingFatJet_PNetMD_Hto4b_QCD01234b_sum = (
+                leadingFatJet.particleNetMD_Hto4b_QCD0b +
+                leadingFatJet.particleNetMD_Hto4b_QCD1b +
+                leadingFatJet.particleNetMD_Hto4b_QCD2b +
+                leadingFatJet.particleNetMD_Hto4b_QCD3b +
+                leadingFatJet.particleNetMD_Hto4b_QCD4b )
+            leadingFatJet_PNetMD_Hto4b_Htoaa3b_Htoaa4bOverQCD = ak.where(
+                (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum) > 0.0,
+                (leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b) /
+                (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b),
+                ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0)
+            )
+
+
+
+
 
         ## match leadingFat jet to genB
         n_leadingFatJat_matched_genB = np.full(len(events), 0)
@@ -1655,30 +1675,30 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_ & (pt_jet1 > 0)]
                     )
-                    # output['dEta_lep_fat'+sHExt].fill(
-                    #     dataset=dataset,
-                    #     Eta=dEta_lep_fat[sel_tmp_],
-                    #     systematic=syst,
-                    #     weight=evtWeight[sel_tmp_]
-                    # )
-                    # output['pt_jet3'+sHExt].fill(
-                    #     dataset=dataset,
-                    #     Pt=pt_jet3[sel_tmp_],
-                    #     systematic=syst,
-                    #     weight=evtWeight[sel_tmp_]
-                    # )
-                    # output['dPhi_lv_fat'+sHExt].fill(
-                    #     dataset=dataset,
-                    #     Phi=dPhi_lv_fat[sel_tmp_],
-                    #     systematic=syst,
-                    #     weight=evtWeight[sel_tmp_]
-                    # )
-                    # output['dR_fat_jet_min'+sHExt].fill(
-                    #     dataset=dataset,
-                    #     deltaR=dR_fat_jet_min[sel_tmp_],
-                    #     systematic=syst,
-                    #     weight=evtWeight[sel_tmp_]
-                    # )
+                    output['dEta_lep_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Eta=dEta_lep_fat[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['pt_jet3'+sHExt].fill(
+                        dataset=dataset,
+                        Pt=pt_jet3[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['dPhi_lv_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Phi=dPhi_lv_fat[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['dR_fat_jet_min'+sHExt].fill(
+                        dataset=dataset,
+                        deltaR=dR_fat_jet_min[sel_tmp_],
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
                     output['xgb_score'+sHExt].fill(
                         dataset=dataset,
                         MLScore=(predictions[sel_tmp_]),
@@ -1725,6 +1745,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
+                    output['particleNetMD_XbbOverQCD'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(leadingFatJetParticleNetMD_XbbvsQCD[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+
 
                     ## ----------------------------------------------
 
