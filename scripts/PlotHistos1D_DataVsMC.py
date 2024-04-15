@@ -46,7 +46,7 @@ sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/singleLep' # '/a
 cmsWorkStatus                  = 'Work in Progress'
 era                            = '2018'
 luminosity_total               = Luminosities_forGGFMode[era][HLT_toUse][0] # 54.54  #59.83
-dataBlindOption                = DataBlindingOptions.BlindPartially # DataBlindingOptions.BlindPartially , DataBlindingOptions.BlindFully , DataBlindingOptions.Unblind
+dataBlindOption                = DataBlindingOptions.Unblind # DataBlindingOptions.BlindPartially , DataBlindingOptions.BlindFully , DataBlindingOptions.Unblind
 significantThshForDataBlinding = 0.125 # blind data in bins with S/sqrt(B) > significantThshForDataBlinding while running with dataBlindOption = DataBlindingOptions.BlindPartially
 
 
@@ -365,25 +365,6 @@ colors_bkg_list = [
     ['tan', 0.9, '' ],
     ['olive', 0.9, '' ],
     ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-    ['purple',  0.9, ''],
-
 ]
 
 colors_sig_list = [
@@ -410,7 +391,7 @@ for sData, ExpData_list in ExpData_dict.items():
         for histo_name in histograms_dict.keys():
             histo_name_toUse = '%s_%s' % (histo_name, selectionTag)
             for systematic in systematics_list:
-                for yAxisScale in ['linearY', 'logY']: # ['linearY', 'logY']
+                for yAxisScale in ['linearY']:#, 'logY']: # ['linearY', 'logY']
                     xAxisRange = histograms_dict[histo_name][sXRange] if sXRange in histograms_dict[histo_name].keys() else None
                     yAxisRange = histograms_dict[histo_name][sYRange] if sYRange in histograms_dict[histo_name].keys() else None
                     xAxisLabel = histograms_dict[histo_name][sXLabel] if sXLabel in histograms_dict[histo_name].keys() else None
@@ -437,6 +418,7 @@ for sData, ExpData_list in ExpData_dict.items():
                     print(f"\n\n {histo_name_toUse = }, {systematic = }, {yAxisScale = }, ")
                     #fig, axs = plt.subplots(ncols=1, nrows=2, figsize=(8,10), sharex='col', gridspec_kw={'height_ratios': [3, 1]}, subplot_kw={'ymargin': 0.4})
                     fig, ax = plt.subplots(ncols=1, nrows=2, figsize=(8,10), sharex='col', gridspec_kw={'height_ratios': [3, 1], 'hspace': 0})
+                    fig1, ax1 = plt.subplots(ncols=1, nrows=2, figsize=(8,10), sharex='col', gridspec_kw={'height_ratios': [3, 1], 'hspace': 0})
                     #fig, ax = plt.subplots(ncols=1, nrows=3, figsize=(8,10), sharex='col')
                     #print(f"fig: {fig}, axs: {axs}")
 
@@ -454,7 +436,6 @@ for sData, ExpData_list in ExpData_dict.items():
                             nHistoDimemsions = len(h.axes)
                             if nHistoDimemsions == 2 and yAxisScale == 'logY': break  # No need to plot 2-D hist with logY
                             h = rebinTH1(h, nRebinX) if nHistoDimemsions == 1 else rebinTH2(h, nRebinX, nRebinY)
-
                             h = h * luminosity_Scaling_toUse
 
                             nTot_ = h.values().sum()
@@ -547,6 +528,21 @@ for sData, ExpData_list in ExpData_dict.items():
                                 sort='yield'
                                 )
 
+                            ## 1D cumulativehistogram
+                            cumulative = np.cumsum(hStack_values_list, axis=1)
+                            hep.histplot(
+                                cumulative,
+                                bins=hStack_edges,
+                                 ax=ax1[0],
+                                histtype='fill',
+                                stack=True,
+                                label=renamed_sStack_list,
+                                color=colors_toUse,
+                                alpha=alpha_toUse,
+                                hatch=hatch_toUse,
+                                sort ='yield'
+                                )
+
                             # plot total background
                             #hep.histplot(hBkgTot_values, bins=hStack_edges, ax=ax, yerr=np.sqrt(hBkgTot_variance), histtype='errorbar', color='grey', label='Total background')
 
@@ -587,8 +583,6 @@ for sData, ExpData_list in ExpData_dict.items():
                             if yAxisLabel: ax[0].set_ylabel(yAxisLabel)
                         '''
                     #print(f"\nAfter MCBkg {yAxisRange_cal = }")
-
-
 
 
                     if len(MCSig_list) > 0:
@@ -640,6 +634,19 @@ for sData, ExpData_list in ExpData_dict.items():
                                     markerfacecolor=colors_sig_list[iSig][0],
                                     markersize=3
                                     )
+                                cumulative=np.cumsum(h.values(), axis=1)
+                                hep.histplot(
+                                    cumulative * scaleMCSig,
+                                    bins=histo_edges,
+                                    ax=ax1[0],
+                                    yerr=np.sqrt(h.variances()) * scale_MCSig,
+                                    histtype='errorbar',
+                                    label=label_MCSig,
+                                    color=colors_sig_list[iSig][0],
+                                    marker='o',
+                                    markerfacecolor=colors_sig_list[iSig][0],
+                                    markersize=3
+                                    )
 
                             nSig = np.sum(h.values())
                             # S/sqrt(B)
@@ -649,7 +656,6 @@ for sData, ExpData_list in ExpData_dict.items():
                                 significance_i = np.divide(S_, B_, where=B_!=0, out=np.zeros(B_.shape))
                                 significanceAvg.append(significance_i)
 
-                                #ax1.plot(h.axes[0].centers, significance_i)
 
                         significanceAvg = np.array(significanceAvg)
                         significanceAvg = np.sum(significanceAvg, axis=0)
@@ -715,6 +721,18 @@ for sData, ExpData_list in ExpData_dict.items():
                                 color='black',
                                 label='%s %s' % (sData, dataBlindOption_toUse.value)
                                 )
+                            cumulative=np.cumsum(hData_values_toUse, axis=-1)
+
+                            hep.histplot(
+                                cumulative,
+                                bins=hData.axes[0].edges,
+                                ax=ax1[0],
+                                yerr=hData_errors_toUse,
+                                histtype='errorbar',
+                                color='black',
+                                label='%s %s' % (sData, dataBlindOption_toUse.value)
+                            )
+
                         elif nHistoDimemsions == 2 and 1==0: # 2-D histogram
                             hep.hist2dplot(
                                 hData_values_toUse,
@@ -768,6 +786,22 @@ for sData, ExpData_list in ExpData_dict.items():
                                 alpha=0.5
                                 )
 
+                        ## ratio for cumulative
+                        cumulativedata=np.cumsum(hData_values_toUse, )
+                        cumulativebkg=np.cumsum(hBkgTot_values, )
+                        ratio_values_cumulative = np.divide(cumulativedata, cumulativebkg, where=cumulativebkg!=0, out=np.ones_like(hData_values_toUse))
+                        if nHistoDimemsions == 1:
+                            hep.histplot(
+                                ratio_values_cumulative,
+                                bins=hData.axes[0].edges,
+                                ax=ax1[1],
+                                yerr=ratio_error,
+                                histtype='errorbar',
+                                color='black',
+                                label='Data'
+                                )
+
+
                         elif nHistoDimemsions == 2: # 2-D histogram
                             hep.hist2dplot(
                                 ratio_values,
@@ -788,17 +822,25 @@ for sData, ExpData_list in ExpData_dict.items():
                         #print(f"{yMaxOffset = }, {yAxisRange_cal[1] * yMaxOffset = }, \t\t {abs(yAxisRange_cal[0]) * logYMinScaleFactor = }")
                         if yAxisScale == 'logY':
                             yAxisRange_cal[0] = abs(yAxisRange_cal[0]) * logYMinScaleFactor
-                            yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
+                            #yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
                         else:
                             yAxisRange_cal[0] = yAxisRange_cal[0]
-                            yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
+                            #yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
                         print(f"\nAt the end updated {yAxisRange_cal = } \t {yAxisScale = }")
                         ax[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1])
-                    if xAxisLabel: ax[0].set_xlabel(xAxisLabel)
-                    if yAxisLabel: ax[0].set_ylabel(yAxisLabel)
+                        #ax1[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1])
+                    if xAxisLabel:
+                        ax[0].set_xlabel(xAxisLabel)
+                        #ax1[0].set_xlabel(xAxisLabel)
+                    if yAxisLabel:
+                        ax[0].set_ylabel(yAxisLabel)
+                        #ax1[0].set_ylabel(yAxisLabel)
                     ax[0].legend(fontsize=12, loc='upper right', ncol=2)
+                    #ax1[0].legend(fontsize=12, loc='upper right', ncol=2)
 
-                    if yAxisScale == 'logY': ax[0].set_yscale('log', base=10)
+                    if yAxisScale == 'logY':
+                        ax[0].set_yscale('log', base=10)
+                        #ax1[0].set_yscale('log', base=10)
                     #ax[0].set_ymargin(1.)
 
                     # Ratio plot cosmetics ---------
@@ -809,19 +851,26 @@ for sData, ExpData_list in ExpData_dict.items():
                     yRatioAxisRange_cal[1] = 1 + yRatioAxisRange_cal_maxDeviation
                     if xAxisRange: ax[1].set_xlim(xAxisRange[0], xAxisRange[1])
                     ax[1].set_ylim(yRatioAxisRange_cal[0], yRatioAxisRange_cal[1])
+                    #ax1[1].set_ylim(yRatioAxisRange_cal[0], yRatioAxisRange_cal[1])
                     print(f"{yRatioAxisRange_cal = }")
 
-                    if xAxisLabel: ax[1].set_xlabel(xAxisLabel)
+                    if xAxisLabel:
+                        ax[1].set_xlabel(xAxisLabel)
+                        ax1[1].set_xlabel(xAxisLabel)
                     ax[1].set_ylabel('Data/MC')
+                    ax1[1].set_ylabel('Data/MC')
 
                     ax[1].axhline(y=1, linestyle='--')
+                    ax1[1].axhline(y=1, linestyle='--')
                     ax[1].grid()
+                    ax1[1].grid()
 
 
 
                     isData = True if dataBlindOption_toUse != DataBlindingOptions.BlindFully else False
                     fontsize_toUse = 18 if isData else 15
                     hep.cms.label(ax=ax[0], data=isData, year=era, lumi=luminosity_toUse, label=cmsWorkStatus, fontsize=fontsize_toUse)
+                    hep.cms.label(ax=ax1[0], data=isData, year=era, lumi=luminosity_toUse, label=cmsWorkStatus, fontsize=fontsize_toUse)
 
                     ax[0].text(0.6, 0.63, selectionTag,
                             fontsize=12, fontstyle='italic',
@@ -829,9 +878,15 @@ for sData, ExpData_list in ExpData_dict.items():
                                 verticalalignment='center',
                                 transform=ax[0].transAxes
                                 )
+                    ax1[0].text(0.6, 0.63, selectionTag,
+                            fontsize=12, fontstyle='italic',
+                                horizontalalignment='center',
+                                verticalalignment='center',
+                                transform=ax[0].transAxes
+                                )
 
                     fig.savefig('%s/%s_%s_%s_%s.png' % (sOpDir,histo_name_toUse,systematic,sData, yAxisScale), transparent=False, dpi=80, bbox_inches="tight")
-
-                    plt.close(fig)
+                    fig1.savefig('%s/%s_%s_%s_%s_cumulative.png' % (sOpDir,histo_name_toUse,systematic,sData, yAxisScale), transparent=False, dpi=80, bbox_inches="tight")
+                    plt.close('all')#fig, fig1)
 
 # %%

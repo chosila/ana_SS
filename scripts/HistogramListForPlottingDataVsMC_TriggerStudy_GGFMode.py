@@ -79,6 +79,12 @@ histograms_dict = OD([
     ('flavB_max_jet', {sXLabel: 'flavB_max_jet', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('mass_lvJ', {sXLabel: 'mass_lvJ', sYLabel: 'Events', sXRange: [0,1500], sNRebinX:1}),
     ('dR_lep_fat', {sXLabel: 'dR_lep_fat', sYLabel: 'Events', sXRange: [0,5], sNRebinX:10}),
+    ('flavB_near_lJ', {sXLabel: 'flavB_near_lJ', sYLabel: 'Events', sXRange: [0,1], sNRebinX: 4}), # mlscore axis
+    ('pt_jet1', {sXLabel: 'pt_jet1', sYLabel: 'Events', sXRange: [0,200], sNRebinX:4}), # pt axis
+    ('dEta_lep_fat', {sXLabel: 'dEta_lep_fat', sYLabel: 'Events', sXRange: [-3.5, 3.5], sNRebinX:2}), # eta axis
+    ('pt_jet3', {sXLabel: 'pt_jet3', sYLabel: 'Events', sXRange: [0,200], sNRebinX:4}), # pt axis
+    ('dPhi_lv_fat', {sXLabel: 'dPhi_lv_fat', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX:2}), # phi axis
+    ('dR_fat_jet_min', {sXLabel: 'dR_fat_jet_min', sYLabel: 'Events', sXRange: [0,5], sNRebinX:10}), # delta r axis
     ('xgb_score', {sXLabel: 'xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
@@ -87,7 +93,8 @@ histograms_dict = OD([
     ('btagDDBvLV2', {sXLabel: 'btagDDBvLV2', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
 
     ('deepTagMD_ZHbbvsQCD', {sXLabel: 'deepTagMD_ZHbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
-
+    ('particleNetMD_XbbOverQCD', {sXLabel: 'particleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange:[0,1], sNRebinX:4}),
+    ('Htoaa3b_Htoaa4bOverQCD', {sXLabel: 'Htoaa3b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange:[0,1], sNRebinX:4}),
 
 ])
 
