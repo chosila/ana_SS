@@ -144,6 +144,9 @@ class ObjectSelection:
         )
         return events.GenPart[maskGenLight]
 
+    # def selectB(self, events):
+    #     maskGenB = abs(events.GenPart.pdgId) == 5
+    #     return events.GenPart[maskGenB]
 
 class HToAATo4bProcessor(processor.ProcessorABC):
     def __init__(self, datasetInfo={}):
@@ -215,8 +218,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 #"leadingMuonIso",
                 "dR_Muon_FatJet",
                 "leadingFatJetEta",
-                "bdtScoreCut",
-                "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # "bdtScoreCut",
+                # "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 "JetID",
                 #"leadingFatJetParticleNetMD_XbbvsQCD", ## Denominator for trigger efficiency calculation
                 #"lFJPNetXbbPlusDZHbb",
@@ -509,6 +512,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('deepTagMD_ZHbbvsQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'deepTagMD_ZHbbvsQCD'}),
                     ('particleNetMD_XbbOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'particleNetMD_Xbb'}),
                     ('Htoaa3b_Htoaa4bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'Htoaa3b_Htoaa4bOverQCD'}),
+                    ('GenPartpdgID'+sHExt, {sXaxis: pdgId_axis, sXaxisLabel:r'pdgID'}),
+                    ('GenPartStatus'+sHExt, {sXaxis: pdgId_axis, sXaxisLabel:r'Genpart Status'}),
                 ]))
 
                 ### 2-D distribution --------------------------------------------------------------------------------------------------------
@@ -923,6 +928,16 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                  nLightQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenLightFromTop < 0.8, axis=1)
         #-------------------------------------------------------------------------------------
 
+        ## bquark numbers
+        # if self.datasetInfo['isMC'] :
+        #     genBQuarks = self.objectSelector.selectB(events).pdgId
+        #     # nGenBQuarks = np.column_stack(genBQuarks)
+        #     nGenBQuarks = np.count_nonzero(genBQuarks, axis=1)
+        #     print(f'{genBQuarks=}')
+        #     print(f'{nGenBQuarks=}')
+        #     print(f'{nBQuarkFromTop=}')
+
+
         ##------------------------------- ak4 jet variables for bdt
         # flavB_max_jet : Maximum Jet_btagDeepFlavB for selected AK4 jets (if one exists)
         # AK4 jet pT > 25, |eta| < 4.7, jetId >= 6, (pT > 50 or puId >= 4)
@@ -930,8 +945,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         mass_fat = ak.fill_none(leadingFatJet.mass, -99)
 
         ak4Jets = events.Jet
-        ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & \
-            ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
+        ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         ak4_Muon_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
         ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Muon_dR_mask
@@ -939,7 +953,22 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                              ak4Jets.btagDeepFlavB,
                              -0.099
                              )
+        print('-----------------------------------------')
+        print('flav b max jet')
+        print(f'{ak.count(ak4Jets.pt)=}')
+        print(f'{len(ak4Jets.pt)=}')
+        print(f'{np.count_nonzero(ak4Jets.pt>25)=}')
+        print(f'{np.count_nonzero(np.abs(ak4Jets.eta) < 4.7)=}')
+        print(f'{np.count_nonzero(ak4Jets.jetId >=6)=}')
+        print(f'{np.count_nonzero(ak4Jets.pt>50)=}')
+        print(f'{np.count_nonzero(ak4Jets.puId >=4)=}')
+        print(f'{np.count_nonzero(ak4SelectionMask)=}')
+        print(f'{np.count_nonzero(ak4Jets.btagDeepFlavB)=}')
+        print('------------------------------------------')
         flavB_max_jet = ak.max(flavB_jet, axis=1)
+
+
+
         flavB_max_jet = ak.fill_none(flavB_max_jet, -0.099)
 
 
@@ -1003,6 +1032,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ## ak.firsts() should only be used on variables that have [[], [], [],...] shape. if it is a normal 1d array, ak.first will only return the first element
 
         dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
+        print(f'{len(leadingMuon.eta)=}')
+        print(f'{np.count_nonzero(leadingMuon.eta)=}')
+        print(f'{np.count_nonzero(leadingFatJet.eta)=}')
         dEta_lep_fat = ak.fill_none(dEta_lep_fat, -99)
 
         loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
@@ -1022,14 +1054,37 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ##---------------------- loading the bdt and scoring
         xgb_model = xgb.Booster()
         #xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/4.model')
-        #xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat]).T,
-        #                          feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat'])
+        #xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat]).T, feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat'])
+
+        def getratio(arr, val, name):
+
+            print(name, ": ", np.count_nonzero(arr==val)/len(arr))
+
+        print(mass_fat)
+        print('count mask: ', np.count_nonzero(ak4_FatJet_dR_mask)/len(ak4_FatJet_dR_mask))
+        getratio(mass_fat, -99, 'mass_fat')
+        getratio(mass_lvj, -99, 'mass_lvj')
+        getratio(flavB_max_jet, -.099, 'flavBmasjet')
+        getratio(dR_lep_fat, -99, 'dR_lep_fat')
+        getratio(pt_jet1, -99, 'ptjet1')
+        getratio(pt_jet3, -99, 'ptjet3')
+        getratio(flavB_near_lJ, -.099, 'flavBlj')
+        getratio(dEta_lep_fat, -99, 'detalepfat')
+        getratio(dPhi_lv_fat, -99, 'dphilvfat')
+        getratio(dR_fat_jet_min, -99, 'dr fat jet')
+        print('-------------------------------------------')
+
+        # print(np.count_nonzero(flavB_max_jet== -0.099)/len(flavB_max_jet))
+        # print(dR_lep_fat)
+        # print(flavB_near_lJ)
+        # print(dEta_lep_fat)
+        # print(dPhi_lv_fat)
+        # print(dR_fat_jet_min)
+
 
         xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/10.model')
-        xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T,
-                                  feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
+        xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T, feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
         predictions = xgb_model.predict(xgb_dmatrix)
-
         ## --------------------------------------------------------
 
         leadingFatJetDeepTagMD_ZHbbvsQCD = ak.where(
@@ -1096,6 +1151,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b),
                 ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0)
             )
+            print('-----------------------------------------------------------------------------------------------')
+            print('3b+4b > 0')
+            print(leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
+            print((leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b) / (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b))
+            print(leadingFatJet_PNetMD_Hto4b_Htoaa3b_Htoaa4bOverQCD)
+            sys.stdout.flush()
+            print('-----------------------------------------------------------------------------------------------')
 
 
 
@@ -1211,11 +1273,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 abs(leadingFatJet.eta) < self.objectSelector.FatJetEtaThsh
             )
 
-        if 'bdtScoreCut' in self.sel_names_all['SR']:
-            selection.add(
-                'bdtScoreCut',
-                predictions > 0.3
-            )
+        # if 'bdtScoreCut' in self.sel_names_all['SR']:
+        #     selection.add(
+        #         'bdtScoreCut',
+        #         predictions < 0.3
+        #     )
 
         if 'Hto4b_FatJet_notMuon' in self.sel_names_all['SR']:
             ## in skimmed files, high pt muons might look like signal to hto4b tagger. This selections out the ones with high muon hto4b score
@@ -1751,6 +1813,27 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
+                    output['Htoaa3b_Htoaa4bOverQCD'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(leadingFatJet_PNetMD_Hto4b_Htoaa3b_Htoaa4bOverQCD[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+
+                    if self.datasetInfo['isMC']:
+                        output['GenPartpdgID'+sHExt].fill(
+                            dataset=dataset,
+                            PdgId=(ak.firsts(events.GenPart.pdgId)[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
+                        # output['GenPartStatus'+sHExt].fill(
+                        #     datset=dataset,
+                        #     PdgID=(ak.firsts(events.GenPart.status)[sel_tmp_]),
+                        #     systematic=syst,
+                        #     weight=evtWeight[sel_tmp_]
+                        # )
+
 
 
                     ## ----------------------------------------------

@@ -49,7 +49,7 @@ histograms_dict = OD([
     ("hLeadingMuonEta", {sXLabel: 'hLeadingMuonEta', sYLabel: 'Events', sXRange: [-3.5, 3.5], sNRebinX: 2 }),
     ("hLeadingMuonPhi", {sXLabel: 'hLeadingMuonPhi', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX: 2 }),
 
-    ("hdR_leadingMuon_leadingFatJet", {sXLabel: 'hdR_leadingMuon_leadingFatJet', sYLabel: 'Events',  sNRebinX: 2 }),
+    ("hdR_leadingMuon_leadingFatJet", {sXLabel: 'hdR_leadingMuon_leadingFatJet', sYLabel: 'Events',  sNRebinX: 10 }),
 
     ("hLeadingFatJetPt", {sXLabel: 'hLeadingFatJetPt', sYLabel: 'Events', sXRange: [180, 1000], sNRebinX: 4 }),
     ("hLeadingFatJetPt_msoftdropGt60", {sXLabel: 'hLeadingFatJetPt_msoftdropGt60', sYLabel: 'Events', sXRange: [180, 1000], sNRebinX: 4 }),
@@ -63,7 +63,7 @@ histograms_dict = OD([
     # ("hLeadingFatJetMSoftDrop_pTGt400", {sXLabel: 'hLeadingFatJetMSoftDrop_pTGt400', sYLabel: 'Events', sXRange: [00, 300], sNRebinX: 5}),
     # ("hLeadingFatJetMSoftDrop_pTGt400_btagHbbGtnp1", {sXLabel: 'hLeadingFatJetMSoftDrop_pTGt400_btagHbbGtnp1', sYLabel: 'Events', sXRange: [00, 300], sNRebinX: 5}),
     # ("hLeadingFatJetMSoftDrop_pTGt400_PNetMD_Hto4b_Htoaa4bOverQCDWP80", {sXLabel: 'hLeadingFatJetMSoftDrop_pTGt400_PNetMD_Hto4b_Htoaa4bOverQCDWP80', sYLabel: 'Events', sXRange: [00, 300], sNRebinX: 5}),
-    ###### ("hLeadingFatJetParticleNetMD_XbbOverQCD", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
+    ("hLeadingFatJetParticleNetMD_XbbOverQCD", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
     ###### ("hLeadingFatJetBtagCSVV2", {sXLabel: 'hLeadingFatJetBtagCSVV2', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
     ###### ("hLeadingFatJetBtagDDBvLV2", {sXLabel: 'hLeadingFatJetBtagDDBvLV2', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
     ###### ("hLeadingFatJetBtagDeepB", {sXLabel: 'hLeadingFatJetBtagDeepB', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
@@ -93,8 +93,9 @@ histograms_dict = OD([
     ('btagDDBvLV2', {sXLabel: 'btagDDBvLV2', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
 
     ('deepTagMD_ZHbbvsQCD', {sXLabel: 'deepTagMD_ZHbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
-    ('particleNetMD_XbbOverQCD', {sXLabel: 'particleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange:[0,1], sNRebinX:4}),
-    ('Htoaa3b_Htoaa4bOverQCD', {sXLabel: 'Htoaa3b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange:[0,1], sNRebinX:4}),
+    ("hLeadingFatJetParticleNetMD_XbbOverQCD", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
+    # ('particleNetMD_XbbOverQCD', {sXLabel: 'particleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange:[0,1], sNRebinX:4}),
+    #('Htoaa3b_Htoaa4bOverQCD', {sXLabel: 'Htoaa3b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange:[0,1], sNRebinX:4}),
 
 ])
 

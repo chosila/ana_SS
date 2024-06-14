@@ -30,17 +30,11 @@ class DataBlindingOptions(enum.Enum):
     BlindFully     = '(blind)'
     Unblind        = ' '
 
-
-#sIpFile = '/eos/cms/store/user/ssawant/htoaa/analysis/20230831_SelPNetMDXbbNSV/2018/analyze_htoaa_stage1.root'
-#sOpDir  = '/eos/cms/store/user/ssawant/htoaa/analysis/20230831_SelPNetMDXbbNSV/2018/plots'
-#sIpFile = '/eos/cms/store/user/ssawant/htoaa/analysis/20230921_SFPNetMDXbbvsQCD/2018/analyze_htoaa_stage1.root'
-#sOpDir  = '/eos/cms/store/user/ssawant/htoaa/analysis/20230921_SFPNetMDXbbvsQCD/2018/plots'
-#sIpFile = '/eos/cms/store/user/ssawant/htoaa/analysis/20230922_DataSplitByEra/2018/analyze_htoaa_stage1.root'
-#sOpDir  = '/eos/cms/store/user/ssawant/htoaa/analysis/20230922_DataSplitByEra/2018/plots'
-#sIpFile = '/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetTaggerSignScan/2018/analyze_htoaa_stage1.root'
-#sOpDir  = '/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetTaggerSignScan/2018/plots2'
-sIpFile =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep_fixed/2018/analyze_htoaa_stage1.root' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep/2018/analyze_htoaa_stage1.root' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/triggerStudy/2018/analyze_htoaa_stage1.root' # '/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetMD_Hto4b_Htoaa4bOverQCD_WP60/2018/analyze_htoaa_stage1.root'
-sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/singleLep' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/unskimmed_singleLep' #'/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetMD_Hto4b_Htoaa4bOverQCD_WP60/2018/plots2'
+#sIpFile =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep_fixed/2018/analyze_htoaa_stage1.root' #
+# sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep/2018/analyze_htoaa_stage1.root'
+sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep_bdtScoreCut/2018/analyze_htoaa_stage1.root'
+#sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/singleLep'
+sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/unskimmed_singleLep'
 
 
 cmsWorkStatus                  = 'Work in Progress'
@@ -513,7 +507,7 @@ for sData, ExpData_list in ExpData_dict.items():
                             newn = newn.replace('_powheg', '')
                             renamed_sStack_list.append(newn)
 
-                        # https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_style_reference.html
+                            # https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_style_reference.html
                         if nHistoDimemsions == 1: # 1-D histogram
                             hep.histplot(
                                 hStack_values_list,
@@ -836,7 +830,7 @@ for sData, ExpData_list in ExpData_dict.items():
                         ax[0].set_ylabel(yAxisLabel)
                         #ax1[0].set_ylabel(yAxisLabel)
                     ax[0].legend(fontsize=12, loc='upper right', ncol=2)
-                    #ax1[0].legend(fontsize=12, loc='upper right', ncol=2)
+                    ax1[0].legend(fontsize=12, loc='upper right', ncol=2)
 
                     if yAxisScale == 'logY':
                         ax[0].set_yscale('log', base=10)
