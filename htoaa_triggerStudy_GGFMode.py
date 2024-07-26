@@ -93,7 +93,7 @@ class ObjectSelection:
         self.wp_btagDeepB = 'M'
         self.wp_ParticleNetMD_XbbvsQCD = 'L'
 
-        self.FatJetPtThsh  = 400 #170
+        self.FatJetPtThsh  = 250 #170
         self.FatJetEtaThsh = 2.4
         self.FatJetJetID   = int(JetIDs.tightIDPassingLeptonVeto)
         self.FatJetParticleNetMD_XbbvsQCD_Thsh   = bTagWPs[self.era]['ParticleNetMD_XbbvsQCD'][self.wp_ParticleNetMD_XbbvsQCD]
@@ -102,7 +102,7 @@ class ObjectSelection:
         self.FatJetMsoftdropHiggsVetoThshHigh = 140
 
 
-        self.MuonPtThsh  = 28
+        self.MuonPtThsh  = 26
         self.MuonEtaThsh = 2.4
         self.MuonMVAId     =  1 # (1=MvaLoose, 2=MvaMedium, 3=MvaTight, 4=MvaVTight, 5=MvaVVTight)
         self.MuonMiniIsoId =  1 # (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
@@ -213,19 +213,16 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "METFilters",
                 self.sMuTrgSelection,
                 "leadingMuonPt",
+                "goodMuon",
                 "leadingMuonEta",
                 #"leadingMuonId",
                 #"leadingMuonIso",
                 "dR_Muon_FatJet",
                 "leadingFatJetEta",
-                # "bdtScoreCut",
+                "bdtScoreCut",
                 # "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 "JetID",
                 #"leadingFatJetParticleNetMD_XbbvsQCD", ## Denominator for trigger efficiency calculation
-                #"lFJPNetXbbPlusDZHbb",
-                # "leadingFatJetZHbb_Xbb_avg",
-                # "leadingFatJetMsoftdropHiggsVeto",
-                # 'Inclusive',
                 'Mass140',
                 'Mass140_dR_2p75',
 
@@ -953,18 +950,18 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                              ak4Jets.btagDeepFlavB,
                              -0.099
                              )
-        print('-----------------------------------------')
-        print('flav b max jet')
-        print(f'{ak.count(ak4Jets.pt)=}')
-        print(f'{len(ak4Jets.pt)=}')
-        print(f'{np.count_nonzero(ak4Jets.pt>25)=}')
-        print(f'{np.count_nonzero(np.abs(ak4Jets.eta) < 4.7)=}')
-        print(f'{np.count_nonzero(ak4Jets.jetId >=6)=}')
-        print(f'{np.count_nonzero(ak4Jets.pt>50)=}')
-        print(f'{np.count_nonzero(ak4Jets.puId >=4)=}')
-        print(f'{np.count_nonzero(ak4SelectionMask)=}')
-        print(f'{np.count_nonzero(ak4Jets.btagDeepFlavB)=}')
-        print('------------------------------------------')
+        # print('-----------------------------------------')
+        # print('flav b max jet')
+        # print(f'{ak.count(ak4Jets.pt)=}')
+        # print(f'{len(ak4Jets.pt)=}')
+        # print(f'{np.count_nonzero(ak4Jets.pt>25)=}')
+        # print(f'{np.count_nonzero(np.abs(ak4Jets.eta) < 4.7)=}')
+        # print(f'{np.count_nonzero(ak4Jets.jetId >=6)=}')
+        # print(f'{np.count_nonzero(ak4Jets.pt>50)=}')
+        # print(f'{np.count_nonzero(ak4Jets.puId >=4)=}')
+        # print(f'{np.count_nonzero(ak4SelectionMask)=}')
+        # print(f'{np.count_nonzero(ak4Jets.btagDeepFlavB)=}')
+        # print('------------------------------------------')
         flavB_max_jet = ak.max(flavB_jet, axis=1)
 
 
@@ -1060,19 +1057,19 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
             print(name, ": ", np.count_nonzero(arr==val)/len(arr))
 
-        print(mass_fat)
-        print('count mask: ', np.count_nonzero(ak4_FatJet_dR_mask)/len(ak4_FatJet_dR_mask))
-        getratio(mass_fat, -99, 'mass_fat')
-        getratio(mass_lvj, -99, 'mass_lvj')
-        getratio(flavB_max_jet, -.099, 'flavBmasjet')
-        getratio(dR_lep_fat, -99, 'dR_lep_fat')
-        getratio(pt_jet1, -99, 'ptjet1')
-        getratio(pt_jet3, -99, 'ptjet3')
-        getratio(flavB_near_lJ, -.099, 'flavBlj')
-        getratio(dEta_lep_fat, -99, 'detalepfat')
-        getratio(dPhi_lv_fat, -99, 'dphilvfat')
-        getratio(dR_fat_jet_min, -99, 'dr fat jet')
-        print('-------------------------------------------')
+        # print(mass_fat)
+        # print('count mask: ', np.count_nonzero(ak4_FatJet_dR_mask)/len(ak4_FatJet_dR_mask))
+        # getratio(mass_fat, -99, 'mass_fat')
+        # getratio(mass_lvj, -99, 'mass_lvj')
+        # getratio(flavB_max_jet, -.099, 'flavBmasjet')
+        # getratio(dR_lep_fat, -99, 'dR_lep_fat')
+        # getratio(pt_jet1, -99, 'ptjet1')
+        # getratio(pt_jet3, -99, 'ptjet3')
+        # getratio(flavB_near_lJ, -.099, 'flavBlj')
+        # getratio(dEta_lep_fat, -99, 'detalepfat')
+        # getratio(dPhi_lv_fat, -99, 'dphilvfat')
+        # getratio(dR_fat_jet_min, -99, 'dr fat jet')
+        # print('-------------------------------------------')
 
         # print(np.count_nonzero(flavB_max_jet== -0.099)/len(flavB_max_jet))
         # print(dR_lep_fat)
@@ -1151,19 +1148,16 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b),
                 ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0)
             )
-            print('-----------------------------------------------------------------------------------------------')
-            print('3b+4b > 0')
-            print(leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
-            print((leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b) / (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b))
-            print(leadingFatJet_PNetMD_Hto4b_Htoaa3b_Htoaa4bOverQCD)
-            sys.stdout.flush()
-            print('-----------------------------------------------------------------------------------------------')
+            # print('-----------------------------------------------------------------------------------------------')
+            # print('3b+4b > 0')
+            # print(leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
+            # print((leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b) / (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b))
+            # print(leadingFatJet_PNetMD_Hto4b_Htoaa3b_Htoaa4bOverQCD)
+            # sys.stdout.flush()
+            # print('-----------------------------------------------------------------------------------------------')
 
 
-
-
-
-        ## match leadingFat jet to genB
+        ## Match leadingFat jet to genB
         n_leadingFatJat_matched_genB = np.full(len(events), 0)
         if self.datasetInfo['isMC'] :
             #mask_leadingFatJat_matched_genB = leadingFatJet.delta_r(vGenBQuarksHardSctred_genBHadronsStatus2_sel) < 0.8
@@ -1234,6 +1228,22 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 leadingMuon.miniIsoId >= self.objectSelector.MuonMiniIsoId
             )
 
+
+        if "goodMuon" in self.sel_names_all['SR']:
+            muon_mask1 = (leadingMuon.pt > 10) & (leadingMuon.miniIsoId >=3)
+            muon_mask2 = (leadingMuon.mediumPromptId) | \
+                ( (leadingMuon.pt > 53) & (leadingMuon.highPtId > 0))
+            muon_mask3 = (np.abs(leadingMuon.dz) < 0.1) & (np.abs(leadingMuon.dxy < 0.02))
+            muon_mask4 = np.abs(leadingMuon.eta < 2.4)
+            muon_mask = muon_mask1 & muon_mask2 & muon_mask3 & muon_mask4
+
+            num_goodMuon = np.count_nonzero(muon_mask)
+
+            selection.add(
+                "goodMuon",
+                muon_mask
+                )
+
         # Muon trigger selection
         if self.sMuTrgSelection in self.sel_names_all["SR"]:
             if self.sMuTrgSelection not in Triggers_perEra[self.datasetInfo["era"]]:
@@ -1241,18 +1251,27 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 exit(0)
 
             mask_Trgs = falses_list
-            for HLTName, L1TList in Triggers_perEra[self.datasetInfo["era"]][self.sMuTrgSelection].items():
-                HLTName_toUse = HLTName.replace('HLT_', '')
-                mask_HLT = events.HLT[HLTName_toUse] == True
+            HLT_Trgs = ['IsoMu24', 'Mu50']
+            L1T_Trgs = ['SingleMu22', 'SingleMu25']
 
-                mask_L1Ts = falses_list
-                for L1TName in L1TList:
-                    L1TName_toUse = L1TName.replace('L1_', '')
-                    mask_L1T_i = events.L1[L1TName_toUse] == True
-                    mask_L1Ts = (mask_L1Ts | mask_L1T_i) # any one of the L1T triggers associated to HLT path should be fired
+            mask_HLT = events.HLT[HLT_Trgs[0]]==True
+            mask_HLT = mask_HLT | (events.HLT[HLT_Trgs[1]]==True)
 
-                mask_Trg_i = (mask_HLT & mask_L1Ts) # HLT path and any of the associated L1T seed should be fired
-                mask_Trgs = (mask_Trgs | mask_Trg_i) # Any of the HLT trigger should be fired
+            mask_L1T = events.L1[L1T_Trgs[0]]==True
+            mask_L1T = mask_L1T | (events.L1[L1T_Trgs[1]]==True)
+
+            mask_Trgs = mask_HLT & mask_L1T
+            # for HLTName, L1TList in Triggers_perEra[self.datasetInfo["era"]][self.sMuTrgSelection].items():
+            #     HLTName_toUse = HLTName.replace('HLT_', '')
+            #     mask_HLT = events.HLT[HLTName_toUse] == True
+            #     mask_L1Ts = falses_list
+            #     for L1TName in L1TList:
+            #         L1TName_toUse = L1TName.replace('L1_', '')
+            #         mask_L1T_i = events.L1[L1TName_toUse] == True
+            #         mask_L1Ts = (mask_L1Ts | mask_L1T_i) # any one of the L1T triggers associated to HLT path should be fired
+
+            #     mask_Trg_i = (mask_HLT & mask_L1Ts) # HLT path and any of the associated L1T seed should be fired
+            #     mask_Trgs = (mask_Trgs | mask_Trg_i) # Any of the HLT trigger should be fired
 
             selection.add(
                 self.sMuTrgSelection,
@@ -1273,11 +1292,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 abs(leadingFatJet.eta) < self.objectSelector.FatJetEtaThsh
             )
 
-        # if 'bdtScoreCut' in self.sel_names_all['SR']:
-        #     selection.add(
-        #         'bdtScoreCut',
-        #         predictions < 0.3
-        #     )
+        if 'bdtScoreCut' in self.sel_names_all['SR']:
+            selection.add(
+                'bdtScoreCut',
+                predictions < 0.3
+            )
 
         if 'Hto4b_FatJet_notMuon' in self.sel_names_all['SR']:
             ## in skimmed files, high pt muons might look like signal to hto4b tagger. This selections out the ones with high muon hto4b score
@@ -1298,19 +1317,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 leadingFatJet.jetId == self.objectSelector.FatJetJetID
             )
 
-
-        # if "leadingFatJetZHbb_Xbb_avg" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingFatJetZHbb_Xbb_avg",
-        #         leadingFatJetZHbb_Xbb_avg > self.objectSelector.FatJetZHbb_Xbb_avg_Thsh
-        #     )
-
-        # if "leadingFatJetMsoftdropHiggsVeto"  in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingFatJetMsoftdropHiggsVeto",
-        #         ~( (leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshLow) &
-        #         (leadingFatJet.msoftdrop < self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh) )
-        #    )
 
         if 'Mass140' in self.sel_names_all['SR']:
             selection.add('Mass140', leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh)
@@ -1508,6 +1514,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         for iSelection in self.sel_names_all.keys():
             iName = f"{iSelection}: {self.sel_names_all[iSelection]}"
+            print(f'{iName=}')
+            print(f'{iSelection=}')
+            print(f'{self.sel_names_all[iSelection]=}')
+            print('\n\n\n\n\n\n\n')
+
             sel_i = selection.all(* self.sel_names_all[iSelection])
             output['cutflow'][iName] += sel_i.sum()
             output['cutflow'][sWeighted+iName] +=  weights.weight()[sel_i].sum()
@@ -1827,16 +1838,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                             systematic=syst,
                             weight=evtWeight[sel_tmp_]
                         )
-                        # output['GenPartStatus'+sHExt].fill(
-                        #     datset=dataset,
-                        #     PdgID=(ak.firsts(events.GenPart.status)[sel_tmp_]),
-                        #     systematic=syst,
-                        #     weight=evtWeight[sel_tmp_]
-                        # )
-
-
-
-                    ## ----------------------------------------------
 
                     output['hdR_leadingMuon_leadingFatJet'+sHExt].fill(
                         dataset=dataset,
