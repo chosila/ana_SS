@@ -8,25 +8,30 @@ sNRebinX = 'nRebinX';  sNRebinY = 'nRebinY';
 sXRebinning = 'xRebinning'; sYRebinning = 'yRebinning';
 
 ExpData_dict = {
-    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D',
+                  'EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D',],
     #'Data A': ['SingleMuon_Run2018A'],
     #'Data B': ['SingleMuon_Run2018B'],
     #'Data C': ['SingleMuon_Run2018C'],
     #'Data D': ['SingleMuon_Run2018D']
 }
 MCBkg_list = [
-    'QCD', #'QCD_0bCat', 'QCD_1bCat', 'QCD_2bCat', 'QCD_3bCat', 'QCD_4bCat', 'QCD_5bAndMoreCat',
+    ### 'QCD', #'QCD_0bCat', 'QCD_1bCat', 'QCD_2bCat', 'QCD_3bCat', 'QCD_4bCat', 'QCD_5bAndMoreCat',
     # 'TTToHadronic_powheg', 'TTToSemiLeptonic_powheg', 'TTTo2L2Nu_powheg', .
-    'TTToHadronic_powheg',
-    'TTToSemiLeptonic_powheg_bbqq',  'TTToSemiLeptonic_powheg_bbq' ,'TTToSemiLeptonic_powheg_bb', 'TTToSemiLeptonic_powheg_bqq', 'TTToSemiLeptonic_powheg_1b', 'TTToSemiLeptonic_powheg_0b',
-    'TTTo2L2Nu_powheg_bb',        'TTTo2L2Nu_powheg_1b',        'TTTo2L2Nu_powheg_0b',
-    "SingleTop",
+    ### 'TTToHadronic_powheg',
+    ### 'TTToSemiLeptonic_powheg_bbqq',  'TTToSemiLeptonic_powheg_bbq' ,'TTToSemiLeptonic_powheg_bb', 'TTToSemiLeptonic_powheg_bqq', 'TTToSemiLeptonic_powheg_1b', 'TTToSemiLeptonic_powheg_0b',
+    ### 'TTTo2L2Nu_powheg_bb',        'TTTo2L2Nu_powheg_1b',        'TTTo2L2Nu_powheg_0b',
+    ### "SingleTop",
     #'ZJetsToQQ_HT',
-    #"DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO", #"DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
+    #"DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
+    ### "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
     #"DYJets_M-10to50_Incl_LO", "DYJets_HT_LO",
-    "DYJets_M-50_Incl_NLO",
+    ### "DYJets_M-50_Incl_NLO",
     #'WJetsToQQ_HT',
-    'WJetsToLNu_HT_LO', #'WJetsToLNu_Incl_NLO', #'WJetsToLNu_HT_LO', #'WJetsToLNu_Incl_NLO',
+    # 'WJetsToLNu_HT_LO',
+    ###'WJetsToLNu_Incl_NLO',
+    'WJetsToLNu_HT_LO',
+    #'WJetsToLNu_Incl_NLO',
 ]
 
 MCSig_list = [] #['SUSY_GluGluH_01J_HToAATo4B_M-20_HPtAbv150', 'SUSY_GluGluH_01J_HToAATo4B_M-30_HPtAbv150', ]
@@ -48,6 +53,10 @@ histograms_dict = OD([
     ("hLeadingMuonPt", {sXLabel: 'hLeadingMuonPt', sYLabel: 'Events', sXRange: [0, 500], sNRebinX: 4 }),
     ("hLeadingMuonEta", {sXLabel: 'hLeadingMuonEta', sYLabel: 'Events', sXRange: [-3.5, 3.5], sNRebinX: 2 }),
     ("hLeadingMuonPhi", {sXLabel: 'hLeadingMuonPhi', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX: 2 }),
+    ("hLeadingElectronPt", {sXLabel:  'hLeadingElectronPt', sYLabel: 'Events', sXRange: [0, 500], sNRebinX: 4 }),
+    ("hLeadingElectronEta", {sXLabel: 'hLeadingElectronEta', sYLabel: 'Events', sXRange: [-3.5, 3.5], sNRebinX: 2 }),
+    ("hLeadingElectronPhi", {sXLabel: 'hLeadingElectronPhi', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX: 2 }),
+
 
     ("hdR_leadingMuon_leadingFatJet", {sXLabel: 'hdR_leadingMuon_leadingFatJet', sYLabel: 'Events',  sNRebinX: 10 }),
 

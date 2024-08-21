@@ -31,11 +31,18 @@ class DataBlindingOptions(enum.Enum):
     Unblind        = ' '
 
 #sIpFile =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep_fixed/2018/analyze_htoaa_stage1.root' #
-# sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep/2018/analyze_htoaa_stage1.root'
-sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep_bdtScoreCut/2018/analyze_htoaa_stage1.root'
+#sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep/2018/analyze_htoaa_stage1.root'
+#sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep_WJetsToLNu_NLO/2018/analyze_htoaa_stage1.root'
+
+#sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep_bdtScoreCut/2018/analyze_htoaa_stage1.root'
+#sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep_bdtScoreCutless3/2018/analyze_htoaa_stage1.root'
 #sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/singleLep'
 sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/unskimmed_singleLep'
+#sOpDir = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/unskimmed_singleLep_bdtScoreCutMore3'
 
+
+sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/wjethtlo_hist_nofilter/2018/analyze_htoaa_stage1.root'
+sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/wjethtlo_hist'
 
 cmsWorkStatus                  = 'Work in Progress'
 era                            = '2018'
@@ -359,6 +366,7 @@ colors_bkg_list = [
     ['tan', 0.9, '' ],
     ['olive', 0.9, '' ],
     ['purple',  0.9, ''],
+    ['lightcoral', 0.9, '//']
 ]
 
 colors_sig_list = [

@@ -195,6 +195,7 @@ def writeCondorSumitFile(
 
         #f.write("+JobFlavour = \"longlunch\" \n")
         f.write("+JobFlavour = \"%s\" \n" % (jobFlavours[iJobFlavour]))
+        f.write("max_materialize=30 \n")
         f.write("queue \n")
 
 
@@ -333,9 +334,11 @@ if __name__ == '__main__':
         selSamplesToExclude_list.extend( [
                 "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
-                "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO", "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
-                "DYJets_HT_LO", "WJetsToQQ_HT", "WJetsToLNu_Incl_NLO", "WJetsToLNu_HT_LO",
-                'WJetsToLNu_Incl_LO', 'W1JetsToLNu_LO', 'W2JetsToLNu_LO', 'W3JetsToLNu_LO', 'W4JetsToLNu_LO',
+                # "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO", "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
+                "DYJets_HT_LO", "WJetsToQQ_HT", #"WJetsToLNu_Incl_NLO",
+             "WJetsToLNu_HT_LO",
+            #"WJetsToLNu_Incl_NLO",
+                #'WJetsToLNu_Incl_LO', 'W1JetsToLNu_LO', 'W2JetsToLNu_LO', 'W3JetsToLNu_LO', 'W4JetsToLNu_LO',
                 'GluGluHToBB_Incl', 'GluGluHToBB_Pt-200ToInf', 'WJetsToQQ', 'ZJetsToQQ',
                 "SUSY_VBFH_HToAATo4B", "SUSY_WH_WToAll_HToAATo4B", "SUSY_ZH_ZToAll_HToAATo4B", "SUSY_TTH_TTToAll_HToAATo4B",
                 "SUSY_GluGluH_01J_HToAATo4B_M-12_TuneCP5_13TeV_madgraph_pythia8",
@@ -360,6 +363,55 @@ if __name__ == '__main__':
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-50_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-55_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
+
+        ## remove this after the wjets are done
+            "EGamma_Run2018A",
+            "EGamma_Run2018B",
+            "EGamma_Run2018C",
+            "EGamma_Run2018D",
+
+            "SingleMuon_Run2018A",
+            "SingleMuon_Run2018B",
+            "SingleMuon_Run2018C",
+            "SingleMuon_Run2018D",
+            kQCDIncl, kQCD_bGen, kQCD_bEnrich,
+            # "QCD_bEnriched_HT100to200_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT200to300_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT300to500_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT500to700_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT700to1000_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT1000to1500_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_bEnriched_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT100to200_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT200to300_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT300to500_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT500to700_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT700to1000_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT1000to1500_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT1500to2000_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            # "QCD_HT2000toInf_BGenFilter_TuneCP5_13TeV-madgraph-pythia8",
+            "QCD_Inc",
+            "QCD_Incl_PSWeight",
+            "TTToHadronic_powheg",
+            "TTToSemiLeptonic_powheg",
+            "TTTo2L2Nu_powheg",
+            "TTJets_Incl_NLO",
+            "TTJets_Incl_LO",
+            "TTJets_HT_LO",
+            "TTJets_Lep_LO",
+            "SingleTop",
+            "ZJetsToQQ_HT",
+            "DYJets_M-10to50_Incl_NLO",
+            "DYJets_M-50_Incl_NLO",
+            "DYJets_M-10to50_Incl_LO",
+            "DYJets_M-50_Incl_LO",
+            "DYJets_M-50_HT_LO",
+            "WJetsToQQ_HT",
+            'GluGluHToBB_Incl',
+            'GluGluHToBB_Pt-200ToInf',
+
+
         ] )
     ## ------------------------------------------------------------------------------------------
 
