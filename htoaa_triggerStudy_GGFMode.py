@@ -1360,6 +1360,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             else:
                 lumiScale_toUse = np.full(len(events), self.datasetInfo["lumiScale"])
 
+
+                print('\n\n\n----------------------------')
+                print(f'{self.datasetInfo["lumiScale"]=}')
+                print('\n\n\n')
             '''
             # MC wgt for HEM1516Issue ---------------------
             wgt_HEM1516Issue = None
@@ -1420,6 +1424,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "genWeight",
                 weight = np.copysign(np.ones(len(events)), events.genWeight)
             )
+
             '''
             if "2018HEM1516Issue" in self.sel_names_all["SR"]:
                 weights.add(
@@ -1477,11 +1482,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         for iSelection in self.sel_names_all.keys():
             iName = f"{iSelection}: {self.sel_names_all[iSelection]}"
-            print(f'{iName=}')
-            print(f'{iSelection=}')
-            print(f'{self.sel_names_all[iSelection]=}')
-            print('\n\n\n\n\n\n\n')
-
             sel_i = selection.all(* self.sel_names_all[iSelection])
             output['cutflow'][iName] += sel_i.sum()
             output['cutflow'][sWeighted+iName] +=  weights.weight()[sel_i].sum()
@@ -1505,6 +1505,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
             ### General or GEN-level histograms ========================================================================================
+            print(f'{weights._weightStats=}')
+            print(f'{evtWeight=}')
+            print(f'{syst=}')
+            print('\\n\n\n\n\n\n\n\n')
+
+
 
             # PU
             output['hPV_npvs_beforeSel'].fill(
