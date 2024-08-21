@@ -107,10 +107,16 @@ Triggers_perEra = {
             'HLT_AK8PFJet400_TrimMass30':                         ['L1_SingleJet180'],
             'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': ['L1_SingleJet180'],
         },
+        ## going to use the trigger based on slides 42 of this:
+        ## https://indico.cern.ch/event/1430644/contributions/6018705/attachments/2886849/5060196/v2_BoostedHaa4b_Hichem_062824SUS3G.pdf
+        ## trigger is (L1_SingleMu22 || L1_SingleMu25) && (HLT_IsoMu24 || HLT_Mu50)
+
         'Trg_Combo_Mu': {
-            'HLT_IsoMu24': ['L1_SingleMu22'],
-            'HLT_IsoMu27': ['L1_SingleMu22', 'L1_SingleMu25'],
-            'HLT_Mu50':    ['L1_SingleMu22', 'L1_SingleMu25'],
+            #'HLT_IsoMu24': ['L1_SingleMu22'],
+            #'HLT_IsoMu27': ['L1_SingleMu22', 'L1_SingleMu25'],
+            #'HLT_Mu50':    ['L1_SingleMu22', 'L1_SingleMu25'],
+            'HLT_IsoMu24' : ['L1_SingleMu22', 'L1_SingleMu25'],
+            'HLT_Mu50'    : ['L1_SingleMu22', 'L1_SingleMu25']
         }
     }
 }

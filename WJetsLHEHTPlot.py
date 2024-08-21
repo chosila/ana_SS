@@ -48,7 +48,7 @@ axnlo.set_ylim([0,800000])
 fignlo.savefig('wjet_nlo_lheht.png', bbox_inches='tight')
 
 nloh = nlof.to_hist()
-nloh = nloh[::10j]
+nloh = nloh# [::10j]
 nloerrors = np.sqrt(nloh.variances())
 nloval, nloedges = nloh.to_numpy()
 nlocenter = 0.5*(nloedges[1:]+nloedges[:-1])
@@ -63,7 +63,11 @@ axnlo.set_ylim([0,800000])
 fignlo.savefig('wjet_nlo_lheht_rebin.png', bbox_inches='tight')
 
 
+print(loh.sum())
+print(nloh.sum())
 
+import sys
+sys.exit()
 
 ## log bins
 
@@ -75,14 +79,29 @@ for freq, edge in zip(loval, loedges[1:]):
     conc = np.ones(round(freq))*edge
     if len(conc) < 1: continue
     rawvals = np.concatenate([rawvals, conc])
-
-print(rawvals)
-print(len(rawvals))
-logloval = np.log10(rawvals)
+logloval = np.log(rawvals)
 logloval = logloval[np.isfinite(logloval)]
+
+nloh = nlof.to_hist()
+nloerrors = np.sqrt(nloh.variances())
+nloval, nloedges = nloh.to_numpy()
+rawvals=np.array([])
+for freq, edge in zip(nloval, nloedges[1:]):
+    if freq < 0: continue
+    conc = np.ones(round(freq))*edge
+    if len(conc) < 1: continue
+    rawvals = np.concatenate([rawvals, conc])
+lognloval = np.log(rawvals)
+nlocenter = 0.5*(nloedges[1:]+nloedges[:-1])
+binwidth = nlocenter[1]-nlocenter[0]
+
+
+
 fig, ax = plt.subplots()
-ax.hist(logloval, bins=100)
+ax.hist(logloval, bins=100,  label='lo', alpha=0.3)
+ax.hist(lognloval, bins=100, label='nlo', alpha=0.3)
 ax.set_xlabel('log(LHE HT)')
+ax.legend()
 ax.set_title('LO LOG( LHE HT )')
 fig.savefig('wjet_lo_log_lhtht.png', bbox_inches='tight')
 
