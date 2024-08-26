@@ -68,6 +68,13 @@ from inspect import currentframe, getframeinfo
 frameinfo = getframeinfo(currentframe())
 
 
+
+## make sure there's nothing in the inputFiles dire before starting
+import glob, os
+for f in glob.glob('inputFiles/*.root'):
+    print('removing files: ', f)
+    os.remove(f)
+
 # use GOldenJSON
 
 
@@ -211,10 +218,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             [
                 "nPV",
                 "METFilters",
-                self.sMuTrgSelection,
-                "leadingMuonPt",
-                "goodMuon",
-                "leadingMuonEta",
+                #self.sMuTrgSelection,
+                "goodLepton",
+                #"leadingMuonPt",
+                #"goodMuon",
+                #"leadingMuonEta",
                 #"leadingMuonId",
                 #"leadingMuonIso",
                 "dR_Muon_FatJet",
@@ -289,7 +297,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             self.sel_names_all["SR_%s" % selName_] = self.sel_names_all["SR"] + [selName_]
 
         # selection region addition each SR conditions successively
-        for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"])): #- 1):
+        #for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"])): #- 1):
+        for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
             conditionName = self.sel_names_all["SR"][iCondition]
             self.sel_names_all["sel_%s" % conditionName] = self.sel_names_all["SR"][0 : (iCondition+1)]
 
@@ -450,6 +459,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('hLeadingMuonPt'+sHExt,                          {sXaxis: pt_axis,         sXaxisLabel: r"$p_{T}(leading muon)$ [GeV]"}),
                     ('hLeadingMuonEta'+sHExt,                         {sXaxis: eta_axis,        sXaxisLabel: r"\eta (leading muon)"}),
                     ('hLeadingMuonPhi'+sHExt,                         {sXaxis: phi_axis,        sXaxisLabel: r"\phi (leading muon)"}),
+                    ('nSelElectron'+sHExt,                            {sXaxis: nObject_axis,    sXaxisLabel: 'No. of selected electrons'}),
+                    ('hLeadingElectronPt'+sHExt,                      {sXaxis: pt_axis,         sXaxisLabel: r"$p_{T}(leading electron)$ [GeV]"}),
+                    ('hLeadingElectronEta'+sHExt,                     {sXaxis: eta_axis,        sXaxisLabel: r"\eta (leading electron)"}),
+                    ('hLeadingElectronPhi'+sHExt,                     {sXaxis: phi_axis,        sXaxisLabel: r"\phi (leading electron)"}),
 
                     #('nSelFatJet'+sHExt,                                {sXaxis: nObject_axis,    sXaxisLabel: 'No. of selected FatJets'}),
                     ('hdR_leadingMuon_leadingFatJet'+sHExt,             {sXaxis: deltaR_axis,     sXaxisLabel: r"$delta$ r(leading muon, leading FatJet) "}),
@@ -808,8 +821,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## sel leptons
         muonsTight     = self.objectSelector.selectMuons(events.Muon)
-        leadingMuon    = ak.firsts(muonsTight)
-        #leadingMuon    = ak.firsts(events.Muon)
+        #leadingMuon    = ak.firsts(muonsTight)
+        leadingMuon    = ak.firsts(events.Muon)
+        leadingElectron = ak.firsts(events.Electron)
 
         # AK8 jet
         leadingFatJet = None
@@ -1229,19 +1243,70 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             )
 
 
-        if "goodMuon" in self.sel_names_all['SR']:
-            muon_mask1 = (leadingMuon.pt > 10) & (leadingMuon.miniIsoId >=3)
-            muon_mask2 = (leadingMuon.mediumPromptId) | \
-                ( (leadingMuon.pt > 53) & (leadingMuon.highPtId > 0))
-            muon_mask3 = (np.abs(leadingMuon.dz) < 0.1) & (np.abs(leadingMuon.dxy < 0.02))
-            muon_mask4 = np.abs(leadingMuon.eta < 2.4)
-            muon_mask = muon_mask1 & muon_mask2 & muon_mask3 & muon_mask4
+        # if "goodMuon" in self.sel_names_all['SR']:
+        #     muon_mask1 = (leadingMuon.pt > 10) & (leadingMuon.miniIsoId >=3)
+        #     muon_mask2 = (leadingMuon.mediumPromptId) | \
+        #         ( (leadingMuon.pt > 53) & (leadingMuon.highPtId > 0))
+        #     muon_mask3 = (np.abs(leadingMuon.dz) < 0.1) & (np.abs(leadingMuon.dxy < 0.02))
+        #     muon_mask4 = np.abs(leadingMuon.eta < 2.4)
+        #     muon_mask = muon_mask1 & muon_mask2 & muon_mask3 & muon_mask4
 
-            num_goodMuon = np.count_nonzero(muon_mask)
+        #     num_goodMuon = np.count_nonzero(muon_mask)
+
+        #     selection.add(
+        #         "goodMuon",
+        #         muon_mask
+        #         )
+
+        if "goodLepton" in self.sel_names_all['SR']:
+            ## muon trigger and seleection
+            mask_Trgs = falses_list
+            muon_HLT_Trgs = ['IsoMu24', 'Mu50']
+            muon_L1T_Trgs = ['SingleMu22', 'SingleMu25']
+
+            muon_mask_HLT = events.HLT[muon_HLT_Trgs[0]]==True
+            muon_mask_HLT = muon_mask_HLT | (events.HLT[muon_HLT_Trgs[1]]==True)
+
+            muon_mask_L1T = events.L1[muon_L1T_Trgs[0]]==True
+            muon_mask_L1T = muon_mask_L1T | (events.L1[muon_L1T_Trgs[1]]==True)
+
+            muon_Trgs_mask = muon_mask_HLT & muon_mask_L1T
+            muon_baselineID_mask = (leadingMuon.pt > 10) & \
+                (leadingMuon.miniIsoId >=3) &\
+                ( (leadingMuon.mediumPromptId) | ( (leadingMuon.pt > 53) & (leadingMuon.highPtId > 0)) ) &\
+                (np.abs(leadingMuon.dz) < 0.1) &\
+                (np.abs(leadingMuon.dxy) < 0.02) &\
+                (np.abs(leadingMuon.eta) < 2.4)
+            muon_candidate_mask = leadingMuon.pt > 26
+            muon_mask = muon_Trgs_mask & muon_baselineID_mask & muon_candidate_mask
+
+
+            ## electron trigger and selection
+            electron_mask1 = None
+            electron_HLT_Trgs = ['Ele32_WPTight_Gsf', 'Ele35_WPTight_Gsf_L1EGMT', 'Ele115_CaloIdVT_GsfTrkIdT', 'Ele50_CaloIdVT_GsfTrkIdT_PFJet165']
+            electron_Trgs_mask = np.full_like(events.HLT[electron_HLT_Trgs[0]], False)
+            for trg in electron_HLT_Trgs:
+                electron_Trgs_mask = electron_Trgs_mask | events.HLT[trg]
+
+            electron_baselineID_mask= (np.abs(leadingElectron.eta) < 2.5) &\
+                (leadingElectron.pt > 10) &\
+                ((np.abs(leadingElectron.eta) < 1.44) |  (np.abs(leadingElectron.eta) > 1.57)) &\
+                leadingElectron.mvaFall17V2Iso_WPL &\
+                (leadingElectron.mvaFall17V2Iso_WP90 | (leadingElectron.pt > 35)) &\
+                (leadingElectron.cutBased_HEEP)
+
+            electron_candidate_mask = (leadingElectron.pt > 35) &\
+                leadingElectron.mvaFall17V2Iso_WP90 & \
+                ((leadingElectron.mvaFall17V2Iso_WP80) | (leadingElectron.cutBased_HEEP)) &\
+                (np.abs(leadingElectron.dxy) < 0.02) & \
+                (np.abs(leadingElectron.dz) < 0.1)
+
+            electron_mask = electron_Trgs_mask & electron_baselineID_mask & electron_candidate_mask
 
             selection.add(
-                "goodMuon",
-                muon_mask
+                "goodLepton",
+                (muon_mask | electron_mask)
+                #lepton_mask
                 )
 
         # Muon trigger selection
@@ -1681,6 +1746,28 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
+
+                    ## leading electron
+                    sel_tmp_ = sel_SR_forHExt & (~ ak.is_none(leadingElectron.pt))
+                    output['hLeadingElectronPt'+sHExt].fill(
+                        dataset=dataset,
+                        Pt=(leadingElectron.pt[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['hLeadingElectronEta'+sHExt].fill(
+                        dataset=dataset,
+                        Eta=(leadingElectron.eta[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+                    output['hLeadingElectronPhi'+sHExt].fill(
+                        dataset=dataset,
+                        Phi=(leadingElectron.phi[sel_tmp_]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_]
+                    )
+
 
                     # "HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4"
                     ## leading FatJet

@@ -244,7 +244,7 @@ if __name__ == '__main__':
     parser.add_argument('-ntuples',           type=str, default="CentralNanoAOD", choices=["CentralNanoAOD", "UnskimmedHToAATo4BNanoAOD", "SkimmedNanoAOD_Hto4b_0p8"], required=False)
     parser.add_argument('-nFilesPerJob',      type=int, default=5)
     parser.add_argument('-nResubMax',         type=int, default=80)
-    parser.add_argument('-ResubWaitingTime',  type=int, default=15,                          help='Resubmit failed jobs after every xx minutes')
+    parser.add_argument('-ResubWaitingTime',  type=int, default=5,                          help='Resubmit failed jobs after every xx minutes')
     parser.add_argument('-iJobSubmission',    type=int, default=0,                           help='Job submission iteration. Specify previous last job submittion iteration if script terminated for some reason.')
     parser.add_argument('-xrdcpIpAftNResub',  type=int, default=0,                           help='Download input files after n job failures')
     parser.add_argument('-server',            type=str, default='lxplus',                    choices=['lxplus', 'tifr'])
@@ -333,8 +333,12 @@ if __name__ == '__main__':
         selSamplesToExclude_list.extend( [
                 "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
-                "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO", "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
-                "DYJets_HT_LO", "WJetsToQQ_HT", "WJetsToLNu_Incl_NLO", "WJetsToLNu_HT_LO",
+                "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
+                #"DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
+                "DYJets_M-50_HT_LO",
+                "DYJets_HT_LO",
+                "WJetsToQQ_HT", "WJetsToLNu_Incl_NLO",
+                # "WJetsToLNu_HT_LO",
                 'WJetsToLNu_Incl_LO', 'W1JetsToLNu_LO', 'W2JetsToLNu_LO', 'W3JetsToLNu_LO', 'W4JetsToLNu_LO',
                 'GluGluHToBB_Incl', 'GluGluHToBB_Pt-200ToInf', 'WJetsToQQ', 'ZJetsToQQ',
                 "SUSY_VBFH_HToAATo4B", "SUSY_WH_WToAll_HToAATo4B", "SUSY_ZH_ZToAll_HToAATo4B", "SUSY_TTH_TTToAll_HToAATo4B",
