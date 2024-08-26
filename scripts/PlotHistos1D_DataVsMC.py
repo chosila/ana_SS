@@ -39,8 +39,9 @@ class DataBlindingOptions(enum.Enum):
 #sOpDir  = '/eos/cms/store/user/ssawant/htoaa/analysis/20230922_DataSplitByEra/2018/plots'
 #sIpFile = '/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetTaggerSignScan/2018/analyze_htoaa_stage1.root'
 #sOpDir  = '/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetTaggerSignScan/2018/plots2'
-sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep/2018/analyze_htoaa_stage1.root' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skims_GGF/2018/analyze_htoaa_stage1.root' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skims_new/2018/analyze_htoaa_stage1.root'#'/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetMD_Hto4b_Htoaa4bOverQCD_WP60/2018/analyze_htoaa_stage1.root'
-sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots' #'/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetMD_Hto4b_Htoaa4bOverQCD_WP60/2018/plots2'
+# sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep/2018/analyze_htoaa_stage1.root' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skims_GGF/2018/analyze_htoaa_stage1.root' # '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skims_new/2018/analyze_htoaa_stage1.root'#'/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetMD_Hto4b_Htoaa4bOverQCD_WP60/2018/analyze_htoaa_stage1.root'
+sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep_WJetsToLNu_HT_LO/2018/analyze_htoaa_stage1.root'
+sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/unskimmed_singleLep' #'/eos/cms/store/user/ssawant/htoaa/analysis/20231019_PNetMD_Hto4b_Htoaa4bOverQCD_WP60/2018/plots2'
 
 cmsWorkStatus                  = 'Work in Progress'
 era                            = '2018'

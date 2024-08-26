@@ -5,8 +5,14 @@ python3 htoaa_Wrapper.py -analyze htoaa_Analysis_Example.py -era 2018 -run_mode 
 
 
 voms-proxy-init --rfc --voms cms -valid 192:00 --out ~/x509up_u10898
-python3 htoaa_Wrapper.py -analyze htoaa_Analysis_Example.py -era 2018 -run_mode condor -v skims_new -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2'
+## python3 htoaa_Wrapper.py -analyze htoaa_Analysis_Example.py -era 2018 -run_mode condor -v skims_new -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2'
+
 
 
 
 python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v singleLep -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2
+
+
+
+
+python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v unskimmed_singlelep -ntuples UnskimmedHToAATo4BNanoAOD -nFilesPerJob 2 -dryRun
