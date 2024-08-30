@@ -1043,9 +1043,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ## ak.firsts() should only be used on variables that have [[], [], [],...] shape. if it is a normal 1d array, ak.first will only return the first element
 
         dEta_lep_fat = abs(leadingMuon.eta - leadingFatJet.eta)
-        print(f'{len(leadingMuon.eta)=}')
-        print(f'{np.count_nonzero(leadingMuon.eta)=}')
-        print(f'{np.count_nonzero(leadingFatJet.eta)=}')
         dEta_lep_fat = ak.fill_none(dEta_lep_fat, -99)
 
         loc_3rd_highest_pt_jet = ak.argsort(ak4Jets.pt[ak4SelectionMask], ascending=False, axis=1)==2
@@ -1305,9 +1302,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
             selection.add(
                 "goodLepton",
-                (muon_mask | electron_mask)
-                #lepton_mask
-                )
+                #(muon_mask | electron_mask)
+                #np.logical_xor(muon_mask, electron_mask)
+                # electron_mask & ~muon_mask # egamma
+                muon_mask & ~electron_mask # singlemuon
+            )
+
 
         # Muon trigger selection
         if self.sMuTrgSelection in self.sel_names_all["SR"]:
@@ -1579,11 +1579,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         for iSelection in self.sel_names_all.keys():
             iName = f"{iSelection}: {self.sel_names_all[iSelection]}"
-            print(f'{iName=}')
-            print(f'{iSelection=}')
-            print(f'{self.sel_names_all[iSelection]=}')
-            print('\n\n\n\n\n\n\n')
-
             sel_i = selection.all(* self.sel_names_all[iSelection])
             output['cutflow'][iName] += sel_i.sum()
             output['cutflow'][sWeighted+iName] +=  weights.weight()[sel_i].sum()

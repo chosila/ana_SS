@@ -8,7 +8,8 @@ sNRebinX = 'nRebinX';  sNRebinY = 'nRebinY';
 sXRebinning = 'xRebinning'; sYRebinning = 'yRebinning';
 
 ExpData_dict = {
-    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    # 'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
     #'Data A': ['SingleMuon_Run2018A'],
     #'Data B': ['SingleMuon_Run2018B'],
     #'Data C': ['SingleMuon_Run2018C'],
@@ -51,6 +52,11 @@ histograms_dict = OD([
     ("hLeadingMuonPt", {sXLabel: 'hLeadingMuonPt', sYLabel: 'Events', sXRange: [0, 500], sNRebinX: 4 }),
     ("hLeadingMuonEta", {sXLabel: 'hLeadingMuonEta', sYLabel: 'Events', sXRange: [-3.5, 3.5], sNRebinX: 2 }),
     ("hLeadingMuonPhi", {sXLabel: 'hLeadingMuonPhi', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX: 2 }),
+
+    ("hLeadingElectronPt", {sXLabel:  'hLeadingElectronPt', sYLabel: 'Events', sXRange: [0, 500], sNRebinX: 4 }),
+    ("hLeadingElectronEta", {sXLabel: 'hLeadingElectronEta', sYLabel: 'Events', sXRange: [-3.5, 3.5], sNRebinX: 2 }),
+    ("hLeadingElectronPhi", {sXLabel: 'hLeadingElectronPhi', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX: 2 }),
+
 
     ("hdR_leadingMuon_leadingFatJet", {sXLabel: 'hdR_leadingMuon_leadingFatJet', sYLabel: 'Events',  sNRebinX: 10 }),
 
