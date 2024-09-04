@@ -408,6 +408,7 @@ if __name__ == '__main__':
         OpRootFiles_iJobSubmission = []
         jobStatus_dict             = {} # OD([])
 
+        num_jobs_running = 0
         for sample_category, samples in samplesList.items():
             #print("sample_category {}, samples {}".format(sample_category, samples))
             sample_isMC = True
@@ -578,6 +579,7 @@ if __name__ == '__main__':
 
                             else:
                                 jobStatus = JobStatus.Running #2 # job is running
+                                num_jobs_running+=1
                                 if printLevel >= 3:
                                     print(f"  jobStatus = 2")
 
@@ -689,9 +691,12 @@ if __name__ == '__main__':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
                         if not dryRun:
-                            if printLevel >= 5:
-                                print("Now:  %s " % cmd1)
-                            os.system(cmd1)
+                            if num_jobs_running <= 30:
+                                if printLevel >= 5:
+                                    print("Now:  %s " % cmd1)
+                                os.system(cmd1)
+                                num_jobs_running+=1
+
                     else:
                         pass
 
