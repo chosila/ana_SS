@@ -168,7 +168,7 @@ def writeCondorSumitFile(
         (5, 'testmatch'),    # 3 days
         (6, 'nextweek'),     # 1 week
     ])
-    iJobFlavour = 2 # 2, 'longlunch' 2 hours
+    iJobFlavour = 1 # 2, 'longlunch' 2 hours
     #iJobFlavour = 1 # 1, 'microcentury'
     if increaseJobFlavour: iJobFlavour += 1
 
