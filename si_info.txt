@@ -8,6 +8,10 @@ unskimmed files
 python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v triggerstudyUnskimmed -ntuples UnskimmedHToAATo4BNanoAOD -nFilesPerJob 2
 
 
+# egamma
+python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v unskimmed_egamma -ntuples UnskimmedHToAATo4BNanoAOD -nFilesPerJob 5 -excludeSamples SingleMuon_Run2018A,SingleMuon_Run2018B,SingleMuon_Run2018C,SingleMuon_Run2018D -dryRun
+
+
 skimmed files
 python3 htoaa_Wrapper.py -analyze htoaa_triggerStudy_GGFMode.py -era 2018 -run_mode condor -v singleLep_fixed -ntuples SkimmedNanoAOD_Hto4b_0p8 -nFilesPerJob 2 -xrdcpIpAftNResub 4
 

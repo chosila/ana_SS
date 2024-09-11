@@ -168,7 +168,7 @@ def writeCondorSumitFile(
         (5, 'testmatch'),    # 3 days
         (6, 'nextweek'),     # 1 week
     ])
-    iJobFlavour = 1 # 2, 'longlunch' 2 hours
+    iJobFlavour = 2 # 2, 'longlunch' 2 hours
     #iJobFlavour = 1 # 1, 'microcentury'
     if increaseJobFlavour: iJobFlavour += 1
 
@@ -244,11 +244,12 @@ if __name__ == '__main__':
     parser.add_argument('-ntuples',           type=str, default="CentralNanoAOD", choices=["CentralNanoAOD", "UnskimmedHToAATo4BNanoAOD", "SkimmedNanoAOD_Hto4b_0p8"], required=False)
     parser.add_argument('-nFilesPerJob',      type=int, default=5)
     parser.add_argument('-nResubMax',         type=int, default=80)
-    parser.add_argument('-ResubWaitingTime',  type=int, default=5,                          help='Resubmit failed jobs after every xx minutes')
+    parser.add_argument('-ResubWaitingTime',  type=int, default=15,                          help='Resubmit failed jobs after every xx minutes')
     parser.add_argument('-iJobSubmission',    type=int, default=0,                           help='Job submission iteration. Specify previous last job submittion iteration if script terminated for some reason.')
     parser.add_argument('-xrdcpIpAftNResub',  type=int, default=0,                           help='Download input files after n job failures')
     parser.add_argument('-server',            type=str, default='lxplus',                    choices=['lxplus', 'tifr'])
     parser.add_argument('-dryRun',            action='store_true', default=False)
+    parser.add_argument('-leptonSelection',   type=str, default='Muon',                      choices=['Muon', 'Electron'])
     args=parser.parse_args()
     print("args: {}".format(args))
     print(f"htoaa_Wraper:: here7 {datetime.now() = }"); sys.stdout.flush()
@@ -267,6 +268,7 @@ if __name__ == '__main__':
     xrdcpIpAftNResub        = args.xrdcpIpAftNResub
     server                  = args.server
     dryRun                  = args.dryRun
+    leptonSelection         = args.leptonSelection
 
     SourceCodeDir     = os.getcwd()
     DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
@@ -621,6 +623,7 @@ if __name__ == '__main__':
                         config["sampleCategory"] = sample_category
                         config["isMC"] = sample_isMC
                         config["nEvents"] = sample_nEvents
+                        config["leptonSelection"] = leptonSelection
                         if sample_isMC:
                             config["crossSection"] = sample_cossSection
                             config["sumEvents"] = sample_sumEvents
@@ -691,7 +694,7 @@ if __name__ == '__main__':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
                         if not dryRun:
-                            if num_jobs_running <= 30:
+                            if num_jobs_running < 70:
                                 if printLevel >= 5:
                                     print("Now:  %s " % cmd1)
                                 os.system(cmd1)
