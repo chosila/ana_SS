@@ -33,9 +33,9 @@ class DataBlindingOptions(enum.Enum):
 #sIpFile =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep_fixed/2018/analyze_htoaa_stage1.root' #
 # sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep/2018/analyze_htoaa_stage1.root'
 #sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlemuon/2018/analyze_htoaa_stage1.root'
-sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singleLep/2018/analyze_htoaa_stage1.root'
+sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skimmed_e/2018/analyze_htoaa_stage1.root'
 #sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/singleLep'
-sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/unskimmed_singlemuon'
+sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/skimmed_e'
 
 
 cmsWorkStatus                  = 'Work in Progress'
@@ -523,6 +523,7 @@ for sData, ExpData_list in ExpData_dict.items():
                                 sort='yield'
                                 )
 
+
                             ## 1D cumulativehistogram
                             cumulative = np.cumsum(hStack_values_list, axis=1)
                             hep.histplot(
@@ -590,6 +591,8 @@ for sData, ExpData_list in ExpData_dict.items():
                             h = rebinTH1(h, nRebinX) if nHistoDimemsions == 1 else rebinTH2(h, nRebinX, nRebinY)
 
                             h = h * luminosity_Scaling_toUse
+
+
 
                             nTot_ = h.values().sum()
                             hSig_list.append(h)
@@ -748,7 +751,7 @@ for sData, ExpData_list in ExpData_dict.items():
                         ratio_syst   = np.sqrt(hBkgTot_variance)
                         ratio_syst   = np.divide(ratio_syst, hBkgTot_values, where=hBkgTot_values!=0, out=np.zeros(hData.shape))
 
-                        print(f"ratio_values ({ratio_values.shape}): {ratio_values}")
+                        # print(f"ratio_values ({ratio_values.shape}): {ratio_values}")
                         if nHistoDimemsions == 1:
                             yMin_ = getNonZeroMin( ratio_values - ratio_error)
                             yMax_ = np.max( ratio_values + ratio_error)

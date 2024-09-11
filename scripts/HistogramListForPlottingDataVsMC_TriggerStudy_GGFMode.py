@@ -8,8 +8,8 @@ sNRebinX = 'nRebinX';  sNRebinY = 'nRebinY';
 sXRebinning = 'xRebinning'; sYRebinning = 'yRebinning';
 
 ExpData_dict = {
-    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
-    #'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
+    # 'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
     #'Data A': ['SingleMuon_Run2018A'],
     #'Data B': ['SingleMuon_Run2018B'],
     #'Data C': ['SingleMuon_Run2018C'],
