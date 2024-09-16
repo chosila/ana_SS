@@ -208,6 +208,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "JetID",
                 'Mass140',
                 'Mass140_dR_2p75',
+                '1b',
+                '0b',
+                '0b_BBQQ'
             ]),
         ])
         if not self.datasetInfo['isMC']:
@@ -272,7 +275,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         # selection region addition each SR conditions successively
         #for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"])): #- 1):
-        for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
+        #for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
+        for iCondition in range(self.sel_names_all["SR"].index("1b"), len(self.sel_names_all["SR"])):
             conditionName = self.sel_names_all["SR"][iCondition]
             self.sel_names_all["sel_%s" % conditionName] = self.sel_names_all["SR"][0 : (iCondition+1)]
 
@@ -844,7 +848,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## fatjet selection
         #fatjet pt > 400, fatjet eta < 2.4, fatjetid = 6
-        fatjet_mask = (events.FatJet.pt > 400) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
+        fatjet_mask = (events.FatJet.pt > 140) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
         idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
         leadingFatJet = ak.firsts(events.FatJet[idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
@@ -927,7 +931,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
         ak4Jets = events.Jet
-        ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
+        ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4)) & (ak4Jets.btagDeepFlavB > 0.2783)
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         if lepton_selection == 'Muon':
             ak4_Lepton_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
@@ -1280,6 +1284,24 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 'Mass140_dR_2p75', dR_leadingLepton_leadingFatJet < self.objectSelector.dRMuonFatJetThshHigh
             )
 
+        if '1b' in self.sel_names_all['SR']:
+            ## select for exactly 1 medium AK4 b-tag
+            selection.add(
+                '1b', np.count_nonzero(ak4SelectionMask, axis=1) == 1
+                )
+
+        if '0b' in self.sel_names_all['SR']:
+            selection.add(
+                '0b', np.ones_like(leadingFatJet.mass)==1
+            )
+
+        if '0b_BBQQ' in self.sel_names_all['SR']:
+            lvJ = leadingFatJet4Vec + leadingLepton4Vec + MET4Vec
+            sel_0b_bbqq_cut = (leadingFatJet.mass > 140) & (leadingFatJet.msoftdrop > 50) & (leadingFatJet.pt > 350) & (lvJ.pt > 250) & (lvJ.mass < 1000)
+            selection.add(
+                '0b_BBQQ', sel_0b_bbqq_cut
+                )
+
 
         if "QCDStitch" in self.sel_names_all["SR"]:
             selection.add(
@@ -1435,7 +1457,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #    output['cutflow'][n] += selection.all(n).sum()
 
         for iSelection in self.sel_names_all.keys():
+
+
             iName = f"{iSelection}: {self.sel_names_all[iSelection]}"
+            print(self.sel_names_all.keys())
+            print('\\n\n\n\n\n')
             sel_i = selection.all(* self.sel_names_all[iSelection])
             output['cutflow'][iName] += sel_i.sum()
             output['cutflow'][sWeighted+iName] +=  weights.weight()[sel_i].sum()
@@ -1711,12 +1737,15 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
-                    output['xgb_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(predictions[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
+
+                    ## we are not computing xgb score for the sel1b category
+                    if not ( 'sel_1b' in sHExt):
+                        output['xgb_score'+sHExt].fill(
+                            dataset=dataset,
+                            MLScore=(predictions[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                        )
 
                     output['btagHbb'+sHExt].fill(
                         dataset=dataset,
@@ -1792,14 +1821,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         deltaR=(leadingElectron.pt[(sel_tmp_ & ~ak.is_none(leadingElectron.pt))]),
                         systematic=syst,
                         weight=evtWeight[(sel_tmp_ & ~ak.is_none(leadingElectron.pt))]
-                    )
-
-
-                    output['hdR_leadingElectron_leadingFatJet'+sHExt].fill(
-                        dataset=dataset,
-                        deltaR=(dR_leadingElectron_leadingFatJet[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
                     )
 
                     output['hLeadingFatJetPt'+sHExt].fill(
