@@ -793,7 +793,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         muon_Trgs_mask = muon_mask_HLT & muon_mask_L1T
 
         muon_baselineID_mask = (events.Muon.pt > 10) & \
-            (events.Muon.miniIsoId >= 3) &\
+            (events.Muon.miniPFRelIso_all < 0.10) &\
             ( (events.Muon.mediumPromptId) | ( (events.Muon.pt > 53) & (events.Muon.highPtId > 0) ) ) &\
             (np.abs(events.Muon.dz) < 0.1) &\
             (np.abs(events.Muon.dxy) < 0.02) &\
@@ -808,14 +808,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_mask], axis=-1, keepdims=True)
         leadingMuon = ak.firsts(events.Muon[idx_sort_muon_pt_after_selection])
 
-
-        # print('\n\n\n\n')
-        # print(f'{events.Muon.pt[:10]=}')
-        # print(f'{muon_mask[:10]=}')
-        # print(f'{idx_sort_muon_pt_after_selection[:10]=}')
-        # print(f'{events.Muon[idx_sort_muon_pt_after_selection][:10]=}')
-        # print('\n\n\n\n')
-
         ## electron trigger and lepton ID masks
         electron_mask1 = None
         electron_HLT_Trgs = ['Ele32_WPTight_Gsf', 'Ele35_WPTight_Gsf_L1EGMT', 'Ele115_CaloIdVT_GsfTrkIdT', 'Ele50_CaloIdVT_GsfTrkIdT_PFJet165']
@@ -827,8 +819,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 (events.Electron.pt > 10) &\
                 ((np.abs(events.Electron.eta) < 1.44) |  (np.abs(events.Electron.eta) > 1.57)) &\
                 events.Electron.mvaFall17V2Iso_WPL &\
-                (events.Electron.mvaFall17V2Iso_WP90 | (events.Electron.pt > 35)) &\
-                (events.Electron.cutBased_HEEP)
+                ( (events.Electron.mvaFall17V2Iso_WP90) | ((events.Electron.pt > 35) &\
+                (events.Electron.cutBased_HEEP) )  )
 
         electron_candidate_mask = (events.Electron.pt > 35) &\
             events.Electron.mvaFall17V2Iso_WP90 & \
@@ -844,7 +836,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## fatjet selection
         #fatjet pt > 400, fatjet eta < 2.4, fatjetid = 6
-        fatjet_mask = (events.FatJet.pt > 400) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
+        fatjet_mask = (events.FatJet.msoftdrop > 20) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
         idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
         leadingFatJet = ak.firsts(events.FatJet[idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
@@ -921,13 +913,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ##------------------------------- ak4 jet variables for bdt
         ## NOTE : BDT should work on both muon and electron. Add electrons here too.
         # flavB_max_jet : Maximum Jet_btagDeepFlavB for selected AK4 jets (if one exists)
-        # AK4 jet pT > 25, |eta| < 4.7, jetId >= 6, (pT > 50 or puId >= 4)
+        # AK4 jet pT > 30, jetId >= 6, (pT > 50 or puId >= 4)
         # Separated by dR > 0.8 from candidate AK8 jet and dR > 0.4 from selected lepton
         mass_fat = ak.fill_none(leadingFatJet.mass, -99)
 
 
         ak4Jets = events.Jet
-        ak4SelectionMask = (ak4Jets.pt > 25) & (abs(ak4Jets.eta) < 4.7) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
+        ak4SelectionMask = (ak4Jets.pt > 30) & (ak4Jets.pt > 170) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         if lepton_selection == 'Muon':
             ak4_Lepton_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
@@ -936,7 +928,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             ak4_Lepton_dR_mask = leadingElectron.delta_r(ak4Jets) > 0.4
             leadingLepton = leadingElectron
         ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Lepton_dR_mask
-        flavB_jet = ak.where(ak4SelectionMask,
+        flavB_jet = ak.where(ak4SelectionMask & ( np.abs(ak4Jets.eta) < 2.4),
                              ak4Jets.btagDeepFlavB,
                              -0.099
                              )
@@ -1780,27 +1772,18 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
                     output['hdR_leadingMuon_leadingFatJet'+sHExt].fill(
                         dataset=dataset,
-                        deltaR=(dR_leadingMuon_leadingFatJet[(sel_tmp_ & ~ak.is_none(leadingMuon.pt))]),
+                        deltaR=(dR_leadingMuon_leadingFatJet[sel_tmp_ & ~ak.is_none(leadingMuon.pt)]),
                         systematic=syst,
-                        weight=evtWeight[(sel_tmp_ & ~ak.is_none(leadingMuon.pt))]
+                        weight=evtWeight[sel_tmp_ & ~ak.is_none(leadingMuon.pt)]
                     )
-
-
 
                     output['hdR_leadingElectron_leadingFatJet'+sHExt].fill(
                         dataset=dataset,
-                        deltaR=(leadingElectron.pt[(sel_tmp_ & ~ak.is_none(leadingElectron.pt))]),
+                        deltaR=(leadingElectron.pt[sel_tmp_ & ~ak.is_none(leadingElectron.pt)]),
                         systematic=syst,
-                        weight=evtWeight[(sel_tmp_ & ~ak.is_none(leadingElectron.pt))]
+                        weight=evtWeight[sel_tmp_ & ~ak.is_none(leadingElectron.pt)]
                     )
 
-
-                    output['hdR_leadingElectron_leadingFatJet'+sHExt].fill(
-                        dataset=dataset,
-                        deltaR=(dR_leadingElectron_leadingFatJet[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
 
                     output['hLeadingFatJetPt'+sHExt].fill(
                         dataset=dataset,
