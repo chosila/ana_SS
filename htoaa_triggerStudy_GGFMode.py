@@ -69,11 +69,11 @@ frameinfo = getframeinfo(currentframe())
 
 
 
-## make sure there's nothing in the inputFiles dire before starting
-import glob, os
-for f in glob.glob('inputFiles/*.root'):
-    print('removing files: ', f)
-    os.remove(f)
+# ## make sure there's nothing in the inputFiles dire before starting
+# import glob, os
+# for f in glob.glob('inputFiles/*.root'):
+#     print('removing files: ', f)
+#     os.remove(f)
 
 # use GOldenJSON
 
@@ -1016,16 +1016,44 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         dR_fat_jet_min = ak.fill_none(dR_fat_jet_min, -99)
 
 
+        # flavB_near_lep : smallest dR between selected lepton and ak4Jets that pass cut
+        dR_jet_lep = leadingLepton4Vec.delta_r(ak4Jets)
+        dR_jet_lep = ak.where(ak4SelectionMask, dR_jet_lep, ak.full_like(dR_jet_lep, 99))#ak.full_like(dR_jet_lep, None))
+        min_dR_jet_lep_idx = ak.argmin(dR_jet_lep, keepdims=True, axis=1)
+        flavB_near_lep = ak4Jets.btagDeepFlavB[min_dR_jet_lep_idx]
+        if len(flavB_near_lep) > 1: flavB_near_lep = ak.firsts(flavB_near_lep, axis=-1)
+
+        ########!!!! in events with no passing ak4 jet, replacing all values with 99 will mean it will return the first value. This is not an issue for us since we filter out the events with no passing ak4jet in sel1b ######
+        ## !!! TODO: will still be good to fix later but it is taking too much time now.
+        ## argmin will return 0 if all values are the same (including None/NaN), so we need to deal with this edge case manually
+        ## use awkward.all() to check if everything in the row is False, if yes, replace that row in flavB_near_lep with None.
+        ## awkward does not allow in place assignments so we have to make it complicated
+        #allfalse = ak.all(~ak4SelectionMask, axis=1).to_numpy(allow_missing=True)
+        #nolep = ak.is_none(leadingLepton4Vec.pt).to_numpy(allow_missing=True)
+        #flavB_near_lep = flavB_near_lep.to_numpy(allow_missing=True)
+        #print(np.count_nonzero(flavB_near_lep))
+        #flavB_near_lep[(allfalse | nolep)] = None
+
+        #print(np.count_nonzero(flavB_near_lep))
+        #print('-------------------\n\n\n')
+
+        #import sys
+        #sys.exit()
+
         ##---------------------- loading the bdt and scoring
-        xgb_model = xgb.Booster()
+        bbqq_model = xgb.Booster()
 
-        def getratio(arr, val, name):
+        bbqq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/Htoaa/models/11.model')
 
-            print(name, ": ", np.count_nonzero(arr==val)/len(arr))
+        print(bbqq_model.feature_names)
 
-        xgb_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/10.model')
-        xgb_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T, feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
-        predictions = xgb_model.predict(xgb_dmatrix)
+        bbqq_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T, feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
+        predictions = bbqq_model.predict(bbqq_dmatrix)
+
+
+        bbqq_bbq_model = xgb.Booster()
+        bbqq_bbq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/13.model')
+        bbqq_bbq_dmatrix = xgb.DMatrix(np.array(), feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lep', 'dPhi_lv_fat', 'pt_ISRs', 'mass_lJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'jet_pt_near_lep', 'pt_jet1', 'dR_fat_jet_min'])
         ## --------------------------------------------------------
 
         leadingFatJetDeepTagMD_ZHbbvsQCD = ak.where(
