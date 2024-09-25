@@ -2187,7 +2187,11 @@ if __name__ == '__main__':
                     for sHExt in sHExtList:#HistogramNameExtensions_QCD:
                         if key.endswith(sHExt):#sHExt in key:
                             sHExt_toUse = '_%s' % (sHExt)
-                            sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
+                            print(key)
+                            print(sHExt_toUse)
+                            sHistoName_toUse = sHistoName_toUse.removesuffix(f"_{sHExt}") #sHistoName_toUse.replace(sHExt_toUse, '')
+                            print(sHistoName_toUse)
+                            print('\n\n\n\n')
                             break
 
 
@@ -2206,19 +2210,6 @@ if __name__ == '__main__':
 
 
         print("Wrote to sOutputFile {}".format(sOutputFile), flush=flushStdout)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
