@@ -69,11 +69,11 @@ frameinfo = getframeinfo(currentframe())
 
 
 
-# ## make sure there's nothing in the inputFiles dire before starting
-# import glob, os
-# for f in glob.glob('inputFiles/*.root'):
-#     print('removing files: ', f)
-#     os.remove(f)
+## make sure there's nothing in the inputFiles dire before starting
+import glob, os
+for f in glob.glob('inputFiles/*.root'):
+    print('removing files: ', f)
+    os.remove(f)
 
 # use GOldenJSON
 
@@ -87,9 +87,6 @@ flushStdout = False
 #print("".format())
 
 sWeighted = "Wtd: "
-
-## select if this is elctron or muon for the object and event selection later
-#lepton_selection = 'Muon'#'Electron'
 
 
 # -----------------------------------------------------------------------------------
@@ -275,8 +272,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         # selection region addition each SR conditions successively
         #for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"])): #- 1):
-        #for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
-        for iCondition in range(self.sel_names_all["SR"].index("1b"), len(self.sel_names_all["SR"])):
+        for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
+        #for iCondition in range(self.sel_names_all["SR"].index("1b"), len(self.sel_names_all["SR"])):
             conditionName = self.sel_names_all["SR"][iCondition]
             self.sel_names_all["sel_%s" % conditionName] = self.sel_names_all["SR"][0 : (iCondition+1)]
 
@@ -481,7 +478,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('pt_jet3'       +sHExt, {sXaxis: pt_axis,        sXaxisLabel: r'pt_jet3'}),
                     ('dPhi_lv_fat'   +sHExt, {sXaxis: phi_axis,       sXaxisLabel: r'dPhi_lv_fat'}),
                     ('dR_fat_jet_min'+sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_fatJet_min'}),
-                    ('xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
+                    ('bbqq_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
+                    ('bbqq_bbq_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
                     ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r"FatJet_PNetMD_Hto4b_Htoaa4bOverQCD"}),
                     ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'}),
                     ('btagHbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagHbb'}),
@@ -798,19 +796,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         muon_baselineID_mask = (events.Muon.pt > 10) & \
             (events.Muon.miniPFRelIso_all < 0.10) &\
-            ( (events.Muon.mediumPromptId) | ( (events.Muon.pt > 53) & (events.Muon.highPtId > 0) ) ) &\
+            ((events.Muon.mediumPromptId) | ((events.Muon.pt > 53) & (events.Muon.highPtId > 0))) &\
             (np.abs(events.Muon.dz) < 0.1) &\
             (np.abs(events.Muon.dxy) < 0.02) &\
             (np.abs(events.Muon.eta) < 2.4)
 
         muon_candidate_mask = events.Muon.pt > 26
         muon_mask = muon_Trgs_mask & muon_baselineID_mask & muon_candidate_mask
-
-        ## select muon candidate
-        ## apply the mask to the events.muon, see what's left, grab the highest pt muon left?
-        ## how to do this. get the element number for the highest muon pt and grab all the corresponding muon info? if none exist, put none in place so that the length of array stays same
-        idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_mask], axis=-1, keepdims=True)
-        leadingMuon = ak.firsts(events.Muon[idx_sort_muon_pt_after_selection])
+        muon_mask_low_pt = muon_Trgs_mask & muon_baselineID_mask & (events.Muon.pt > 10)
 
         ## electron trigger and lepton ID masks
         electron_mask1 = None
@@ -826,25 +819,31 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 ( (events.Electron.mvaFall17V2Iso_WP90) | ((events.Electron.pt > 35) &\
                 (events.Electron.cutBased_HEEP) )  )
 
-        electron_candidate_mask = (events.Electron.pt > 35) &\
-            events.Electron.mvaFall17V2Iso_WP90 & \
+        electron_candidate_mask = events.Electron.mvaFall17V2Iso_WP90 & \
             ((events.Electron.mvaFall17V2Iso_WP80) | (events.Electron.cutBased_HEEP)) &\
             (np.abs(events.Electron.dxy) < 0.02) & \
             (np.abs(events.Electron.dz) < 0.1)
+        electron_candidate_mask_pt = (events.Electron.pt > 35)
 
-        electron_mask = electron_Trgs_mask & electron_baselineID_mask & electron_candidate_mask
+        electron_mask = electron_Trgs_mask & electron_baselineID_mask & electron_candidate_mask & electron_candidate_mask_pt
+        electron_mask_low_pt = electron_Trgs_mask & electron_baselineID_mask  & electron_candidate_mask & (events.Electron.pt > 10)
 
-        idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_mask], axis=-1, keepdims=True)
+        ## select muon candidate
+        ## apply the mask to the events.muon, see what's left, grab the highest pt muon
+        ## we want muon that passes the object selection, only keep events with 1 muon, and don't keep events with any passing electrons
+        idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_mask & (np.count_nonzero(muon_mask_low_pt, axis=1)==1) & ~ak.any(electron_mask_low_pt, axis=1)], axis=-1, keepdims=True)
+        leadingMuon = ak.firsts(events.Muon[idx_sort_muon_pt_after_selection])
+
+        ## select electron candidate
+        idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_mask & (np.count_nonzero(electron_mask_low_pt, axis=1)==1) & ~ak.any(muon_mask_low_pt, axis=1)], axis=-1, keepdims=True)
         leadingElectron = ak.firsts(events.Electron[idx_sort_electron_pt_after_selection])
-
 
         ## fatjet selection
         #fatjet pt > 400, fatjet eta < 2.4, fatjetid = 6
-        fatjet_mask = (events.FatJet.msoftdrop > 20) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
+        fatjet_mask = (events.FatJet.pt > 170) & (events.FatJet.msoftdrop > 20) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
         idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
         leadingFatJet = ak.firsts(events.FatJet[idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
-
 
         ## ----------------- nbquark from top that is <0.8 the candidate fatjet --------------
         nBQuarkFromTop = np.zeros(len(events))
@@ -1022,6 +1021,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         min_dR_jet_lep_idx = ak.argmin(dR_jet_lep, keepdims=True, axis=1)
         flavB_near_lep = ak4Jets.btagDeepFlavB[min_dR_jet_lep_idx]
         if len(flavB_near_lep) > 1: flavB_near_lep = ak.firsts(flavB_near_lep, axis=-1)
+        flavB_near_lep = ak.fill_none(flavB_near_lep, -.999)
 
         ########!!!! in events with no passing ak4 jet, replacing all values with 99 will mean it will return the first value. This is not an issue for us since we filter out the events with no passing ak4jet in sel1b ######
         ## !!! TODO: will still be good to fix later but it is taking too much time now.
@@ -1037,23 +1037,53 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #print(np.count_nonzero(flavB_near_lep))
         #print('-------------------\n\n\n')
 
-        #import sys
-        #sys.exit()
+        ## pt_ISRs : ask dr brinkerhoff what this is supposed to be
+        ak44vec = ak.zip(
+            {
+                'pt'  : ak4Jets.pt[ak4SelectionMask],
+                'eta' : ak4Jets.eta[ak4SelectionMask],
+                'phi' : ak4Jets.phi[ak4SelectionMask],
+                'mass': ak4Jets.mass[ak4SelectionMask]
+            },
+            with_name='PtEtaPhiMLorentzVector',
+            behavior = vector.behavior
+        )
+
+        pt_ISRs = ak44vec.sum(axis=1).pt
+        pt_ISRs = ak.fill_none(pt_ISRs, -99)
+
+        ## mass_lJ : mass of (selectedfatJet4vec + selectedlepton4vec)
+        mass_lJ = (leadingFatJet4Vec + leadingLepton4Vec).mass
+        mass_lJ = ak.fill_none(mass_lJ, -99)
+
+        ## dR_lJ_flavB_max : dR between lJ_vec and highest flavB ak4Jet
+        idx_max_flavB = ak.argmax(flavB_jet, keepdims=True, axis=1)
+        dR_lJ_flavB_max = dR_ak4_lJ[idx_max_flavB]
+        if len(dR_lJ_flavB_max) > 1: dR_lJ_flavB_max = ak.firsts(dR_lJ_flavB_max  , axis=-1) ##  firsts : [[val], [val]] --> [val, val]
+        dR_lJ_flavB_max = ak.fill_none(dR_lJ_flavB_max, -99)
+
+        ## jet_pt_near_lep
+        jet_pt_near_lep = ak4Jets.pt[min_dR_jet_lep_idx]
+        if len(jet_pt_near_lep) > 1: jet_pt_near_lep = ak.firsts(jet_pt_near_lep, axis=-1)
+        jet_pt_near_lep = ak.fill_none(jet_pt_near_lep, -99)
 
         ##---------------------- loading the bdt and scoring
         bbqq_model = xgb.Booster()
 
         bbqq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/Htoaa/models/11.model')
 
-        print(bbqq_model.feature_names)
-
         bbqq_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T, feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
-        predictions = bbqq_model.predict(bbqq_dmatrix)
+        bbqq_predictions = bbqq_model.predict(bbqq_dmatrix)
 
 
         bbqq_bbq_model = xgb.Booster()
-        bbqq_bbq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/models/Htoaa/models/13.model')
-        bbqq_bbq_dmatrix = xgb.DMatrix(np.array(), feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lep', 'dPhi_lv_fat', 'pt_ISRs', 'mass_lJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'jet_pt_near_lep', 'pt_jet1', 'dR_fat_jet_min'])
+        bbqq_bbq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/Htoaa/models/13.model')
+        #bbqq_bbq_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lep, dPhi_lv_fat, pt_ISRs, mass_lJ, dR_lJ_flavB_max, dEta_lep_fat, jet_pt_near_lep, pt_jet1, dR_fat_jet_min]), feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lep', 'dPhi_lv_fat', 'pt_ISRs', 'mass_lJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'jet_pt_near_lep', 'pt_jet1', 'dR_fat_jet_min'])
+
+        bbqq_bbq_dmatrix = xgb.DMatrix(
+            np.array([ mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lep, dPhi_lv_fat, pt_ISRs, mass_lJ, dR_lJ_flavB_max, dEta_lep_fat, jet_pt_near_lep, pt_jet1, dR_fat_jet_min]).T,
+            feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lep', 'dPhi_lv_fat', 'pt_ISRs', 'mass_lJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'jet_pt_near_lep', 'pt_jet1', 'dR_fat_jet_min'])
+        bbqq_bbq_predictions = bbqq_bbq_model.predict(bbqq_bbq_dmatrix)
         ## --------------------------------------------------------
 
         leadingFatJetDeepTagMD_ZHbbvsQCD = ak.where(
@@ -1108,9 +1138,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         dR_leadingElectron_leadingFatJet = leadingElectron.delta_r(leadingFatJet)
 
 
-
-
-
         ## (Htoaa3b + Htoaa4b)/QCD
         if ('particleNetMD_Hto4b_Haa3b' in events.FatJet.fields) and ('particleNetMD_Hto4b_Haa4b' in events.FatJet.fields):
             leadingFatJet_PNetMD_Hto4b_QCD01234b_sum = (
@@ -1162,6 +1189,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 luminosityBlock_list = events.luminosityBlock
                 ))
 
+
         if "nPV" in self.sel_names_all["SR"]:
             # nPVGood >= 1
             selection.add("nPV", events.PV.npvsGood >= 1)
@@ -1173,30 +1201,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "METFilters",
                 selectMETFilters(events.Flag, self.datasetInfo["era"], self.datasetInfo['isMC'])
             )
-
-        # if "leadingMuonPt" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingMuonPt",
-        #         leadingMuon.pt > self.objectSelector.MuonPtThsh
-        #     )
-
-        # if "leadingMuonEta" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingMuonEta",
-        #         abs(leadingMuon.eta) < self.objectSelector.MuonEtaThsh
-        #     )
-
-        # if "leadingMuonId" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingMuonId",
-        #         leadingMuon.mvaId >= self.objectSelector.MuonMVAId
-        #     )
-
-        # if "leadingMuonIso" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingMuonIso",
-        #         leadingMuon.miniIsoId >= self.objectSelector.MuonMiniIsoId
-        #     )
 
 
         if "goodLepton" in self.sel_names_all['SR']:
@@ -1210,41 +1214,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "goodLepton",
                 goodLepton_mask
             )
-
-
-        # Muon trigger selection
-        # if self.sMuTrgSelection in self.sel_names_all["SR"]:
-        #     if self.sMuTrgSelection not in Triggers_perEra[self.datasetInfo["era"]]:
-        #         logging.critical(f'htoaa_triggerStudy_GGFMode.py::main():: {self.sMuTrgSelection = } not in {Triggers_perEra[self.datasetInfo["era"]] = }.')
-        #         exit(0)
-
-        #     mask_Trgs = falses_list
-        #     HLT_Trgs = ['IsoMu24', 'Mu50']
-        #     L1T_Trgs = ['SingleMu22', 'SingleMu25']
-
-        #     mask_HLT = events.HLT[HLT_Trgs[0]]==True
-        #     mask_HLT = mask_HLT | (events.HLT[HLT_Trgs[1]]==True)
-
-        #     mask_L1T = events.L1[L1T_Trgs[0]]==True
-        #     mask_L1T = mask_L1T | (events.L1[L1T_Trgs[1]]==True)
-
-        #     mask_Trgs = mask_HLT & mask_L1T
-        #     # for HLTName, L1TList in Triggers_perEra[self.datasetInfo["era"]][self.sMuTrgSelection].items():
-        #     #     HLTName_toUse = HLTName.replace('HLT_', '')
-        #     #     mask_HLT = events.HLT[HLTName_toUse] == True
-        #     #     mask_L1Ts = falses_list
-        #     #     for L1TName in L1TList:
-        #     #         L1TName_toUse = L1TName.replace('L1_', '')
-        #     #         mask_L1T_i = events.L1[L1TName_toUse] == True
-        #     #         mask_L1Ts = (mask_L1Ts | mask_L1T_i) # any one of the L1T triggers associated to HLT path should be fired
-
-        #     #     mask_Trg_i = (mask_HLT & mask_L1Ts) # HLT path and any of the associated L1T seed should be fired
-        #     #     mask_Trgs = (mask_Trgs | mask_Trg_i) # Any of the HLT trigger should be fired
-
-        #     selection.add(
-        #         self.sMuTrgSelection,
-        #         mask_Trgs
-        #     )
 
 
         if lepton_selection == 'Electron':
@@ -1296,10 +1265,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
 
 
-        if lepton_selection == 'Electron':
-            dR_leadingLepton_leadingFatJet = dR_leadingElectron_leadingFatJet
-        elif lepton_selection == 'Muon' :
-            dR_leadingLepton_leadingFatJet = dR_leadingMuon_leadingFatJet
+        # if lepton_selection == 'Electron':
+        #     dR_leadingLepton_leadingFatJet = dR_leadingElectron_leadingFatJet
+        # elif lepton_selection == 'Muon' :
+        #     dR_leadingLepton_leadingFatJet = dR_leadingMuon_leadingFatJet
         if 'Mass140_dR_2p75' in self.sel_names_all['SR']:
             selection.add(
                 'Mass140_dR_2p75', dR_leadingLepton_leadingFatJet < self.objectSelector.dRMuonFatJetThshHigh
@@ -1458,7 +1427,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ###################
         # FILL HISTOGRAMS
-        ###################
+        ##################
 
         systList = []
         if self.datasetInfo['isMC']:
@@ -1478,11 +1447,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #    output['cutflow'][n] += selection.all(n).sum()
 
         for iSelection in self.sel_names_all.keys():
-
-
             iName = f"{iSelection}: {self.sel_names_all[iSelection]}"
-            print(self.sel_names_all.keys())
-            print('\\n\n\n\n\n')
             sel_i = selection.all(* self.sel_names_all[iSelection])
             output['cutflow'][iName] += sel_i.sum()
             output['cutflow'][sWeighted+iName] +=  weights.weight()[sel_i].sum()
@@ -1526,8 +1491,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
             for sel_name in self.sel_names_all.keys(): # loop of list of selections
                 # print(f"For histogram filling: {sel_name = }, {self.sel_names_all[sel_name] = }")
-
-
                 if sel_name.startswith('Gen'): continue
 
                 sel_SR_toUse = selection.all(* self.sel_names_all[sel_name])
@@ -1579,7 +1542,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         sel_SR_woSel2018HEM1516_forHExt = sel_SR_woSel2018HEM1516_toUse & mask_HExt
 
 
-
                     if len(sel_SR_forHExt) == 0: continue
 
 
@@ -1627,6 +1589,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
                     ## leading Muon
                     sel_tmp_ = sel_SR_forHExt & (~ ak.is_none(leadingMuon.pt))
+
                     output['hLeadingMuonPt'+sHExt].fill(
                         dataset=dataset,
                         Pt=(leadingMuon.pt[sel_tmp_]),
@@ -1671,7 +1634,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     # "HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4"
                     ## leading FatJet
                     sel_tmp_ = sel_SR_forHExt & (~ ak.is_none(leadingFatJet.pt))
-
                     ## ---- nbhadron for checking ttbar splitting
                     if self.datasetInfo['isMC'] :
                         output['hLeadingFatJet_nBHadrons'+sHExt].fill(
@@ -1761,11 +1723,17 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
                     ## we are not computing xgb score for the sel1b category
                     if not ( 'sel_1b' in sHExt):
-                        output['xgb_score'+sHExt].fill(
+                        output['bbqq_xgb_score'+sHExt].fill(
                             dataset=dataset,
-                            MLScore=(predictions[sel_tmp_]),
+                            MLScore=(bbqq_predictions[sel_tmp_]),
                             systematic=syst,
                             weight=evtWeight[sel_tmp_]
+                        )
+                        output['bbqq_bbq_xgb_score'+sHExt].fill(
+                            dataset=dataset,
+                            MLScore=(bbqq_bbq_predictions[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_],
                         )
 
                     output['btagHbb'+sHExt].fill(
