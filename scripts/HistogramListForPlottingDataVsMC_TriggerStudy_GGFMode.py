@@ -8,8 +8,8 @@ sNRebinX = 'nRebinX';  sNRebinY = 'nRebinY';
 sXRebinning = 'xRebinning'; sYRebinning = 'yRebinning';
 
 ExpData_dict = {
-    # 'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
-    'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
+    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    # 'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
     #'Data A': ['SingleMuon_Run2018A'],
     #'Data B': ['SingleMuon_Run2018B'],
     #'Data C': ['SingleMuon_Run2018C'],
@@ -37,7 +37,7 @@ MCSig_list = [] #['SUSY_GluGluH_01J_HToAATo4B_M-20_HPtAbv150', 'SUSY_GluGluH_01J
 sLableSig = [] #['HToAATo4B_M-20', 'HToAATo4B_M-30']
 systematics_list = ['central']
 systematics_forData = 'noweight'
-selectionTags = ['sel_JetID', 'sel_Mass140','sel_Mass140_dR_2p75']#['sel_JetID', 'sel_leadingFatJetZHbb_Xbb_avg', 'SR'] #['SR', 'SR_Trg_Combo_AK4AK8Jet_HT'] #['SR', 'SR_TrgAK8330_M30_BDBnp4', 'SR_Trg2AK4116_DCSVp71', 'SR_TrgAK8400_M30', 'SR_TrgAK8500', 'SR_TrgComb2', 'SR_TrgComb4' ] # ['sel_JetID', 'sel_lFJPNetXbbPlusDZHbb', 'sel_L1_SingleJet180', 'SR'] # ['sel_JetID', 'sel_L1_SingleJet180', 'SR'] #['sel_HLT_IsoMu27'] # ['sel_JetID', 'sel_L1_SingleJet180', 'SR'] # ['sel_JetID', 'sel_L1_SingleJet180', 'SR'] # ['sel_leadingFatJetMSoftDrop', 'sel_leadingFatJetParticleNetMD_XbbvsQCD', 'SR'] #['SR', 'sel_leadingFatJetMSoftDrop', 'sel_leadingFatJetParticleNetMD_XbbvsQCD', 'sel_2018HEM1516Issue']
+selectionTags = ['sel_1b', 'sel_0b', 'sel_0b_BBQQ']#['sel_JetID', 'sel_Mass140','sel_Mass140_dR_2p75']#['sel_JetID', 'sel_leadingFatJetZHbb_Xbb_avg', 'SR'] #['SR', 'SR_Trg_Combo_AK4AK8Jet_HT'] #['SR', 'SR_TrgAK8330_M30_BDBnp4', 'SR_Trg2AK4116_DCSVp71', 'SR_TrgAK8400_M30', 'SR_TrgAK8500', 'SR_TrgComb2', 'SR_TrgComb4' ] # ['sel_JetID', 'sel_lFJPNetXbbPlusDZHbb', 'sel_L1_SingleJet180', 'SR'] # ['sel_JetID', 'sel_L1_SingleJet180', 'SR'] #['sel_HLT_IsoMu27'] # ['sel_JetID', 'sel_L1_SingleJet180', 'SR'] # ['sel_JetID', 'sel_L1_SingleJet180', 'SR'] # ['sel_leadingFatJetMSoftDrop', 'sel_leadingFatJetParticleNetMD_XbbvsQCD', 'SR'] #['SR', 'sel_leadingFatJetMSoftDrop', 'sel_leadingFatJetParticleNetMD_XbbvsQCD', 'sel_2018HEM1516Issue']
 
 HLT_toUse = 'HLT_IsoMu24'
 
@@ -94,7 +94,8 @@ histograms_dict = OD([
     ('pt_jet3', {sXLabel: 'pt_jet3', sYLabel: 'Events', sXRange: [0,200], sNRebinX:4}), # pt axis
     ('dPhi_lv_fat', {sXLabel: 'dPhi_lv_fat', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX:2}), # phi axis
     ('dR_fat_jet_min', {sXLabel: 'dR_fat_jet_min', sYLabel: 'Events', sXRange: [0,5], sNRebinX:10}), # delta r axis
-    ('xgb_score', {sXLabel: 'xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('bbqq_xgb_score', {sXLabel: 'bbqq_xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('bbqq_bbq_xgb_score', {sXLabel: 'bbqq_bbq_xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('btagHbb', {sXLabel: 'btagHbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
