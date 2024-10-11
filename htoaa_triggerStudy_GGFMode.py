@@ -94,27 +94,27 @@ class ObjectSelection:
     def __init__(self, era):
         self.era = era
 
-        self.tagger_btagDeepB = 'DeepCSV'
-        self.wp_btagDeepB = 'M'
-        self.wp_ParticleNetMD_XbbvsQCD = 'L'
+        # self.tagger_btagDeepB = 'DeepCSV'
+        # self.wp_btagDeepB = 'M'
+        # self.wp_ParticleNetMD_XbbvsQCD = 'L'
 
-        self.FatJetPtThsh  = 250 #170
-        self.FatJetEtaThsh = 2.4
-        self.FatJetJetID   = int(JetIDs.tightIDPassingLeptonVeto)
-        self.FatJetParticleNetMD_XbbvsQCD_Thsh   = bTagWPs[self.era]['ParticleNetMD_XbbvsQCD'][self.wp_ParticleNetMD_XbbvsQCD]
-        self.FatJetZHbb_Xbb_avg_Thsh = 0.4
-        # self.FatJetMsoftdropHiggsVetoThshLow  = 107
-        self.FatJetMsoftdropHiggsVetoThshHigh = 140
-
-
-        self.MuonPtThsh  = 26
-        self.MuonEtaThsh = 2.4
-        self.MuonMVAId     =  1 # (1=MvaLoose, 2=MvaMedium, 3=MvaTight, 4=MvaVTight, 5=MvaVVTight)
-        self.MuonMiniIsoId =  1 # (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
+        # self.FatJetPtThsh  = 250 #170
+        # self.FatJetEtaThsh = 2.4
+        # self.FatJetJetID   = int(JetIDs.tightIDPassingLeptonVeto)
+        # self.FatJetParticleNetMD_XbbvsQCD_Thsh   = bTagWPs[self.era]['ParticleNetMD_XbbvsQCD'][self.wp_ParticleNetMD_XbbvsQCD]
+        # self.FatJetZHbb_Xbb_avg_Thsh = 0.4
+        # # self.FatJetMsoftdropHiggsVetoThshLow  = 107
+        # self.FatJetMsoftdropHiggsVetoThshHigh = 140
 
 
-        self.dRMuonFatJetThshLow = 0.8
-        self.dRMuonFatJetThshHigh = 2.75
+        # self.MuonPtThsh  = 26
+        # self.MuonEtaThsh = 2.4
+        # self.MuonMVAId     =  1 # (1=MvaLoose, 2=MvaMedium, 3=MvaTight, 4=MvaVTight, 5=MvaVVTight)
+        # self.MuonMiniIsoId =  1 # (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
+
+
+        # self.dRMuonFatJetThshLow = 0.8
+        # self.dRMuonFatJetThshHigh = 2.75
 
     def selectBFromTop(self, events):
         maskGenB = (
@@ -198,15 +198,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "nPV",
                 "METFilters",
                 "goodLepton",
-                "dR_Muon_FatJet",
-                # "leadingFatJetEta",
-                # "bdtScoreCut",
+                "dR_Lep_FatJet",
                 # "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                "JetID",
-                'Mass140',
-                'Mass140_dR_2p75',
+                # "JetID",
+                # 'Mass140',
+                # 'Mass140_dR_2p75',
                 '1b',
                 '0b',
+                '0b_BBQ',
                 '0b_BBQQ'
             ]),
         ])
@@ -233,53 +232,25 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             '''
             pass
 
-        # dictionary of different HLT trigger combination to try
-        # value of the dictionary is list of HLT paths which will be gated by 'OR' operator
-        # self.sel_TrgHLTs = OD()
-        # self.sel_TrgHLTs[Era_2018] = OD([
-        #     ('Trg_PFJet500', {
-        #         'HLT_PFJet500':                                       ['L1_SingleJet180'],
-        #     }),
-        #     ('Trg_PFHT1050', {
-        #         'HLT_PFHT1050':                                       ['L1_HTT360er'],
-        #     }),
-        #     ('Trg_AK8PFHT800_TrimMass50', {
-        #         'HLT_AK8PFHT800_TrimMass50':                          ['L1_HTT360er'],
-        #     }),
-        #     ('Trg_AK8PFJet500', {
-        #         'HLT_AK8PFJet500':                                    ['L1_SingleJet180'],
-        #     }),
-        #     ('Trg_AK8PFJet400_TrimMass30', {
-        #         'HLT_AK8PFJet400_TrimMass30':                         ['L1_SingleJet180'],
-        #     }),
-        #     ('Trg_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4', {
-        #         'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': ['L1_SingleJet180'],
-        #     }),
-        #     ('Trg_Combo_AK4AK8Jet_HT', {
-        #         'HLT_PFJet500':                                       ['L1_SingleJet180'],
-        #         'HLT_PFHT1050':                                       ['L1_HTT360er'],
-        #         'HLT_AK8PFHT800_TrimMass50':                          ['L1_HTT360er'],
-        #         'HLT_AK8PFJet500':                                    ['L1_SingleJet180'],
-        #         'HLT_AK8PFJet400_TrimMass30':                         ['L1_SingleJet180'],
-        #         'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': ['L1_SingleJet180'],
-        #     }),
+        # for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
+        # #for iCondition in range(self.sel_names_all["SR"].index("1b"), len(self.sel_names_all["SR"])):
+        #     conditionName = self.sel_names_all["SR"][iCondition]
 
-        # ])
+        #     self.sel_names_all["sel_%s" % conditionName] = self.sel_names_all["SR"][0 : (iCondition+1)]
 
-        # Add HLT triggers combination on top of 'SR' selection
-        #for selName_ in self.sel_TrgHLTs[self.datasetInfo["era"]]:
-        #    self.sel_names_all["SR_%s" % selName_] = self.sel_names_all["SR"] + [selName_]
-
-        # selection region addition each SR conditions successively
-        #for iCondition in range(self.sel_names_all["SR"].index("leadingMuonPt"), len(self.sel_names_all["SR"])): #- 1):
-        for iCondition in range(self.sel_names_all["SR"].index("goodLepton"), len(self.sel_names_all["SR"])):
-        #for iCondition in range(self.sel_names_all["SR"].index("1b"), len(self.sel_names_all["SR"])):
-            conditionName = self.sel_names_all["SR"][iCondition]
-            self.sel_names_all["sel_%s" % conditionName] = self.sel_names_all["SR"][0 : (iCondition+1)]
+        ## add sel_1, sel_0b, sel_0b_bbqq to the keys
+        # sel_1b :      ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '1b']
+        # sel_0b :      ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b']
+        # sel_0b_BBQ :  ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b', '0b_BBQ']
+        # sel_0b_BBQQ : ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b', '0b_BBQ', '0b_BBQQ']
+        self.sel_names_all['sel_1b'] = [x for x in self.sel_names_all["SR"] if '0b' not in x]
+        self.sel_names_all['sel_0b'] = [x for x in self.sel_names_all["SR"][:-2] if '1b' not in x]
+        self.sel_names_all['sel_0b_BBQ'] = [x for x in self.sel_names_all["SR"][:-1] if '1b' not in x]
+        self.sel_names_all['sel_0b_BBQQ'] = [x for x in self.sel_names_all["SR"] if '1b' not in x]
 
         self.histosExtensions = ['']
         dataLSSelGoldenJSON = None
-        self.SFs_ParticleNetMD_XbbvsQCD = None
+        # self.SFs_ParticleNetMD_XbbvsQCD = None
 
         if not self.datasetInfo['isMC']: ## Data
             # data LS selection Golden JSON
@@ -347,13 +318,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 self.histosExtensions = HistogramNameExtensions_TTTo2L2Nu
 
             ## MC ParticleNetMD_XbbvsQCD SFs
-            print(f" {Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo['era']][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['SFs'] = } "); sys.stdout.flush()
-            print(f" {Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo['era']][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['pT_binEdges'] = } "); sys.stdout.flush()
+            #print(f" {Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo['era']][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['SFs'] = } "); sys.stdout.flush()
+            #print(f" {Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo['era']][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['pT_binEdges'] = } "); sys.stdout.flush()
 
-            self.SFs_ParticleNetMD_XbbvsQCD = dense_lookup(
-                np.array( Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo["era"]][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['SFs'] ), # list of SFs
-                [ np.array(Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo["era"]][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['pT_binEdges']) ] # list of bin edges for all axes of SF histogram
-                )
+            # self.SFs_ParticleNetMD_XbbvsQCD = dense_lookup(
+            #     np.array( Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo["era"]][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['SFs'] ), # list of SFs
+            #     [ np.array(Corrections['ParticleNetMD_XbbvsQCD'][self.datasetInfo["era"]][self.objectSelector.wp_ParticleNetMD_XbbvsQCD]['pT_binEdges']) ] # list of bin edges for all axes of SF histogram
+            #    )
 
         dataset_axis    = hist.Cat("dataset", "Dataset")
         systematic_axis = hist.Cat("systematic", "Systematic Uncertatinty")
@@ -366,13 +337,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         nObject50_axis        = hist.Bin("nObject50",              r"No. of object",              51,    -0.5,    50.5)
         nObject200_axis       = hist.Bin("nObject200",             r"No. of object",             201,    -0.5,   200.5)
         pt4TeV_axis           = hist.Bin("Pt4TeV",                 r"$p_{T}$ [GeV]",             200,       0,    4000)
-        pt_axis               = hist.Bin("Pt",                     r"$p_{T}$ [GeV]",             200,       0,    1000)
+        pt_axis               = hist.Bin("Pt",                     r"$p_{T}$ [GeV]",             1500,       0,    1500)
         ptLow_axis            = hist.Bin("PtLow",                  r"$p_{T}$ [GeV]",             400,       0,     200)
         ptUltraLow_axis       = hist.Bin("PtUltraLow",             r"$p_{T}$ [GeV]",             200,       0,     0.1)
         pt1to10_axis          = hist.Bin("Pt1to10",                r"$p_{T}$ [GeV]",             100,       0,      10)
         eta_axis              = hist.Bin("Eta",                    r"$#eta$",                    100,      -6,       6)
         phi_axis              = hist.Bin("Phi",                    r"$\phi$",                    100,   -3.14,    3.13)
-        mass_axis             = hist.Bin("Mass",                   r"$m$ [GeV]",                 300,       0,     300)
+        mass_axis             = hist.Bin("Mass",                   r"$m$ [GeV]",                 5000,      0,    5000)
         mass_axis1            = hist.Bin("Mass1",                  r"$m$ [GeV]",                 300,       0,     300)
         mass10_axis           = hist.Bin("Mass10",                 r"$m$ [GeV]",                 300,       0,      10)
         logMass3_axis         = hist.Bin("logMass3",               r"$m$ [GeV]",                 300,       0,       3)
@@ -391,7 +362,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         nB_axis               = hist.Bin('nBHadrons',              r'nBHadrons',                  6,      0,      6.0)
         nBFromTop_axis        = hist.Bin('nBQuarkFromTop',         r'nBQuarkFromTop',             6,      0,      6.0)
         nLightQuarkFromTop_axis= hist.Bin('nLightQuarkFromTop',    r'nLightQuarkFromTop',         6,      0,      6.0)
-        mass_lvJ_axis         = hist.Bin('mass_lvJ',               r'mass_lvJ',                   30,   0,       1500)
+        mass_lvJ_axis         = hist.Bin('mass_lvJ',               r'mass_lvJ',                   4000,   0,       4000)
         sXaxis      = 'xAxis'
         sXaxisLabel = 'xAxisLabel'
         sYaxis      = 'yAxis'
@@ -471,15 +442,23 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('bdt_mass_fat'  +sHExt, {sXaxis: mass_axis,      sXaxisLabel: r'bdt_mass_fat'}),
                     ('flavB_max_jet' +sHExt, {sXaxis: mlScore_axis ,  sXaxisLabel: r'flavB_max_jet'}),
                     ('mass_lvJ'      +sHExt, {sXaxis: mass_lvJ_axis,  sXaxisLabel: r'masslvJ'}),
+                    ('flavB_near_lep'+sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'flavB_near_lep'}),
                     ('dR_lep_fat'    +sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_lep_fat'}),
                     ('flavB_near_lJ' +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'flavB_near_lJ'}),
+                    ('dPhi_lv_fat'   +sHExt, {sXaxis: phi_axis,       sXaxisLabel: r'dPhi_lv_fat'}),
+                    ('pt_ISRs'       +sHExt, {sXaxis: pt_axis,     sXaxisLabel: r'pt_ISRs'}),
+                    ('mass_lJ'       +sHExt, {sXaxis: mass_axis,       sXaxisLabel: r'mass_lJ'}),
+                    ('dR_lJ_flavB_max' +sHExt, {sXaxis: deltaR_axis,  sXaxisLabel: r'dR_lJ_flavB_max'}),
+                    ('jet_pt_near_lep'+sHExt,{sXaxis: pt_axis,        sXaxisLabel: r'jet_pt_near_lep'}),
+
                     ('pt_jet1'       +sHExt, {sXaxis: pt_axis,        sXaxisLabel: r'pt_jet1'}),
                     ('dEta_lep_fat'  +sHExt, {sXaxis: eta_axis,       sXaxisLabel: r'dEta_lep_fat'}),
                     ('pt_jet3'       +sHExt, {sXaxis: pt_axis,        sXaxisLabel: r'pt_jet3'}),
                     ('dPhi_lv_fat'   +sHExt, {sXaxis: phi_axis,       sXaxisLabel: r'dPhi_lv_fat'}),
                     ('dR_fat_jet_min'+sHExt, {sXaxis: deltaR_axis,    sXaxisLabel: r'dR_fatJet_min'}),
-                    ('bbqq_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
-                    ('bbqq_bbq_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xbg_score'}),
+                    ('bbqq4_xgb_score'    +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xgb_score'}),
+                    ('bbqq11_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xgb_score'}),
+                    ('bbqq_bbq13_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xgb_score'}),
                     ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r"FatJet_PNetMD_Hto4b_Htoaa4bOverQCD"}),
                     ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'}),
                     ('btagHbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagHbb'}),
@@ -839,8 +818,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         leadingElectron = ak.firsts(events.Electron[idx_sort_electron_pt_after_selection])
 
         ## fatjet selection
-        #fatjet pt > 400, fatjet eta < 2.4, fatjetid = 6
-        fatjet_mask = (events.FatJet.pt > 170) & (events.FatJet.msoftdrop > 20) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
+        fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
         idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
         leadingFatJet = ak.firsts(events.FatJet[idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
@@ -920,9 +898,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         # Separated by dR > 0.8 from candidate AK8 jet and dR > 0.4 from selected lepton
         mass_fat = ak.fill_none(leadingFatJet.mass, -99)
 
-
         ak4Jets = events.Jet
-        ak4SelectionMask = (ak4Jets.pt > 30) & (ak4Jets.pt > 170) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
+        ak4SelectionMask = (ak4Jets.pt > 30) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
 
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         if lepton_selection == 'Muon':
@@ -972,8 +949,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             with_name = 'PtEtaPhiMLorentzVector',
             behavior  = vector.behavior
         )
-        mass_lvj = (leadingFatJet4Vec + leadingLepton4Vec + MET4Vec).mass
-        mass_lvj = ak.fill_none(mass_lvj, -99)
+        mass_lvJ = (leadingFatJet4Vec + leadingLepton4Vec + MET4Vec).mass
+        mass_lvJ = ak.fill_none(mass_lvJ, -99)
 
         dR_lep_fat = leadingFatJet4Vec.delta_r(leadingLepton4Vec)
         dR_lep_fat = ak.fill_none(dR_lep_fat, -99)
@@ -1068,22 +1045,29 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         jet_pt_near_lep = ak.fill_none(jet_pt_near_lep, -99)
 
         ##---------------------- loading the bdt and scoring
-        bbqq_model = xgb.Booster()
+        bbqq4_model = xgb.Booster()
+        bbqq4_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/htoaa_bdt/models/4_Oct_10_24.model')
+        bbqq4_dmatrix = xgb.DMatrix(
+            np.array([mass_fat, mass_lvJ, dR_lep_fat, flavB_max_jet]).T,
+            feature_names=['mass_fat', 'mass_lvJ', 'dR_lep_fat', 'flavB_max_jet']
+        )
+        bbqq4_predictions = bbqq4_model.predict(bbqq4_dmatrix)
 
-        bbqq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/Htoaa/models/11.model')
+        bbqq11_model = xgb.Booster()
+        bbqq11_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/htoaa_bdt/models/11_Oct_10_24.model')
+        bbqq11_dmatrix = xgb.DMatrix(
+            np.array([mass_fat, pt_ISRs, flavB_max_jet, mass_lvJ, dR_lJ_flavB_max, dEta_lep_fat, dPhi_lv_fat, mass_lJ, jet_pt_near_lep, dR_lep_fat, flavB_near_lep]).T,
+            feature_names=['mass_fat', 'pt_ISRs', 'flavB_max_jet', 'mass_lvJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'dPhi_lv_fat', 'mass_lJ', 'jet_pt_near_lep', 'dR_lep_fat', 'flavB_near_lep']
+        )
+        bbqq11_predictions = bbqq11_model.predict(bbqq11_dmatrix)
 
-        bbqq_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lJ, pt_jet1, dEta_lep_fat, pt_jet3, dPhi_lv_fat, dR_fat_jet_min]).T, feature_names=['mass_fat', 'mass_lvj', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lJ', 'pt_jet1', 'dEta_lep_fat', 'pt_jet3', 'dPhi_lv_fat', 'dR_fat_jet_min'])
-        bbqq_predictions = bbqq_model.predict(bbqq_dmatrix)
 
-
-        bbqq_bbq_model = xgb.Booster()
-        bbqq_bbq_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/Htoaa/models/13.model')
-        #bbqq_bbq_dmatrix = xgb.DMatrix(np.array([mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lep, dPhi_lv_fat, pt_ISRs, mass_lJ, dR_lJ_flavB_max, dEta_lep_fat, jet_pt_near_lep, pt_jet1, dR_fat_jet_min]), feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lep', 'dPhi_lv_fat', 'pt_ISRs', 'mass_lJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'jet_pt_near_lep', 'pt_jet1', 'dR_fat_jet_min'])
-
-        bbqq_bbq_dmatrix = xgb.DMatrix(
-            np.array([ mass_fat, mass_lvj, flavB_max_jet, dR_lep_fat, flavB_near_lep, dPhi_lv_fat, pt_ISRs, mass_lJ, dR_lJ_flavB_max, dEta_lep_fat, jet_pt_near_lep, pt_jet1, dR_fat_jet_min]).T,
-            feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'dR_lep_fat', 'flavB_near_lep', 'dPhi_lv_fat', 'pt_ISRs', 'mass_lJ', 'dR_lJ_flavB_max', 'dEta_lep_fat', 'jet_pt_near_lep', 'pt_jet1', 'dR_fat_jet_min'])
-        bbqq_bbq_predictions = bbqq_bbq_model.predict(bbqq_bbq_dmatrix)
+        bbqq_bbq13_model = xgb.Booster()
+        bbqq_bbq13_model.load_model('/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/models/htoaa_bdt/models/13_Oct_10_24.model')
+        bbqq_bbq13_dmatrix = xgb.DMatrix(
+            np.array([mass_fat, mass_lvJ, flavB_max_jet, flavB_near_lep, jet_pt_near_lep, dR_fat_jet_min, pt_jet1, dR_lep_fat, dPhi_lv_fat, dEta_lep_fat, mass_lJ, dR_lJ_flavB_max, pt_ISRs]).T,
+            feature_names=['mass_fat', 'mass_lvJ', 'flavB_max_jet', 'flavB_near_lep', 'jet_pt_near_lep', 'dR_fat_jet_min', 'pt_jet1', 'dR_lep_fat', 'dPhi_lv_fat', 'dEta_lep_fat', 'mass_lJ', 'dR_lJ_flavB_max', 'pt_ISRs'])
+        bbqq_bbq13_predictions = bbqq_bbq13_model.predict(bbqq_bbq13_dmatrix)
         ## --------------------------------------------------------
 
         leadingFatJetDeepTagMD_ZHbbvsQCD = ak.where(
@@ -1195,8 +1179,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             selection.add("nPV", events.PV.npvsGood >= 1)
 
         if "METFilters" in self.sel_names_all["SR"]:
-            #mask_METFilters = selectMETFilters(events.Flag, self.datasetInfo["era"], self.datasetInfo['isMC'])
-            #printVariable('\n mask_METFilters', mask_METFilters)
             selection.add(
                 "METFilters",
                 selectMETFilters(events.Flag, self.datasetInfo["era"], self.datasetInfo['isMC'])
@@ -1221,18 +1203,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         elif lepton_selection == 'Muon':
             dR_leadingLepton_leadingFatJet = dR_leadingMuon_leadingFatJet
 
-        if "dR_Muon_FatJet" in self.sel_names_all["SR"]:
+        if "dR_Lep_FatJet" in self.sel_names_all["SR"]:
             selection.add(
-                "dR_Muon_FatJet",
-                #dR_leadingMuon_leadingFatJet > self.objectSelector.dRMuonFatJetThsh
-                dR_leadingLepton_leadingFatJet >self.objectSelector.dRMuonFatJetThshLow
+                "dR_Lep_FatJet",
+                dR_leadingLepton_leadingFatJet > 0.8
             )
-
-        # if "leadingFatJetEta" in self.sel_names_all["SR"]:
-        #     selection.add(
-        #         "leadingFatJetEta",
-        #         abs(leadingFatJet.eta) < self.objectSelector.FatJetEtaThsh
-        #     )
 
         if 'bdtScoreCut' in self.sel_names_all['SR']:
             selection.add(
@@ -1253,15 +1228,15 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 Hto4b_FatJet_notMuon
             )
 
-        if "JetID"  in self.sel_names_all["SR"]:
-            selection.add(
-                "JetID",
-                leadingFatJet.jetId == self.objectSelector.FatJetJetID
-            )
+        # if "JetID"  in self.sel_names_all["SR"]:
+        #     selection.add(
+        #         "JetID",
+        #         leadingFatJet.jetId == 6#self.objectSelector.FatJetJetID
+        #     )
 
 
-        if 'Mass140' in self.sel_names_all['SR']:
-            selection.add('Mass140', leadingFatJet.msoftdrop > self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh)
+        # if 'Mass140' in self.sel_names_all['SR']:
+        #     selection.add('Mass140', leadingFatJet.msoftdrop > 140 )# self.objectSelector.FatJetMsoftdropHiggsVetoThshHigh)
 
 
 
@@ -1269,25 +1244,33 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #     dR_leadingLepton_leadingFatJet = dR_leadingElectron_leadingFatJet
         # elif lepton_selection == 'Muon' :
         #     dR_leadingLepton_leadingFatJet = dR_leadingMuon_leadingFatJet
-        if 'Mass140_dR_2p75' in self.sel_names_all['SR']:
-            selection.add(
-                'Mass140_dR_2p75', dR_leadingLepton_leadingFatJet < self.objectSelector.dRMuonFatJetThshHigh
-            )
+        # if 'Mass140_dR_2p75' in self.sel_names_all['SR']:
+        #     selection.add(
+        #         'Mass140_dR_2p75', dR_leadingLepton_leadingFatJet < 2.75 #self.objectSelector.dRMuonFatJetThshHigh
+        #     )
 
+        ak4btagSelectionMask = ak4SelectionMask & (np.abs(ak4Jets.eta) < 2.4) & (ak4Jets.btagDeepFlavB > 0.2783)
         if '1b' in self.sel_names_all['SR']:
             ## select for exactly 1 medium AK4 b-tag
+            ## medium threshold found here: https://btv-wiki.docs.cern.ch/ScaleFactors/UL2018/
             selection.add(
-                '1b', np.count_nonzero(ak4SelectionMask, axis=1) == 1
+                '1b', np.count_nonzero(ak4btagSelectionMask, axis=1) == 1
                 )
 
         if '0b' in self.sel_names_all['SR']:
             selection.add(
-                '0b', np.ones_like(leadingFatJet.mass)==1
+                '0b', np.count_nonzero(ak4btagSelectionMask, axis=1) == 0
+            )
+
+        lvJ = leadingFatJet4Vec + leadingLepton4Vec + MET4Vec
+        if '0b_BBQ' in self.sel_names_all['SR']:
+            sel_0b_bbq_cut = (np.count_nonzero(ak4btagSelectionMask, axis=1) == 0) & (lvJ.pt > 250) & (lvJ.mass < 1000)
+            selection.add(
+                '0b_BBQ', sel_0b_bbq_cut
             )
 
         if '0b_BBQQ' in self.sel_names_all['SR']:
-            lvJ = leadingFatJet4Vec + leadingLepton4Vec + MET4Vec
-            sel_0b_bbqq_cut = (leadingFatJet.mass > 140) & (leadingFatJet.msoftdrop > 50) & (leadingFatJet.pt > 350) & (lvJ.pt > 250) & (lvJ.mass < 1000)
+            sel_0b_bbqq_cut = (np.count_nonzero(ak4btagSelectionMask, axis=1) == 0) & (leadingFatJet.mass > 170) & (leadingFatJet.pt > 350) & (lvJ.pt > 250) & (lvJ.mass < 1000)
             selection.add(
                 '0b_BBQQ', sel_0b_bbqq_cut
                 )
@@ -1672,9 +1655,9 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     )
                     output['mass_lvJ'+sHExt].fill(
                         dataset=dataset,
-                        mass_lvJ=(mass_lvj[sel_tmp_ & (mass_lvj > 0)]),
+                        mass_lvJ=(mass_lvJ[sel_tmp_ & (mass_lvJ > 0)]),
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_ & (mass_lvj > 0)]
+                        weight=evtWeight[sel_tmp_ & (mass_lvJ > 0)]
                     )
 
 
@@ -1684,54 +1667,105 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         systematic=syst,
                         weight=evtWeight[sel_tmp_ & (dR_lep_fat > 0)]
                     )
+
+                    output['flavB_near_lep'+sHExt].fill(
+                        dataset=dataset,
+                        MLScore=(flavB_near_lep[sel_tmp_ &(flavB_near_lep > 0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (flavB_near_lep > 0)]
+                        )
+
+                    output['dPhi_lv_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Phi=(dPhi_lv_fat[sel_tmp_ & (dPhi_lv_fat > 0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (dPhi_lv_fat > 0)],
+                    )
+
+                    output['pt_ISRs'+sHExt].fill(
+                        dataset=dataset,
+                        Pt=(pt_ISRs[sel_tmp_ & (pt_ISRs > 0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (pt_ISRs > 0)],
+                    )
+
+                    output['mass_lJ'+sHExt].fill(
+                        dataset=dataset,
+                        Mass=(mass_lJ[sel_tmp_ & (mass_lJ > 0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (mass_lJ > 0)],
+                    )
+
+                    output['dR_lJ_flavB_max'+sHExt].fill(
+                        dataset=dataset,
+                        deltaR=(dR_lJ_flavB_max[sel_tmp_ & (dR_lJ_flavB_max > 0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (dR_lJ_flavB_max > 0)]
+                    )
+
+                    output['dEta_lep_fat'+sHExt].fill(
+                        dataset=dataset,
+                        Eta=(dEta_lep_fat[sel_tmp_ & (dEta_lep_fat>0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (dEta_lep_fat>0)]
+                    )
+
                     output['flavB_near_lJ'+sHExt].fill(
                         dataset=dataset,
                         MLScore=(flavB_near_lJ[sel_tmp_ & (flavB_near_lJ > 0)]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_ & (flavB_near_lJ > 0)]
                     )
+
+                    output['jet_pt_near_lep'+sHExt].fill(
+                        dataset=dataset,
+                        Pt=(jet_pt_near_lep[sel_tmp_ & (jet_pt_near_lep > 0)]),
+                        systematic=syst,
+                        weight=evtWeight[sel_tmp_ & (jet_pt_near_lep > 0)]
+                    )
+
                     output['pt_jet1'+sHExt].fill(
                         dataset=dataset,
                         Pt=(pt_jet1[sel_tmp_ & (pt_jet1 > 0)]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_ & (pt_jet1 > 0)]
                     )
-                    output['dEta_lep_fat'+sHExt].fill(
-                        dataset=dataset,
-                        Eta=dEta_lep_fat[sel_tmp_],
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['pt_jet3'+sHExt].fill(
-                        dataset=dataset,
-                        Pt=pt_jet3[sel_tmp_],
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
+                    # output['pt_jet3'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     Pt=pt_jet3[sel_tmp_],
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
                     output['dPhi_lv_fat'+sHExt].fill(
                         dataset=dataset,
-                        Phi=dPhi_lv_fat[sel_tmp_],
+                        Phi=dPhi_lv_fat[sel_tmp_ & (dPhi_lv_fat > 0)],
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (dPhi_lv_fat > 0)]
                     )
                     output['dR_fat_jet_min'+sHExt].fill(
                         dataset=dataset,
-                        deltaR=dR_fat_jet_min[sel_tmp_],
+                        deltaR=dR_fat_jet_min[sel_tmp_ & (dR_fat_jet_min > 0)],
                         systematic=syst,
-                        weight=evtWeight[sel_tmp_]
+                        weight=evtWeight[sel_tmp_ & (dR_fat_jet_min > 0)]
                     )
 
                     ## we are not computing xgb score for the sel1b category
                     if not ( 'sel_1b' in sHExt):
-                        output['bbqq_xgb_score'+sHExt].fill(
+                        output['bbqq4_xgb_score'+sHExt].fill(
                             dataset=dataset,
-                            MLScore=(bbqq_predictions[sel_tmp_]),
+                            MLScore=(bbqq4_predictions[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                            )
+                        output['bbqq11_xgb_score'+sHExt].fill(
+                            dataset=dataset,
+                            MLScore=(bbqq11_predictions[sel_tmp_]),
                             systematic=syst,
                             weight=evtWeight[sel_tmp_]
                         )
-                        output['bbqq_bbq_xgb_score'+sHExt].fill(
+                        output['bbqq_bbq13_xgb_score'+sHExt].fill(
                             dataset=dataset,
-                            MLScore=(bbqq_bbq_predictions[sel_tmp_]),
+                            MLScore=(bbqq_bbq13_predictions[sel_tmp_]),
                             systematic=syst,
                             weight=evtWeight[sel_tmp_],
                         )
@@ -2187,11 +2221,7 @@ if __name__ == '__main__':
                     for sHExt in sHExtList:#HistogramNameExtensions_QCD:
                         if key.endswith(sHExt):#sHExt in key:
                             sHExt_toUse = '_%s' % (sHExt)
-                            print(key)
-                            print(sHExt_toUse)
                             sHistoName_toUse = sHistoName_toUse.removesuffix(f"_{sHExt}") #sHistoName_toUse.replace(sHExt_toUse, '')
-                            print(sHistoName_toUse)
-                            print('\n\n\n\n')
                             break
 
 
