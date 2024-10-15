@@ -810,17 +810,21 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ## select muon candidate
         ## apply the mask to the events.muon, see what's left, grab the highest pt muon
         ## we want muon that passes the object selection, only keep events with 1 muon, and don't keep events with any passing electrons
-        idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_mask & (np.count_nonzero(muon_mask_low_pt, axis=1)==1) & ~ak.any(electron_mask_low_pt, axis=1)], axis=-1, keepdims=True)
-        leadingMuon = ak.firsts(events.Muon[idx_sort_muon_pt_after_selection])
+        muon_selection_mask = muon_mask & (np.count_nonzero(muon_mask_low_pt, axis=1)==1) & ~ak.any(electron_mask_low_pt, axis=1)
+        idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_selection_mask], axis=-1, keepdims=True)
+        leadingMuon = ak.firsts(events.Muon[muon_selection_mask][idx_sort_muon_pt_after_selection])
 
         ## select electron candidate
-        idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_mask & (np.count_nonzero(electron_mask_low_pt, axis=1)==1) & ~ak.any(muon_mask_low_pt, axis=1)], axis=-1, keepdims=True)
-        leadingElectron = ak.firsts(events.Electron[idx_sort_electron_pt_after_selection])
+        electron_selection_mask = electron_mask & (np.count_nonzero(electron_mask_low_pt, axis=1)==1) & ~ak.any(muon_mask_low_pt, axis=1)
+        idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_selection_mask], axis=-1, keepdims=True)
+        leadingElectron = ak.firsts(events.Electron[electron_selection_mask][idx_sort_electron_pt_after_selection])
 
         ## fatjet selection
+        ## may need to set pt values to low for the masked values, arg max, then change the values that don't pass to None?
         fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
         idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
-        leadingFatJet = ak.firsts(events.FatJet[idx_sort_fatjet_pt_after_selection])
+        #idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt, axis=-1, keepdims=True)[fatjet_mask]
+        leadingFatJet = ak.firsts(events.FatJet[fatjet_mask][idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
 
         ## ----------------- nbquark from top that is <0.8 the candidate fatjet --------------
@@ -968,7 +972,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ## the np.ones([len(),1]) is so that the replacement array has the same shape as the original. Cannot use ones like as the "None" rows in the original has different shapes than filled and cause problems when flattening for fill into histograms
 
         idx_highest_pt_jet = ak.argmax(ak4Jets.pt[ak4SelectionMask], keepdims=True, axis=1)
-        pt_jet1 = ak4Jets.pt[idx_highest_pt_jet]
+        pt_jet1 = ak4Jets.pt[ak4SelectionMask][idx_highest_pt_jet]
         pt_jet1 = ak.firsts(pt_jet1, axis=-1)
         pt_jet1 = ak.fill_none(pt_jet1, -99)
 
