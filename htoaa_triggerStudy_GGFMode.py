@@ -1517,20 +1517,19 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         nBCut = 0
                         nLightCut = 0
                         if 'bbqq' in sHExt_0:
-                            nBCut = 2
-                            nLightCut = 2
+                            mask_HExt = (nBQuarkFromTop == 2) & (nLightQuarkFromTop == 2)
                         elif 'bbq' in sHExt_0:
-                            nBCut = 2
-                            nLightCut = 1
+                            mask_HExt = (nBQuarkFromTop == 2) & (nLightQuarkFromTop == 1)
                         elif 'bqq' in sHExt_0:
-                            nBCut = 1
-                            nLightCut = 2
+                            mask_HExt = (nBQuarkFromTop == 1) & (nLightQuarkFromTop == 2)
                         elif 'bb' in sHExt_0:
-                            nBCut = 2
+                            mask_HExt = (nBQuarkFromTop == 2) & (nLightQuarkFromTop == 0)
                         elif '1b' in sHExt_0:
-                            nBCut = 1
+                            mask_HExt = (nBQuarkFromTop == 1) & (nLightQuarkFromTop <= 1) # excluding bqq, but accepting b and bq
+                        elif '0b' in sHExt_0:
+                           mask_HExt = (nBQuarkFromTop == 0)
 
-                        mask_HExt = (nBQuarkFromTop == nBCut) & (nLightQuarkFromTop == nLightCut)
+                        # mask_HExt = (nBQuarkFromTop == nBCut) & (nLightQuarkFromTop == nLightCut)
 
                         mask_HExt = ak.fill_none(mask_HExt, False) # mask for events without FatJet are None. It causes error at the later stage.
                         sel_SR_forHExt = sel_SR_toUse & mask_HExt
@@ -2224,7 +2223,7 @@ if __name__ == '__main__':
                             sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
                             break
                 '''
-                if isMC and self.datasetInfo['isTTbar']: #'TTT' in sample_category:
+                if isMC and 'TTT' in sample_category:
                     sHExtList = []
                     if sample_category == 'TTToSemiLeptonic_powheg':
                         sHExtList = HistogramNameExtensions_TTTo1L1Nu

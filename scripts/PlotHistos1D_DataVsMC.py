@@ -32,11 +32,11 @@ class DataBlindingOptions(enum.Enum):
 
 #sIpFile =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/singleLep_fixed/2018/analyze_htoaa_stage1.root' #
 # sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlelep/2018/analyze_htoaa_stage1.root'
-#sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlemuon/2018/analyze_htoaa_stage1.root'
-sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skimmed_mu/2018/analyze_htoaa_stage1.root'
+sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/unskimmed_singlemuon/2018/analyze_htoaa_stage1.root'
+#sIpFile = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/skimmed_mu/2018/analyze_htoaa_stage1.root'
 #sOpDir  = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/htoaa/plots/singleLep'
-sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/skimmed_mu'
-
+#sOpDir =  '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/skimmed_mu'
+sOpDir = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/unskimmed_singlemuon'
 
 cmsWorkStatus                  = 'Work in Progress'
 era                            = '2018'
@@ -77,6 +77,8 @@ def rebinTH1(h1_, nRebins):
         h1Rebin_ = h1_[::5j]
     elif nRebins == 6:
         h1Rebin_ = h1_[::6j]
+    elif nRebins == 8:
+        h1Rebin_ = h1_[::8j]
     elif nRebins == 10:
         h1Rebin_ = h1_[::10j]
     elif nRebins == 20:
@@ -386,7 +388,7 @@ for sData, ExpData_list in ExpData_dict.items():
         for histo_name in histograms_dict.keys():
             histo_name_toUse = '%s_%s' % (histo_name, selectionTag)
             for systematic in systematics_list:
-                for yAxisScale in ['linearY']:#, 'logY']: # ['linearY', 'logY']
+                for yAxisScale in ['linearY', 'logY']: # ['linearY', 'logY']
                     xAxisRange = histograms_dict[histo_name][sXRange] if sXRange in histograms_dict[histo_name].keys() else None
                     yAxisRange = histograms_dict[histo_name][sYRange] if sYRange in histograms_dict[histo_name].keys() else None
                     xAxisLabel = histograms_dict[histo_name][sXLabel] if sXLabel in histograms_dict[histo_name].keys() else None
@@ -395,8 +397,8 @@ for sData, ExpData_list in ExpData_dict.items():
                     nRebinY    = histograms_dict[histo_name][sNRebinY] if sNRebinY in histograms_dict[histo_name].keys() else 1
 
                     nHistoDimemsions = None
-                    yAxisRange_cal      = [1e20, -1e10]
-                    yRatioAxisRange_cal = [1e20, -1e10]
+                    yAxisRange_cal      = [1e20, 10]
+                    yRatioAxisRange_cal = [1e20, 10]
                     xError = np.array([])
                     hData = None
                     hBkgTot_values = None
@@ -431,6 +433,7 @@ for sData, ExpData_list in ExpData_dict.items():
                             nHistoDimemsions = len(h.axes)
                             if nHistoDimemsions == 2 and yAxisScale == 'logY': break  # No need to plot 2-D hist with logY
                             h = rebinTH1(h, nRebinX) if nHistoDimemsions == 1 else rebinTH2(h, nRebinX, nRebinY)
+
                             h = h * luminosity_Scaling_toUse
 
                             nTot_ = h.values().sum()
@@ -445,9 +448,9 @@ for sData, ExpData_list in ExpData_dict.items():
                             if nHistoDimemsions == 1:
                                 yMin_ = getNonZeroMin(h.values())
                                 yMax_ = np.max(h.values())
-                                if yMin_ < yAxisRange_cal[0]:
+                                if (yMin_ < yAxisRange_cal[0]):
                                     yAxisRange_cal[0] = yMin_
-                                if yMax_ > yAxisRange_cal[1]:
+                                if (yMax_ > yAxisRange_cal[1]):
                                     yAxisRange_cal[1] = yMax_
 
                         # No need to plot 2-D hist with logY
@@ -486,7 +489,7 @@ for sData, ExpData_list in ExpData_dict.items():
                             yMax_ = np.max(hBkgTot_values)
                             if yMin_ < yAxisRange_cal[0]:
                                 yAxisRange_cal[0] = yMin_
-                            if yMax_ > yAxisRange_cal[1]:
+                            if (yMax_ > yAxisRange_cal[1]):
                                 yAxisRange_cal[1] = yMax_
 
                         nHists = len(MCBkg_list)
@@ -524,8 +527,13 @@ for sData, ExpData_list in ExpData_dict.items():
                                 )
 
 
-                            ## 1D cumulativehistogram
+                            ## 1D cumulative histogram
                             cumulative = np.cumsum(hStack_values_list, axis=1)
+                            print(hStack_values_list)
+                            print(cumulative)
+                            print(hStack_edges)
+                            print('\n\n\n')
+
                             hep.histplot(
                                 cumulative,
                                 bins=hStack_edges,
@@ -592,8 +600,6 @@ for sData, ExpData_list in ExpData_dict.items():
 
                             h = h * luminosity_Scaling_toUse
 
-
-
                             nTot_ = h.values().sum()
                             hSig_list.append(h)
                             sSig_list.append(dataset)
@@ -615,7 +621,7 @@ for sData, ExpData_list in ExpData_dict.items():
                                 yMax_ = np.max(h.values())
                                 if yMin_ < yAxisRange_cal[0]:
                                     yAxisRange_cal[0] = yMin_
-                                if yMax_ > yAxisRange_cal[1]:
+                                if (yMax_ > yAxisRange_cal[1]):
                                     yAxisRange_cal[1] = yMax_
 
                             # plot signal
@@ -816,7 +822,11 @@ for sData, ExpData_list in ExpData_dict.items():
 
                     if yAxisRange: ax[0].set_ylim(yAxisRange[0], yAxisRange[1])
                     elif nHistoDimemsions == 1:
+
+                        print(f'{yAxisRange_cal=}')
+
                         yMaxOffset = 10**(math.log10(yAxisRange_cal[1] / abs(yAxisRange_cal[0])) * 0.4) if ((yAxisScale == 'logY')) else 1.6
+
                         #print(f"{yMaxOffset = }, {yAxisRange_cal[1] * yMaxOffset = }, \t\t {abs(yAxisRange_cal[0]) * logYMinScaleFactor = }")
                         if yAxisScale == 'logY':
                             yAxisRange_cal[0] = abs(yAxisRange_cal[0]) * logYMinScaleFactor
@@ -884,7 +894,7 @@ for sData, ExpData_list in ExpData_dict.items():
                                 )
 
                     fig.savefig('%s/%s_%s_%s_%s.png' % (sOpDir,histo_name_toUse,systematic,sData, yAxisScale), transparent=False, dpi=80, bbox_inches="tight")
-                    fig1.savefig('%s/%s_%s_%s_%s_cumulative.png' % (sOpDir,histo_name_toUse,systematic,sData, yAxisScale), transparent=False, dpi=80, bbox_inches="tight")
+                    #fig1.savefig('%s/%s_%s_%s_%s_cumulative.png' % (sOpDir,histo_name_toUse,systematic,sData, yAxisScale), transparent=False, dpi=80, bbox_inches="tight")
                     plt.close('all')#fig, fig1)
 
 # %%
