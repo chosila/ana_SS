@@ -811,21 +811,22 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ## apply the mask to the events.muon, see what's left, grab the highest pt muon
         ## we want muon that passes the object selection, only keep events with 1 muon, and don't keep events with any passing electrons
         muon_selection_mask = muon_mask & (np.count_nonzero(muon_mask_low_pt, axis=1)==1) & ~ak.any(electron_mask_low_pt, axis=1)
-        idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_selection_mask], axis=-1, keepdims=True)
-        leadingMuon = ak.firsts(events.Muon[muon_selection_mask][idx_sort_muon_pt_after_selection])
+        #idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_selection_mask], axis=-1, keepdims=True)
+        leadingMuon = ak.firsts(events.Muon[muon_selection_mask])# [idx_sort_muon_pt_after_selection])
 
         ## select electron candidate
         electron_selection_mask = electron_mask & (np.count_nonzero(electron_mask_low_pt, axis=1)==1) & ~ak.any(muon_mask_low_pt, axis=1)
-        idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_selection_mask], axis=-1, keepdims=True)
-        leadingElectron = ak.firsts(events.Electron[electron_selection_mask][idx_sort_electron_pt_after_selection])
+        #idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_selection_mask], axis=-1, keepdims=True)
+        leadingElectron = ak.firsts(events.Electron[electron_selection_mask]) #[idx_sort_electron_pt_after_selection])
 
         ## fatjet selection
         ## may need to set pt values to low for the masked values, arg max, then change the values that don't pass to None?
         fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
-        idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
+        #idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
         #idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt, axis=-1, keepdims=True)[fatjet_mask]
-        leadingFatJet = ak.firsts(events.FatJet[fatjet_mask][idx_sort_fatjet_pt_after_selection])
+        leadingFatJet = ak.firsts(events.FatJet[fatjet_mask]) #[idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
+
 
         ## ----------------- nbquark from top that is <0.8 the candidate fatjet --------------
         nBQuarkFromTop = np.zeros(len(events))
@@ -861,7 +862,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                  dr_leadingFatJet_GenBFromTop = np.column_stack([ delta_r_leadingFatJetLVGenB_0,  delta_r_leadingFatJetLVGenB_1])
                  nBQuarkFromTop = np.count_nonzero(dr_leadingFatJet_GenBFromTop < 0.8, axis=1)
 
-        if  self.datasetInfo['sample_category'] == "TTToSemiLeptonic_powheg":
+        if self.datasetInfo['sample_category'] == "TTToSemiLeptonic_powheg":
              genPartLightFromTop = self.objectSelector.selectLightFromTop(events)
              if len(genPartLightFromTop) > 0:
 
@@ -975,6 +976,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         pt_jet1 = ak4Jets.pt[ak4SelectionMask][idx_highest_pt_jet]
         pt_jet1 = ak.firsts(pt_jet1, axis=-1)
         pt_jet1 = ak.fill_none(pt_jet1, -99)
+
+        print('------------------------')
+        for i in range(len(pt_jet1)):
+            if pt_jet1[i]==-99: continue
+            print(f'{pt_jet1[i]=}')
+            print(f'{ak.firsts(ak4Jets.pt[ak4SelectionMask])[i]=}')
+        print('\n\n\n')
 
 
         ## ok when doing ak.firsts, if it is only 1 element, it will return a double instead of a array of double. how to screen for only one element
@@ -1505,7 +1513,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                         sel_SR_forHExt = sel_SR_toUse
                         sel_SR_woSel2018HEM1516_forHExt = sel_SR_woSel2018HEM1516_toUse
                     else:
-                        # extensions are 'bbqq', 'bbq' , 'bqq', 'bb', '1b', '0b'
+                        # extensions are 'bbqq', 'bbq' , 'bqq', 'bb', '1b'
                         nBCut = 0
                         nLightCut = 0
                         if 'bbqq' in sHExt_0:
@@ -2216,7 +2224,7 @@ if __name__ == '__main__':
                             sHistoName_toUse = sHistoName_toUse.replace(sHExt_toUse, '')
                             break
                 '''
-                if isMC and 'TTT' in sample_category:
+                if isMC and self.datasetInfo['isTTbar']: #'TTT' in sample_category:
                     sHExtList = []
                     if sample_category == 'TTToSemiLeptonic_powheg':
                         sHExtList = HistogramNameExtensions_TTTo1L1Nu
