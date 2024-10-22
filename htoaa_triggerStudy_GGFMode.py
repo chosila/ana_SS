@@ -1239,34 +1239,23 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         if "lepjet" in self.sel_names_all['SR']:
              # discard: ratio of the lepton pt to ak4jet < .4
-            ratioLepJet_mask = leadingLepton.pt/ak4Jets.pt > .4
+            ratioLepJet_mask = leadingLepton.pt/ak4Jets.pt < .4
             # ak4LepJets = ak4LepJets[ratioLepJet_mask]
 
             # discard: (abs(eta) < 2.4 and btagDeepB > 0.4168) or btagDeepFlavB > 0.2783
             ak4_eta_deepB_mask = (np.abs(ak4Jets.eta) < 2.4) & (ak4Jets.btagDeepB > 0.4168)
             ak4_flavB_mask = ak4Jets.btagDeepFlavB > 0.2783
 
+            ak4LepJets_veto = ratioLepJet_mask | ak4_eta_deepB_mask | ak4_flavB_mask
 
-            # print('----------------------------------')
-            # for i in range(10):
-            #     print(f'{~ak4_Lepton_dR_mask[i]=}')
-            #     print(f'{ak4_FatJet_dR_mask[i]=}')
-            #     print(f'{((ak4Jets.pt - leadingLepton.pt) > 30)[i]=}')
-            #     print(f'{((ak4Jets.pt > 30) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4)))[i]=}')
-
-            #     print(f'{ak4LepJets_mask[i]=}')
-            #     print(f'{ratioLepJet_mask[i]=}')
-            #     print(f'{ak4_eta_deepB_mask[i]=}')
-            #     print(f'{ak4_flavB_mask[i]=}')
-            #     print('----------------------')
-            # print('\n\n\n')
-
-
-            ak4LepJets_mask = ak4LepJets_mask & ratioLepJet_mask & ~(ak4_eta_deepB_mask | ak4_flavB_mask)
+            ## make sure only the ak4 lep jets that are selected gets vetoed.
+            ## lepjet AND veto are the ones to fail, so we negate for the selection of events to keep
+            ak4LepJets_event_mask = ~ak.any(ak4LepJets_mask & ak4LepJets_veto, axis=-1)
+            # tmp2 = ak.any(ak4LepJets_mask, axis=-1)
 
             selection.add(
                 'lepjet',
-                ak.any(ak4LepJets_mask, axis=-1)
+                ak4LepJets_event_mask
             )
 
         if 'bdtScoreCut' in self.sel_names_all['SR']:
