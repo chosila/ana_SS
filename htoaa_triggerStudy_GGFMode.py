@@ -199,6 +199,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "METFilters",
                 "goodLepton",
                 "dR_Lep_FatJet",
+                "lepjet",
                 # "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # "JetID",
                 # 'Mass140',
@@ -247,6 +248,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         self.sel_names_all['sel_0b'] = [x for x in self.sel_names_all["SR"][:-2] if '1b' not in x]
         self.sel_names_all['sel_0b_BBQ'] = [x for x in self.sel_names_all["SR"][:-1] if '1b' not in x]
         self.sel_names_all['sel_0b_BBQQ'] = [x for x in self.sel_names_all["SR"] if '1b' not in x]
+
+
+        for i in self.sel_names_all.keys():
+            print(i)
+
+        print('---------------------------')
+        print('\n\n\n')
 
         self.histosExtensions = ['']
         dataLSSelGoldenJSON = None
@@ -809,23 +817,18 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## select muon candidate
         ## apply the mask to the events.muon, see what's left, grab the highest pt muon
-        ## we want muon that passes the object selection, only keep events with 1 muon, and don't keep events with any passing electrons
         muon_selection_mask = muon_mask & (np.count_nonzero(muon_mask_low_pt, axis=1)==1) & ~ak.any(electron_mask_low_pt, axis=1)
-        #idx_sort_muon_pt_after_selection = ak.argmax(events.Muon.pt[muon_selection_mask], axis=-1, keepdims=True)
         leadingMuon = ak.firsts(events.Muon[muon_selection_mask])# [idx_sort_muon_pt_after_selection])
 
         ## select electron candidate
         electron_selection_mask = electron_mask & (np.count_nonzero(electron_mask_low_pt, axis=1)==1) & ~ak.any(muon_mask_low_pt, axis=1)
-        #idx_sort_electron_pt_after_selection = ak.argmax(events.Electron.pt[electron_selection_mask], axis=-1, keepdims=True)
         leadingElectron = ak.firsts(events.Electron[electron_selection_mask]) #[idx_sort_electron_pt_after_selection])
 
         ## fatjet selection
-        ## may need to set pt values to low for the masked values, arg max, then change the values that don't pass to None?
         fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)
-        #idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt[fatjet_mask], axis=-1, keepdims=True)
-        #idx_sort_fatjet_pt_after_selection = ak.argmax(events.FatJet.pt, axis=-1, keepdims=True)[fatjet_mask]
         leadingFatJet = ak.firsts(events.FatJet[fatjet_mask]) #[idx_sort_fatjet_pt_after_selection])
         #leadingFatJet_asSingletons = ak.singletons(leadingFatJet) # for e.g. [[0.056304931640625], [], [0.12890625], [0.939453125], [0.0316162109375]]
+
 
 
         ## ----------------- nbquark from top that is <0.8 the candidate fatjet --------------
@@ -906,6 +909,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ak4Jets = events.Jet
         ak4SelectionMask = (ak4Jets.pt > 30) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
 
+
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         if lepton_selection == 'Muon':
             ak4_Lepton_dR_mask = leadingMuon.delta_r(ak4Jets) > 0.4
@@ -913,6 +917,25 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         elif lepton_selection == 'Electron':
             ak4_Lepton_dR_mask = leadingElectron.delta_r(ak4Jets) > 0.4
             leadingLepton = leadingElectron
+
+
+        # AK4 jets, with identical pT/ID cuts to the regular AK4 jets, but requiring dR(lepton, jet) < 0.4 instead of > 0.4: i.e. the AK4 jet overlaps our single selected lepton.  (It is still not allowed to overlap the selected FatJet.)
+        # https://baylorhep.slack.com/archives/C013B0LRAEA/p1729275886591189
+        # https://github.com/abrinke1/eventloop/blob/master/macros/ControlTTBarLepFat3_BDT.py#L732
+
+        # print('\n\n\n')
+        # print(ak4SelectionMask)
+        # print(~ak4_Lepton_dR_mask)
+        # print(ak4_FatJet_dR_mask)
+        # print((ak4Jets.pt - leadingLepton.pt) > 30)
+        # print('\n\n\n')
+
+        ak4LepJets_mask = (ak4SelectionMask) & (~ak4_Lepton_dR_mask) & (ak4_FatJet_dR_mask) &\
+            ((ak4Jets.pt - leadingLepton.pt) > 30)
+        # ak4LepJets =  ak4LepJets[ak4LepJets_mask]
+        # pT of the jet minus the pT of the lepton it overlaps must be > 30 GeV
+
+
         ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Lepton_dR_mask
         flavB_jet = ak.where(ak4SelectionMask & ( np.abs(ak4Jets.eta) < 2.4),
                              ak4Jets.btagDeepFlavB,
@@ -976,13 +999,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         pt_jet1 = ak4Jets.pt[ak4SelectionMask][idx_highest_pt_jet]
         pt_jet1 = ak.firsts(pt_jet1, axis=-1)
         pt_jet1 = ak.fill_none(pt_jet1, -99)
-
-        print('------------------------')
-        for i in range(len(pt_jet1)):
-            if pt_jet1[i]==-99: continue
-            print(f'{pt_jet1[i]=}')
-            print(f'{ak.firsts(ak4Jets.pt[ak4SelectionMask])[i]=}')
-        print('\n\n\n')
 
 
         ## ok when doing ak.firsts, if it is only 1 element, it will return a double instead of a array of double. how to screen for only one element
@@ -1221,6 +1237,31 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 dR_leadingLepton_leadingFatJet > 0.8
             )
 
+        if "lepjet" in self.sel_names_all['SR']:
+             # discard: ratio of the lepton pt to ak4jet < .4
+            ratioLepJet_mask = leadingLepton.pt/ak4Jets.pt > .4
+            # ak4LepJets = ak4LepJets[ratioLepJet_mask]
+
+            # discard: (abs(eta) < 2.4 and btagDeepB > 0.4168) or btagDeepFlavB > 0.2783
+            ak4_eta_deepB_mask = (np.abs(ak4Jets.eta) < 2.4) & (ak4Jets.btagDeepB > 0.4168)
+            ak4_flavB_mask = ak4Jets.btagDeepFlavB > 0.2783
+
+
+            print('----------------------------------')
+            print(f'{ak4LepJets_mask=}')
+            print(f'{ratioLepJet_mask[0]=}')
+            print(f'{ak4_eta_deepB_mask[0]=}')
+            print(f'{ak4_flavB_mask[0]=}')
+            print('\n\n\n')
+
+
+            ak4LepJets_mask = ak4LepJets_mask & ratioLepJet_mask & ~(ak4_eta_deepB_mask | ak4_flavB_mask)
+
+            selection.add(
+                'lepjet',
+                ak4LepJets_mask
+            )
+
         if 'bdtScoreCut' in self.sel_names_all['SR']:
             selection.add(
                 'bdtScoreCut',
@@ -1407,6 +1448,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     "TopPtReWeight",
                     weight = wgt_TopPt
                 )
+
             '''
             if "leadingFatJetParticleNetMD_XbbvsQCD" in self.sel_names_all["SR"]:
                 weights.add(
