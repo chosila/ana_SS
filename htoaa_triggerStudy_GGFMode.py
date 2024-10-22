@@ -1247,19 +1247,26 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             ak4_flavB_mask = ak4Jets.btagDeepFlavB > 0.2783
 
 
-            print('----------------------------------')
-            print(f'{ak4LepJets_mask=}')
-            print(f'{ratioLepJet_mask[0]=}')
-            print(f'{ak4_eta_deepB_mask[0]=}')
-            print(f'{ak4_flavB_mask[0]=}')
-            print('\n\n\n')
+            # print('----------------------------------')
+            # for i in range(10):
+            #     print(f'{~ak4_Lepton_dR_mask[i]=}')
+            #     print(f'{ak4_FatJet_dR_mask[i]=}')
+            #     print(f'{((ak4Jets.pt - leadingLepton.pt) > 30)[i]=}')
+            #     print(f'{((ak4Jets.pt > 30) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4)))[i]=}')
+
+            #     print(f'{ak4LepJets_mask[i]=}')
+            #     print(f'{ratioLepJet_mask[i]=}')
+            #     print(f'{ak4_eta_deepB_mask[i]=}')
+            #     print(f'{ak4_flavB_mask[i]=}')
+            #     print('----------------------')
+            # print('\n\n\n')
 
 
             ak4LepJets_mask = ak4LepJets_mask & ratioLepJet_mask & ~(ak4_eta_deepB_mask | ak4_flavB_mask)
 
             selection.add(
                 'lepjet',
-                ak4LepJets_mask
+                ak.any(ak4LepJets_mask, axis=-1)
             )
 
         if 'bdtScoreCut' in self.sel_names_all['SR']:
