@@ -200,9 +200,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "goodLepton",
                 "dR_Lep_FatJet",
                 # "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                # "JetID",
-                # 'Mass140',
-                # 'Mass140_dR_2p75',
+
+                'xgb_score',
                 '1b',
                 '0b',
                 '0b_BBQ',
@@ -461,6 +460,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('bbqq_bbq13_xgb_score'     +sHExt, {sXaxis: mlScore_axis,   sXaxisLabel: r'xgb_score'}),
                     ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r"FatJet_PNetMD_Hto4b_Htoaa4bOverQCD"}),
                     ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD'}),
+                    ('FatJet_PNetMD_Hto4b_Htoaa34bOverQCD'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'FatJet_PNetMD_Hto4b_Htoaa34bOverQCD'}),
                     ('btagHbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagHbb'}),
                     ('btagDDBvLV2'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'btagDDBvLV2'}),
                     ('particleNetMD_Xbb'+sHExt, {sXaxis: mlScore_axis, sXaxisLabel:r'particleNetMD_Xbb'}),
@@ -1123,8 +1123,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             leadingFatJet_PNetMD_Hto4b_Htoaa3bOverQCD = ak.where(
                 (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum) > 0.0,
                 (
-                    leadingFatJet.particleNetMD_Hto4b_Haa3b /
-                    (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
+                    (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b) /
+                    (leadingFatJet.particleNetMD_Hto4b_Haa3b +  leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
                 ),
                 ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0) #leadingFatJet.particleNetMD_Hto4b_Haa3b
             )
@@ -1147,6 +1147,14 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 (leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b) /
                 (leadingFatJet_PNetMD_Hto4b_QCD01234b_sum + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet.particleNetMD_Hto4b_Haa3b),
                 ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0)
+            )
+            leadingFatJet_PNetMD_Hto4b_Htoaa34bOverQCD = ak.where(
+                (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum) > 0.0,
+                (
+                    (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b) /
+                    (leadingFatJet.particleNetMD_Hto4b_Haa3b + leadingFatJet.particleNetMD_Hto4b_Haa4b + leadingFatJet_PNetMD_Hto4b_QCD01234b_sum)
+                ),
+                ak.full_like(leadingFatJet.particleNetMD_Hto4b_Haa3b, 0) #leadingFatJet.particleNetMD_Hto4b_Haa3b
             )
 
 
@@ -1221,10 +1229,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 dR_leadingLepton_leadingFatJet > 0.8
             )
 
-        if 'bdtScoreCut' in self.sel_names_all['SR']:
+        if 'xgb_score_cut' in self.sel_names_all['SR']:
             selection.add(
-                'bdtScoreCut',
-                predictions < 0.3
+                'xgb_score_cut',
+                bbqq_bbq13_predictions > 0.92
             )
 
         if 'Hto4b_FatJet_notMuon' in self.sel_names_all['SR']:
@@ -1802,6 +1810,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                             systematic=syst,
                             weight=evtWeight[sel_tmp_]
                         )
+                    if 'particleNetMD_Hto4b_Haa3b' in events.FatJet.fields:
+                        output['FatJet_PNetMD_Hto4b_Htoaa34bOverQCD'].fill(
+                            dataset=dataset,
+                            MLScore=(leadingFatJet_PNetMD_Hto4b_Htoaa34bOverQCD[sel_tmp_]),
+                            systematic=syst,
+                            weight=evtWeight[sel_tmp_]
+                            )
                     output['btagDDBvLV2'+sHExt].fill(
                         dataset=dataset,
                         MLScore=(leadingFatJet.btagDDBvLV2[sel_tmp_]),
