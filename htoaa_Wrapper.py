@@ -250,6 +250,7 @@ if __name__ == '__main__':
     parser.add_argument('-server',            type=str, default='lxplus',                    choices=['lxplus', 'tifr'])
     parser.add_argument('-dryRun',            action='store_true', default=False)
     parser.add_argument('-leptonSelection',   type=str, default='Muon',                      choices=['Muon', 'Electron'])
+    parser.add_argument('-xgbCut',            type=str, default='bdtHi',                     choices=['bdtHi', 'bdtMed', 'bedLo', 'bdtVeto'])
     args=parser.parse_args()
     print("args: {}".format(args))
     print(f"htoaa_Wraper:: here7 {datetime.now() = }"); sys.stdout.flush()
@@ -269,6 +270,7 @@ if __name__ == '__main__':
     server                  = args.server
     dryRun                  = args.dryRun
     leptonSelection         = args.leptonSelection
+    xgbCut                  = args.xgbCut
 
     SourceCodeDir     = os.getcwd()
     DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
@@ -366,6 +368,7 @@ if __name__ == '__main__':
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-50_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-55_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
+
         ] )
     ## ------------------------------------------------------------------------------------------
 
@@ -624,6 +627,7 @@ if __name__ == '__main__':
                         config["isMC"] = sample_isMC
                         config["nEvents"] = sample_nEvents
                         config["leptonSelection"] = leptonSelection
+                        config["xgbCut"] = xgbCut
                         if sample_isMC:
                             config["crossSection"] = sample_cossSection
                             config["sumEvents"] = sample_sumEvents
