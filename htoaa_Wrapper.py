@@ -250,7 +250,7 @@ if __name__ == '__main__':
     parser.add_argument('-server',            type=str, default='lxplus',                    choices=['lxplus', 'tifr'])
     parser.add_argument('-dryRun',            action='store_true', default=False)
     parser.add_argument('-leptonSelection',   type=str, default='Muon',                      choices=['Muon', 'Electron'])
-    parser.add_argument('-xgbCut',            type=str, default='bdtHi',                     choices=['bdtHi', 'bdtMed', 'bedLo', 'bdtVeto'])
+    parser.add_argument('-xgbCut',            type=str, default='bdtHi',                     choices=['bdtHi', 'bdtMed', 'bdtLo', 'bdtVeto'])
     args=parser.parse_args()
     print("args: {}".format(args))
     print(f"htoaa_Wraper:: here7 {datetime.now() = }"); sys.stdout.flush()
@@ -698,7 +698,7 @@ if __name__ == '__main__':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
                         if not dryRun:
-                            if num_jobs_running < 70:
+                            if num_jobs_running < 100:
                                 if printLevel >= 5:
                                     print("Now:  %s " % cmd1)
                                 os.system(cmd1)

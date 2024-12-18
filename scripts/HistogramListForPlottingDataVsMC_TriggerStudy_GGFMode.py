@@ -8,8 +8,8 @@ sNRebinX = 'nRebinX';  sNRebinY = 'nRebinY';
 sXRebinning = 'xRebinning'; sYRebinning = 'yRebinning';
 
 ExpData_dict = {
-    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
-    # 'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
+    #'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
     #'Data A': ['SingleMuon_Run2018A'],
     #'Data B': ['SingleMuon_Run2018B'],
     #'Data C': ['SingleMuon_Run2018C'],
@@ -86,6 +86,7 @@ histograms_dict = OD([
     ('bbqq_bbq13_xgb_score', {sXLabel: 'bbqq_bbq13_xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    ('FatJet_PNetMD_Hto4b_Htoaa34bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('btagHbb', {sXLabel: 'btagHbb', sYLabel: 'Events', sXRange: [-1,1], sNRebinX:4}),
     ('particleNetMD_Xbb', {sXLabel: 'particleNetMD_Xbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('btagDDBvLV2', {sXLabel: 'btagDDBvLV2', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),

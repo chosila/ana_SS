@@ -977,13 +977,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         pt_jet1 = ak.firsts(pt_jet1, axis=-1)
         pt_jet1 = ak.fill_none(pt_jet1, -99)
 
-        print('------------------------')
-        for i in range(len(pt_jet1)):
-            if pt_jet1[i]==-99: continue
-            print(f'{pt_jet1[i]=}')
-            print(f'{ak.firsts(ak4Jets.pt[ak4SelectionMask])[i]=}')
-        print('\n\n\n')
-
 
         ## ok when doing ak.firsts, if it is only 1 element, it will return a double instead of a array of double. how to screen for only one element
         ## ak.firsts() should only be used on variables that have [[], [], [],...] shape. if it is a normal 1d array, ak.first will only return the first element
@@ -1229,10 +1222,20 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 dR_leadingLepton_leadingFatJet > 0.8
             )
 
-        if 'xgb_score_cut' in self.sel_names_all['SR']:
+        if 'xgb_score' in self.sel_names_all['SR']:
+
+            print('do we get here')
+            if xgb_cut == 'bdtHi':
+                xgb_score_mask = bbqq_bbq13_predictions > 0.92
+            elif xgb_cut == 'bdtMed':
+                xgb_score_mask = (bbqq_bbq13_predictions < .92) & (bbqq_bbq13_predictions > .86)
+            elif xgb_cut == 'bdtLo':
+                xgb_score_mask = (bbqq_bbq13_predictions < .86) & (bbqq_bbq13_predictions > .66)
+            elif xgb_cut == 'bdtVeto':
+                xgb_score_mask = bbqq_bbq13_predictions < 0.66
             selection.add(
-                'xgb_score_cut',
-                bbqq_bbq13_predictions > 0.92
+                'xgb_score',
+                xgb_score_mask
             )
 
         if 'Hto4b_FatJet_notMuon' in self.sel_names_all['SR']:
@@ -1811,7 +1814,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                             weight=evtWeight[sel_tmp_]
                         )
                     if 'particleNetMD_Hto4b_Haa3b' in events.FatJet.fields:
-                        output['FatJet_PNetMD_Hto4b_Htoaa34bOverQCD'].fill(
+                        output['FatJet_PNetMD_Hto4b_Htoaa34bOverQCD'+sHExt].fill(
                             dataset=dataset,
                             MLScore=(leadingFatJet_PNetMD_Hto4b_Htoaa34bOverQCD[sel_tmp_]),
                             systematic=syst,
@@ -2059,6 +2062,7 @@ if __name__ == '__main__':
     downloadIpFiles     = config['downloadIpFiles'] if 'downloadIpFiles' in config else False
     server              = config["server"]
     lepton_selection    = config["leptonSelection"]
+    xgb_cut             = config['xgbCut']
     if isMC:
         #luminosity          = Luminosities_forGGFMode[era]['HLT_IsoMu24'][0]  # Luminosities_Inclusive[era][0]
         sample_crossSection = config["crossSection"]
