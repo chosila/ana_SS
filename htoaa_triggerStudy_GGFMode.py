@@ -203,6 +203,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
                 'xgb_score',
                 '1b',
+                '1b_BBQ',
+                '1b_BBQQ',
                 '0b',
                 '0b_BBQ',
                 '0b_BBQQ'
@@ -242,10 +244,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         # sel_0b :      ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b']
         # sel_0b_BBQ :  ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b', '0b_BBQ']
         # sel_0b_BBQQ : ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b', '0b_BBQ', '0b_BBQQ']
-        self.sel_names_all['sel_1b'] = [x for x in self.sel_names_all["SR"] if '0b' not in x]
-        self.sel_names_all['sel_0b'] = [x for x in self.sel_names_all["SR"][:-2] if '1b' not in x]
-        self.sel_names_all['sel_0b_BBQ'] = [x for x in self.sel_names_all["SR"][:-1] if '1b' not in x]
+        self.sel_names_all['sel_1b'] = [x for x in self.sel_names_all["SR"] if (('0b' not in x) and (('BBQ' not in x)))]
+        self.sel_names_all['sel_1b_BBQ'] = [x for x in self.sel_names_all["SR"] if (('0b' not in x) and ('BBQQ' not in x))]
+        self.sel_names_all['sel_1b_BBQQ'] = [x for x in self.sel_names_all["SR"] if '0b' not in x]
+        self.sel_names_all['sel_0b'] = [x for x in self.sel_names_all["SR"] if (('1b' not in x) and (('BBQ' not in x)))]
+        self.sel_names_all['sel_0b_BBQ'] = [x for x in self.sel_names_all["SR"] if (('1b' not in x) and ('BBQQ' not in x))]
         self.sel_names_all['sel_0b_BBQQ'] = [x for x in self.sel_names_all["SR"] if '1b' not in x]
+
 
         self.histosExtensions = ['']
         dataLSSelGoldenJSON = None
@@ -1233,6 +1238,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 xgb_score_mask = (bbqq_bbq13_predictions < .86) & (bbqq_bbq13_predictions > .66)
             elif xgb_cut == 'bdtVeto':
                 xgb_score_mask = bbqq_bbq13_predictions < 0.66
+            elif xgb_cut == 'noBdt':
+                xgb_score_mask = np.ones_like(bbqq_bbq13_predictions)==1 ## all True so none of the events get cut
+                print(type(xgb_score_mask))
+                print(type(bbqq_bbq13_predictions))
+                print(xgb_score_mask)
+
             selection.add(
                 'xgb_score',
                 xgb_score_mask
@@ -1273,19 +1284,32 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #     )
 
         ak4btagSelectionMask = ak4SelectionMask & (np.abs(ak4Jets.eta) < 2.4) & (ak4Jets.btagDeepFlavB > 0.2783)
+        lvJ = leadingFatJet4Vec + leadingLepton4Vec + MET4Vec
         if '1b' in self.sel_names_all['SR']:
             ## select for exactly 1 medium AK4 b-tag
             ## medium threshold found here: https://btv-wiki.docs.cern.ch/ScaleFactors/UL2018/
             selection.add(
                 '1b', np.count_nonzero(ak4btagSelectionMask, axis=1) == 1
-                )
+            )
+
+        if '1b_BBQ' in self.sel_names_all['SR']: ## this currenlty has nothing in the event. why
+            sel_1b_bbq_cut = (np.count_nonzero(ak4btagSelectionMask, axis=1) == 1) & (lvJ.pt > 250) & (lvJ.mass < 1000)
+            selection.add(
+                '1b_BBQ', sel_1b_bbq_cut
+            )
+
+        if '1b_BBQQ' in self.sel_names_all['SR']:
+            sel_1b_bbqq_cut = (np.count_nonzero(ak4btagSelectionMask, axis=1) == 1) & (leadingFatJet.mass > 170) & (leadingFatJet.pt > 350) & (lvJ.pt > 250) & (lvJ.mass < 1000)
+            selection.add(
+                '1b_BBQQ', sel_1b_bbqq_cut
+            )
 
         if '0b' in self.sel_names_all['SR']:
             selection.add(
                 '0b', np.count_nonzero(ak4btagSelectionMask, axis=1) == 0
             )
 
-        lvJ = leadingFatJet4Vec + leadingLepton4Vec + MET4Vec
+
         if '0b_BBQ' in self.sel_names_all['SR']:
             sel_0b_bbq_cut = (np.count_nonzero(ak4btagSelectionMask, axis=1) == 0) & (lvJ.pt > 250) & (lvJ.mass < 1000)
             selection.add(
