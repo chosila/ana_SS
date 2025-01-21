@@ -199,6 +199,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 "METFilters",
                 "goodLepton",
                 "dR_Lep_FatJet",
+                "lepjet",
                 # "Hto4b_FatJet_notMuon", # this is only for skimmed files. MUTE WHEN UNSKIMMED FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                 'xgb_score',
@@ -909,7 +910,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         mass_fat = ak.fill_none(leadingFatJet.mass, -99)
 
         ak4Jets = events.Jet
-        ak4SelectionMask = (ak4Jets.pt > 30) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
+        ak4SelectionMask_nolep = (ak4Jets.pt > 30) & (ak4Jets.jetId >= 6) & ((ak4Jets.pt > 50) | (ak4Jets.puId >= 4))
 
         ak4_FatJet_dR_mask = leadingFatJet.delta_r(ak4Jets) > 0.8
         if lepton_selection == 'Muon':
@@ -918,7 +919,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         elif lepton_selection == 'Electron':
             ak4_Lepton_dR_mask = leadingElectron.delta_r(ak4Jets) > 0.4
             leadingLepton = leadingElectron
-        ak4SelectionMask = ak4SelectionMask & ak4_FatJet_dR_mask & ak4_Lepton_dR_mask
+        ak4SelectionMask = ak4SelectionMask_nolep & ak4_FatJet_dR_mask & ak4_Lepton_dR_mask
+        ak4LepJets_mask = ak4SelectionMask_nolep & ak4_FatJet_dR_mask & (~ak4_Lepton_dR_mask) & ((ak4Jets.pt - leadingLepton.pt) > 30)
         flavB_jet = ak.where(ak4SelectionMask & ( np.abs(ak4Jets.eta) < 2.4),
                              ak4Jets.btagDeepFlavB,
                              -0.099
@@ -1227,9 +1229,29 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 dR_leadingLepton_leadingFatJet > 0.8
             )
 
-        if 'xgb_score' in self.sel_names_all['SR']:
+        if "lepjet" in self.sel_names_all['SR']:
+            # discard: ratio of the lepton pt to ak4jet < .4
+            ratioLepJet_mask = leadingLepton.pt/ak4Jets.pt < .4
+            # ak4LepJets = ak4LepJets[ratioLepJet_mask]
 
-            print('do we get here')
+            # discard: (abs(eta) < 2.4 and btagDeepB > 0.4168) or btagDeepFlavB > 0.2783
+            ak4_eta_deepB_mask = (np.abs(ak4Jets.eta) < 2.4) & (ak4Jets.btagDeepB > 0.4168)
+            ak4_flavB_mask = (np.abs(ak4Jets.eta) < 2.4) & (ak4Jets.btagDeepFlavB > 0.2783)
+
+            ak4LepJets_veto = ratioLepJet_mask | ak4_eta_deepB_mask | ak4_flavB_mask
+
+            ## make sure only the ak4 lep jets that are selected gets vetoed.
+            ## lepjet AND veto are the ones to fail, so we negate for the selection of events to keep
+            ak4LepJets_event_mask = ~ak.any(ak4LepJets_mask & ak4LepJets_veto, axis=-1)
+            # tmp2 = ak.any(ak4LepJets_mask, axis=-1)
+
+            selection.add(
+                'lepjet',
+                ak4LepJets_event_mask
+            )
+
+
+        if 'xgb_score' in self.sel_names_all['SR']:
             if xgb_cut == 'bdtHi':
                 xgb_score_mask = bbqq_bbq13_predictions > 0.92
             elif xgb_cut == 'bdtMed':
@@ -1240,9 +1262,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 xgb_score_mask = bbqq_bbq13_predictions < 0.66
             elif xgb_cut == 'noBdt':
                 xgb_score_mask = np.ones_like(bbqq_bbq13_predictions)==1 ## all True so none of the events get cut
-                print(type(xgb_score_mask))
-                print(type(bbqq_bbq13_predictions))
-                print(xgb_score_mask)
 
             selection.add(
                 'xgb_score',
@@ -1292,7 +1311,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 '1b', np.count_nonzero(ak4btagSelectionMask, axis=1) == 1
             )
 
-        if '1b_BBQ' in self.sel_names_all['SR']: ## this currenlty has nothing in the event. why
+        if '1b_BBQ' in self.sel_names_all['SR']: ## not showing up in the final product. why
             sel_1b_bbq_cut = (np.count_nonzero(ak4btagSelectionMask, axis=1) == 1) & (lvJ.pt > 250) & (lvJ.mass < 1000)
             selection.add(
                 '1b_BBQ', sel_1b_bbq_cut
@@ -1539,6 +1558,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     sHExt = "_%s" % (sel_name)
                     if sHExt_0 != '':
                         sHExt += "_%s" % (sHExt_0)
+
+
 
                     sel_SR_forHExt = None
                     sel_SR_woSel2018HEM1516_forHExt = None
