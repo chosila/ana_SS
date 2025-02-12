@@ -41,7 +41,7 @@ sRunCommandFile   = "1_RunCommand.txt"
 sJobSubLogFile    = "1_JobSubmission.log"
 sOpRootFile       = "analyze_htoaa_$SAMPLE_$STAGE_$IJOB.root"
 
-printLevel = 2
+printLevel = 6 #2
 
 #UserHomePath = os.path.expanduser("~")
 UserHomePath = str(Path.home()) # Python 3.5+
@@ -235,20 +235,31 @@ if __name__ == '__main__':
     print("htoaa_Wrapper:: main: {}".format(sys.argv)); sys.stdout.flush()
 
     parser = argparse.ArgumentParser(description='htoaa analysis wrapper')
-    parser.add_argument('-analyze',           type=str, default="htoaa_Analysis_GGFMode.py", choices=["htoaa_Analysis_GGFMode.py", "countSumEventsInSample.py", "htoaa_triggerStudy_GGFMode.py", "htoaa_Analysis_Example.py"], required=True)
+    parser.add_argument('-analyze',           type=str, default="htoaa_Analysis_GGFMode.py", choices=[
+        "htoaa_Analysis_GGFMode.py",
+        "countSumEventsInSample.py",
+        "htoaa_triggerStudy_GGFMode.py",
+        "htoaa_Analysis_VHHadronicMode.py",
+        "htoaa_Analysis_ZH_4b2nu.py",
+        "htoaa_Analysis_VBFMode.py",
+        "htoaa_Analysis_ttHHadronicMode.py",
+        "htoaa_Analysis_Ak4BtagEffi.py",
+        "htoaa_Analysis_Example.py"], required=True)
     parser.add_argument('-era', dest='era',   type=str, default=Era_2018,                    choices=[Era_2016, Era_2017, Era_2018], required=False)
     parser.add_argument('-run_mode',          type=str, default='condor',                    choices=['local', 'condor'])
     parser.add_argument('-v', '--version',    type=str, default=None,                        required=True)
     parser.add_argument('-samples',           type=str, default=None,                        help='samples to run seperated by comma')
     parser.add_argument('-excludeSamples',    type=str, default=None,                        help='samples to exclude seperated by comma')
-    parser.add_argument('-ntuples',           type=str, default="CentralNanoAOD", choices=["CentralNanoAOD", "UnskimmedHToAATo4BNanoAOD", "SkimmedNanoAOD_Hto4b_0p8"], required=False)
-    parser.add_argument('-nFilesPerJob',      type=int, default=5)
+    parser.add_argument('-ntuples',           type=str, default="SkimmedNanoAOD_v2", choices=["CentralNanoAOD", "SkimmedNanoAOD_v1", "SkimmedNanoAOD_v2"], required=False)
+    parser.add_argument('-nFilesPerJob',      type=int, default=1)
     parser.add_argument('-nResubMax',         type=int, default=80)
     parser.add_argument('-ResubWaitingTime',  type=int, default=15,                          help='Resubmit failed jobs after every xx minutes')
     parser.add_argument('-iJobSubmission',    type=int, default=0,                           help='Job submission iteration. Specify previous last job submittion iteration if script terminated for some reason.')
     parser.add_argument('-xrdcpIpAftNResub',  type=int, default=0,                           help='Download input files after n job failures')
     parser.add_argument('-server',            type=str, default='lxplus',                    choices=['lxplus', 'tifr'])
-    parser.add_argument('-dryRun',            action='store_true', default=False)
+    parser.add_argument('-systematics',       type=str, default='no',                        help='No,Full,PU,JES etc')
+    parser.add_argument('-jumpToHaddOutput',  action='store_true', default=False,            help="When running on earlier jobs, skip checking failed jobs and jump to hadd produced output.root files.")
+    parser.add_argument('-dryRun',            action='store_true', default=False,            help="Produce jpbs' config files without submiting jobs to HT condor server.")
     parser.add_argument('-leptonSelection',   type=str, default='Muon',                      choices=['Muon', 'Electron'])
     parser.add_argument('-xgbCut',            type=str, default='bdtHi',                     choices=['bdtHi', 'bdtMed', 'bdtLo', 'bdtVeto', 'noBdt'])
     args=parser.parse_args()
@@ -259,7 +270,7 @@ if __name__ == '__main__':
     era                     = args.era
     run_mode                = args.run_mode
     sNTuples                = args.ntuples
-    nFilesPerJob            = args.nFilesPerJob
+    nFilesPerJob            = args.nFilesPerJob if args.nFilesPerJob >=1 else 1
     selSamplesToRun         = args.samples
     selSamplesToExclude     = args.excludeSamples
     anaVersion              = args.version
@@ -268,6 +279,8 @@ if __name__ == '__main__':
     iJobSubmission          = args.iJobSubmission
     xrdcpIpAftNResub        = args.xrdcpIpAftNResub
     server                  = args.server
+    systematics             = args.systematics
+    jumpToHaddOutput        = args.jumpToHaddOutput
     dryRun                  = args.dryRun
     leptonSelection         = args.leptonSelection
     xgbCut                  = args.xgbCut
@@ -303,31 +316,19 @@ if __name__ == '__main__':
     ## Settings ---------------------------------------------------------------------------------
 
     ## MCSamplesStitchOptions.PhSpOverlapRewgt
-    MCSamplesStitchOption                     = MCSamplesStitchOptions.PhSpOverlapRewgt
+    MCSamplesStitchOption                     = MCSamplesStitchOptions.PhSpOverlapRemove # MCSamplesStitchOptions.PhSpOverlapRewgt
     samples_wMCSamplesStitch_PhSpOverlapRewgt = [ kQCDIncl, kQCD_bGen, kQCD_bEnrich ]
     ## MCSamplesStitchOptions.PhSpOverlapRemove
     #MCSamplesStitchOption                     = MCSamplesStitchOptions.PhSpOverlapRemove
     #samples_wMCSamplesStitch_PhSpOverlapRewgt = []
 
     #  Settings for GGF H->aa->4b analysis
-    if sAnalysis in ["htoaa_Analysis_GGFMode.py"]:
+    if sAnalysis in ["htoaa_Analysis_GGFMode.py", "htoaa_Analysis_VBFMode.py", "htoaa_Analysis_VHHadronicMode.py", "htoaa_Analysis_ttHHadronicMode.py"]:
         # exclude irrelevant samples from running
         selSamplesToExclude_list.extend( [
-                "SingleMuon_Run2018A", "SingleMuon_Run2018B", "SingleMuon_Run2018C", "SingleMuon_Run2018D",
-                "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
-                'WJetsToLNu_Incl_NLO', 'WJetsToLNu_Incl_LO', 'W1JetsToLNu_LO', 'W2JetsToLNu_LO', 'W3JetsToLNu_LO', 'W4JetsToLNu_LO',
-                "SUSY_VBFH_HToAATo4B", "SUSY_WH_WToAll_HToAATo4B", "SUSY_ZH_ZToAll_HToAATo4B", "SUSY_TTH_TTToAll_HToAATo4B",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-12_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-15_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-20_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-25_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-30_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-35_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-40_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-45_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-50_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-55_TuneCP5_13TeV_madgraph_pythia8",
-                #"SUSY_GluGluH_01J_HToAATo4B_M-60_TuneCP5_13TeV_madgraph_pythia8",
+            "SingleMuon_Run2018A", "SingleMuon_Run2018B", "SingleMuon_Run2018C", "SingleMuon_Run2018D",
+            "EGamma_Run2018A", "EGamma_Run2018B", "EGamma_Run2018C", "EGamma_Run2018D",
+            "MET_Run2018A", "MET_Run2018B", "MET_Run2018C", "MET_Run2018D",
 
         ] )
 
@@ -370,6 +371,16 @@ if __name__ == '__main__':
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
 
         ] )
+
+    if sAnalysis in ["htoaa_Analysis_ZH_4b2nu.py"]:
+        # exclude irrelevant samples from running
+        selSamplesToExclude_list.extend( [
+            "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
+            "SingleMuon_Run2018A", "SingleMuon_Run2018B", "SingleMuon_Run2018C", "SingleMuon_Run2018D",
+            "EGamma_Run2018A", "EGamma_Run2018B", "EGamma_Run2018C", "EGamma_Run2018D",
+        ] )
+
+
     ## ------------------------------------------------------------------------------------------
 
     #  Settings for countSumEventsInSample.py
@@ -448,23 +459,40 @@ if __name__ == '__main__':
 
                 print(f"sample_category: {sample_category}, sample: {sample}", flush=True)
 
+                sNTuples_toUse = "CentralNanoAOD"
+                if   sNTuples == "SkimmedNanoAOD_v1":              sNTuples_toUse = "skim_v1"
+                elif sNTuples == "SkimmedNanoAOD_v2":              sNTuples_toUse = "skim_v2"
+
                 sampleInfo = samplesInfo[sample] # Samples_Era.json
                 fileList   = None
                 if   sNTuples == "CentralNanoAOD":                 fileList = sampleInfo[sampleFormat]
-                elif sNTuples == "UnskimmedHToAATo4BNanoAOD":      fileList = sampleInfo["skimmedNanoAOD"]["unskimmed"]
-                elif sNTuples == "SkimmedNanoAOD_Hto4b_0p8":       fileList = sampleInfo["skimmedNanoAOD"]["skim_Hto4b_0p8"]
+                else:                                              fileList = sampleInfo["skimmedNanoAOD"][sNTuples_toUse]
 
                 files = []
                 for iEntry in fileList:
                     # file name with wildcard charecter *
                     if "*" in iEntry:  files.extend( glob.glob( iEntry ) )
-                    else:              files.append( iEntry )
+                    #else:              files.append( iEntry )
+                    else:
+                        if not iEntry.startswith('/eos/'): # central NanoAOD
+                            files.append( iEntry )
+                        else: # File stored on /eos/ space, check if the file exist or not
+                            if os.path.exists(iEntry):
+                                files.append( iEntry )
+                            else:
+                                print(f"Input file {iEntry} does not exists **** ERROR **** \n")
+
                 if len(files) == 0: continue # no inputfile
 
                 sample_dataset     = sampleInfo["dataset"]
                 sample_cossSection = sampleInfo["cross_section"] if sample_isMC else None
                 sample_nEvents     = sampleInfo["nEvents"]
                 sample_sumEvents   = sampleInfo["sumEvents"] if sample_isMC else None
+                if   not (sNTuples == "CentralNanoAOD"):
+                    sample_nEvents     = sampleInfo["skimmedNanoAOD"]["%s_nEvents"   % (sNTuples_toUse)]
+                    sample_sumEvents   = sampleInfo["skimmedNanoAOD"]["%s_sumEvents" % (sNTuples_toUse)] if sample_isMC else None
+
+
 
                 if printLevel >= 6:
                     print("\nsample: {}".format(sample))
@@ -480,6 +508,8 @@ if __name__ == '__main__':
                     print("files_splitted: {}".format(files_splitted))
 
                 for iJob in range(len(files_splitted)):
+                    if len(list( files_splitted[iJob] )) == 0: continue
+
                     JobStage = 0
 
                     config = copy.deepcopy(config_Template)
@@ -630,7 +660,8 @@ if __name__ == '__main__':
                         config["xgbCut"] = xgbCut
                         if sample_isMC:
                             config["crossSection"] = sample_cossSection
-                            config["sumEvents"] = sample_sumEvents
+                            config["sumEvents"]    = sample_sumEvents
+                            config["systematics"]  = systematics
 
                             if MCSamplesStitchOption == MCSamplesStitchOptions.PhSpOverlapRewgt and \
                                sample_category in samples_wMCSamplesStitch_PhSpOverlapRewgt:
@@ -697,7 +728,7 @@ if __name__ == '__main__':
                     if run_mode == 'condor':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
-                        if not dryRun:
+                        if not (dryRun or jumpToHaddOutput):
                             if num_jobs_running < 70:
                                 if printLevel >= 5:
                                     print("Now:  %s " % cmd1)
@@ -743,7 +774,7 @@ if __name__ == '__main__':
             print('%s \t druRun with iJobSubmission: %d  \nTerminating...\n' % (datetime.now().strftime("%Y/%m/%d %H:%M:%S"), iJobSubmission))
             exit(0)
 
-        if len(OpRootFiles_Target) == len(OpRootFiles_Exist):
+        if (len(OpRootFiles_Target) == len(OpRootFiles_Exist)) or jumpToHaddOutput:
             allJobsSuccessful = True
             break
         else:

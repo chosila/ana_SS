@@ -25,6 +25,14 @@ Era_2016 = '2016'
 Era_2017 = '2017'
 Era_2018 = '2018'
 
+class DatasetToAnalyze(enum.Enum):
+    FullRun2 = 'FullRun2'
+    SingleYear = 'SingleYear'
+
+### Set DatasetToAnalyze.SingleYear: to analyze a single year, DatasetToAnalyze.FullRun2: to analyse full Run2 data
+# This is important for co-related/de-correlated systematic uncertainties.
+kDatasetToAnalyze = DatasetToAnalyze.SingleYear # DatasetToAnalyze.SingleYear, DatasetToAnalyze.FullRun2
+
 sFileSamplesInfo = {
     Era_2016: "Samples_2016UL.json",
     Era_2017: "Samples_2017UL.json",
@@ -35,13 +43,18 @@ sFileSamplesInfo = {
 # /eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/QCD*/r1/PNet_*.root
 sPathSkimmedNanoAODs = {
     Era_2018: {
-        'unskimmed': {
+        'skim_v1': {
             'Data': '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/PNet_v1_2023_10_06/$SAMPLETAG/$SAMPLENAME/r*/PNet_*.root',
             'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/r1/PNet_*.root'
         },
-        'skim_Hto4b_0p8': {
-            'Data': '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/PNet_v1_2023_10_06/$SAMPLETAG/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root',
-            'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root'
+        #'skim_Hto4b_0p8': {
+        #    'Data': '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/PNet_v1_2023_10_06/$SAMPLETAG/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root',
+        #    'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v1_2023_10_06/$SAMPLENAME/skims/Hto4b_0p8/PNet_*.root'
+        #},
+        'skim_v2': {
+            'Data': '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/PNet_v2_2024_11_22/$SAMPLENAME/r1_$ERATAG/PNet_*.root',
+            'MC':   '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/MC/PNet_v2_2024_11_22/$SAMPLENAME/r*/PNet_*.root'
+
         },
     }
 }
@@ -57,7 +70,11 @@ Luminosities_forGGFMode = { # [<lumi>, <uncertainty in percent> ] in fb^-1
     Era_2017: [41.48, 2.3],
     Era_2018: {
         'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': [54.54, 2.5], # for HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v* trigger. See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_Final.xlsx
-        'Trg_Combo_AK4AK8Jet_HT':                             [59.83, 2.5], # See ./data/luminosity/2018/Luminosity_HLTPaths.xlsx
+        'Trg_Combo_AK4AK8Jet_HT':                             [59.83, 2.5], # https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
+        'Trg_Combo_AK4AK8Jet_HT_VBF':                         [59.83, 2.5], # https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
+        'Trg_Combo_AK4AK8Jet_HT_MET':                         [59.83, 2.5], # Copied from Trg_Combo_AK4AK8Jet_HT. Needs to be checked.
+        'Trg_Combo_MET':                                      [59.83, 2.5], # https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
+
         'HLT_IsoMu24':                                        [59.82, 2.5], # See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_IsoMu24_v.xlsx
         'HLT_IsoMu27':                                        [59.83, 2.5], # See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_IsoMu27_v.xlsx
         'Trg_Combo_Mu':                                       [59.83, 2.5], # See ./data/luminosity/2018/Luminosity_HLTPaths.xlsx
@@ -72,6 +89,24 @@ Luminosities_forGGFMode_perEra = {
             'D': 31.839
         },
         'Trg_Combo_AK4AK8Jet_HT': {
+            'A': 14.027,
+            'B':  7.067,
+            'C':  6.895,
+            'D': 31.839,
+        },
+        'Trg_Combo_AK4AK8Jet_HT_VBF': {
+            'A': 14.027,
+            'B':  7.067,
+            'C':  6.895,
+            'D': 31.839,
+        },
+        'Trg_Combo_AK4AK8Jet_HT_MET': { # Copied from Trg_Combo_AK4AK8Jet_HT. Needs to be checked.
+            'A': 14.027,
+            'B':  7.067,
+            'C':  6.895,
+            'D': 31.839,
+        },
+        'Trg_Combo_MET': {
             'A': 14.027,
             'B':  7.067,
             'C':  6.895,
@@ -100,13 +135,49 @@ Luminosities_forGGFMode_perEra = {
 Triggers_perEra = {
     Era_2018: {
         'Trg_Combo_AK4AK8Jet_HT': {
+            'HLT_PFJet500':                                                  ['L1_SingleJet180'],
+            'HLT_PFHT1050':                                                  ['L1_SingleJet180', 'L1_HTT360er'],
+            'HLT_AK8PFHT800_TrimMass50':                                     ['L1_SingleJet180', 'L1_HTT360er'],
+            'HLT_AK8PFJet500':                                               ['L1_SingleJet180'],
+            'HLT_AK8PFJet400_TrimMass30':                                    ['L1_SingleJet180'],
+            'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4':            ['L1_SingleJet180'],
+            #
+            'HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71':       ['L1_DoubleJet112er2p3_dEta_Max1p6', 'L1_DoubleJet150er2p5'],
+            'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5': ['L1_HTT320er', 'L1_HTT360er', 'L1_HTT400er', 'L1_ETT2000', 'L1_HTT320er_QuadJet_70_55_40_40_er2p4', 'L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3' ],
+        },
+        'Trg_Combo_AK4AK8Jet_HT_VBF': {
+            'HLT_PFJet500':                                                  ['L1_SingleJet180'],
+            'HLT_PFHT1050':                                                  ['L1_SingleJet180', 'L1_HTT360er'],
+            'HLT_AK8PFHT800_TrimMass50':                                     ['L1_SingleJet180', 'L1_HTT360er'],
+            'HLT_AK8PFJet500':                                               ['L1_SingleJet180'],
+            'HLT_AK8PFJet400_TrimMass30':                                    ['L1_SingleJet180'],
+            'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4':            ['L1_SingleJet180'],
+            #
+            'HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71':       ['L1_DoubleJet112er2p3_dEta_Max1p6', 'L1_DoubleJet150er2p5'],
+            'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5': ['L1_HTT320er', 'L1_HTT360er', 'L1_HTT400er', 'L1_ETT2000', 'L1_HTT320er_QuadJet_70_55_40_40_er2p4', 'L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3' ],
+            #
+            'HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1':    ['L1_SingleJet180', 'L1_HTT320er', 'L1_TripleJet_95_75_65_DoubleJet_75_65_er2p5'],
+            'HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2':              ['L1_SingleJet180', 'L1_HTT320er', 'L1_TripleJet_95_75_65_DoubleJet_75_65_er2p5'],
+
+        },
+        'Trg_Combo_AK4AK8Jet_HT_MET': {
             'HLT_PFJet500':                                       ['L1_SingleJet180'],
             'HLT_PFHT1050':                                       ['L1_HTT360er'],
             'HLT_AK8PFHT800_TrimMass50':                          ['L1_HTT360er'],
             'HLT_AK8PFJet500':                                    ['L1_SingleJet180'],
             'HLT_AK8PFJet400_TrimMass30':                         ['L1_SingleJet180'],
             'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': ['L1_SingleJet180'],
+            'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight':              ['L1_ETMHF100', 'L1_ETM150'],
+            'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60':       ['L1_ETMHF90_HTT60er'],
         },
+        'Trg_Combo_MET': { # https://indico.cern.ch/event/1424480/#17-andrew-brinkerhoff
+            'HLT_PFMET120_PFMHT120_IDTight_PFHT60':               ['L1_ETMHF90_HTT60er', 'L1_ETMHF100_HTT60er', 'L1_ETMHF110_HTT60er'],
+            'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60':       ['L1_ETMHF90_HTT60er', 'L1_ETMHF100_HTT60er', 'L1_ETMHF110_HTT60er'],
+            'HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1':  ['L1_ETMHF100', 'L1_ETMHF110', 'L1_ETMHF120', 'L1_ETMHF130'],
+            'HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned':           ['L1_ETMHF100', 'L1_ETMHF110', 'L1_ETMHF120', 'L1_ETMHF130'],
+            'HLT_PFMETTypeOne140_PFMHT140_IDTight':               ['L1_ETMHF100', 'L1_ETMHF110', 'L1_ETMHF120', 'L1_ETMHF130'],
+        },
+
         'Trg_Combo_Mu': {
             'HLT_IsoMu24': ['L1_SingleMu22'],
             'HLT_IsoMu27': ['L1_SingleMu22', 'L1_SingleMu25'],
@@ -114,7 +185,26 @@ Triggers_perEra = {
         }
     }
 }
+'''
+## Andrew's slides on triggers https://indico.cern.ch/event/1479951/contributions/6234638/attachments/2968060/5241665/2024_11_15_HToAATo4B_selection_catgories_NanoAODTools.pdf#page=11
+trigFat :
+((HLT_PFJet500 || HLT_AK8PFJet500 || HLT_AK8PFJet400_TrimMass30 || HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4) && (L1_SingleJet180))
+||
+((HLT_AK8PFHT800_TrimMass50 || HLT_PFHT1050) && (L1_SingleJet180 || L1_HTT360er))
 
+trigBtag :
+(HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71 && (L1_DoubleJet112er2p3_dEta_Max1p6 || L1_DoubleJet150er2p5))
+||
+(HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5 && (L1_HTT320er || L1_HTT360er || L1_HTT400er || L1_ETT2000 || L1_HTT320er_QuadJet_70_55_40_40_er2p4 || L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3))
+
+trigVBF :
+(HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2 || HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1) && (L1_TripleJet_95_75_65_DoubleJet_75_65_er2p5 || L1_HTT320er || L1_SingleJet180)
+
+trigMET :
+ ((HLT_PFMET120_PFMHT120_IDTight_PFHT60 || HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60) && (L1_ETMHF90_HTT60er || L1_ETMHF100_HTT60er || L1_ETMHF110_HTT60er))
+||
+((HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1 || HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned || HLT_PFMETTypeOne140_PFMHT140_IDTight) && (L1_ETMHF100 || L1_ETMHF110 || L1_ETMHF120 || L1_ETMHF130))
+'''
 
 sFilesGoldenJSON = {
     Era_2016: '',
@@ -148,7 +238,7 @@ MET_Filters[Era_2018] = {
         "EcalDeadCellTriggerPrimitiveFilter", # ECAL TP filter ("Flag_EcalDeadCellTriggerPrimitiveFilter")
         "BadPFMuonFilter",                    # Bad PF Muon Filter ("Flag_BadPFMuonFilter")
         "BadPFMuonDzFilter",                  # Bad PF Muon Dz Filter ("Flag_BadPFMuonDzFilter")
-        "hfNoisyHitsFilter",                  # HF noisy hits filter ("Flag_hfNoisyHitsFilter")
+        #"hfNoisyHitsFilter", ##                 # HF noisy hits filter ("Flag_hfNoisyHitsFilter")
         "eeBadScFilter",                      # ee badSC noise filter ("Flag_eeBadScFilter")
         "ecalBadCalibFilter",                 # ECAL bad calibration filter update ("Flag_ecalBadCalibFilter")
     ],
@@ -183,6 +273,11 @@ DataFractionAffectedBy2018HEM1516Issue = 0.7105 # factor = (luminosity for run >
 
 bTagWPs = { # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
     Era_2018: {
+        'AK4DeepJet': { # https://btv-wiki.docs.cern.ch/ScaleFactors/UL2018/
+            'L': 0.0490,
+            'M': 0.2783,
+            'T': 0.7100
+        },
         'DeepCSV': { # https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18
             'L': 0.1208,
             'M': 0.4506,
@@ -193,19 +288,58 @@ bTagWPs = { # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
         'DDBvLV2': { # not provided for UL samples
             'M': 0.8, # taken from Si's code
         },
-        'ParticleNetMD_XbbvsQCD': { # BTV-22-001
+        'ParticleNetMD_XbbvsQCD': {
+            'VL': 0.75,
+            # BTV-22-001
+
             # https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=BTV-22-001&tp=an&id=2622&ancode=BTV-22-001
             # https://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2021/005
             'L': 0.9172
         },
-        'ParticleNetMD_Hto4b_Htoaa4bOverQCD': {
+        'PNet_Xto4bv1_Htoaa4bOverQCD': { # earlier ParticleNetMD_Hto4b_Htoaa4bOverQCD
             # https://ssawant.web.cern.ch/ssawant/HToAA/DatavsMC/20231106_PNetSignificanceScan_Msd90to140/?match=ParticleNetMD_Hto4b_Htoaa4bOverQCD
             'WP-80': 0.920,
             #'WP-60': 0.978,
             'WP-60': 0.975, # https://indico.cern.ch/event/1348321/?note=257291#31-saswati-nandan
             'WP-40': 0.992,
-        }
+            'WP-95': 0.80, # sideband minimum threshold for WP60 <--> Assumption
+            'WP-99': 0.50, # sideband minimum threshold for WP80 <--> Assumption
+        },
+        'PNet_Xto4bv2_Htoaa4b': {
+            # Htoaato4b channel: https://mattermost.web.cern.ch/cms-exp/pl/icc97qchspnfprkiozptnqkksy
+            # X4b_v2 = (FatJet_PNet_X4b_v2a_Haa4b_score + FatJet_PNet_X4b_v2b_Haa4b_score) / 2.0
+            'SRWP-40': 0.96,  'SBWP-40': 0.84,    # fake rate 0.1%
+            'SRWP-50': 0.945, 'SBWP-50': 0.74,    # fake rate 0.2%
+            'SRWP-60': 0.93,  'SBWP-60': 0.66,    # fake rate 0.3%
+            'SRWP-65': 0.92,  'SBWP-65': 0.60,    # fake rate 0.4%
+            'SRWP-70': 0.90,  'SBWP-70': 0.50,    # fake rate 0.5%
+            'SRWP-80': 0.84,  'SBWP-80': 0.40,    # fake rate 0.1%
+        },
+        'PNet_Xto4bv2a_Htoaa4b': {
+            # Andrew, Hichem, Siddhesh chat: https://mattermost.web.cern.ch/cms-exp/pl/j6dnq8aid7nadnhb1w4sypqt3r
+            'SRWP-40': 0.968,  'SBWP-40': 0.84,    # fake rate 0.1%
+            'SRWP-60': 0.944,  'SBWP-60': 0.66,    # fake rate 0.3%
+            'SRWP-80': 0.868,  'SBWP-80': 0.40,    # fake rate 0.1%
+        },
+        'PNet_Xto4bv2b_Htoaa4b': {
+            # Andrew, Hichem, Siddhesh chat: https://mattermost.web.cern.ch/cms-exp/pl/j6dnq8aid7nadnhb1w4sypqt3r
+            'SRWP-40': 0.952,  'SBWP-40': 0.84,    # fake rate 0.1%
+            'SRWP-60': 0.916,  'SBWP-60': 0.66,    # fake rate 0.3%
+            'SRWP-80': 0.814,  'SBWP-80': 0.40,    # fake rate 0.1%
+        },
+
     },
+}
+
+bTagSFEfficiencyDict = {
+    Era_2018: { # 'AK4DeepJet' WP-M
+        'inputFile':    'data/correction/mc/BtagSF/2018/jetBtagEfficiency.root',
+        'histogramName': {
+            'b-flavour':     'hJetBtagEffi_b_QCD_TT_Presel',
+            'c-flavour':     'hJetBtagEffi_c_QCD_TT_Presel',
+            'light-flavour': 'hJetBtagEffi_l_QCD_TT_Presel',
+        }
+    }
 }
 
 
@@ -262,11 +396,16 @@ Corrections = {
 
 }
 
+
 massPseudoscalarA_windows_dict = OD([
     ('mA15Window', [14.2, 15.6]),
     ('mA30Window', [28.0, 32.0]),
     ('mA55Window', [50.0, 58.0]),
 ])
+massHiggs_windows_dict = {
+    'MsoftdropHiggsWindow': [110, 140],
+    'PNet_massH_Hto4b_HiggsWindow': [110, 140],
+}
 
 
 
