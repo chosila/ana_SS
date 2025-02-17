@@ -336,7 +336,8 @@ if __name__ == '__main__':
     if sAnalysis in ["htoaa_triggerStudy_GGFMode.py"]:
         # exclude irrelevant samples from running
         selSamplesToExclude_list.extend( [
-                "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
+            "MET_Run2018A", "MET_Run2018B", "MET_Run2018C", "MET_Run2018D",
+            "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
                 "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
                 #"DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
@@ -369,6 +370,23 @@ if __name__ == '__main__':
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-50_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-55_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
+
+            ## new samples from v2
+            #'WW_TuneCP5_13TeV-pythia8',                         ## confirm with Dr. Brinkerhoff which ww and tt/singlet samples to include
+            #'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+            #'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+            #'WZ_TuneCP5_13TeV-pythia8',
+            #'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+            'ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8',
+            'ZZ_TuneCP5_13TeV-pythia8',
+            'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+
 
         ] )
 

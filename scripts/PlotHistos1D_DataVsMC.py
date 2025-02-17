@@ -1,4 +1,4 @@
-ls# %%
+# %%
 #from IPython.display import display, HTML
 #display(HTML("<style>.container { width:100% !important; }</style>"))
 
@@ -71,7 +71,7 @@ dataBlindOption                = DataBlindingOptions.Unblind # DataBlindingOptio
 significantThshForDataBlinding = 0.125 # blind data in bins with S/sqrt(B) > significantThshForDataBlinding while running with dataBlindOption = DataBlindingOptions.BlindPartially
 
 
-sOpDir = '%s/%s' % (sOpDir, CAT)
+# sOpDir = '%s/%s' % (sOpDir, CAT)
 if not os.path.exists(sOpDir):
     os.makedirs(sOpDir)
 

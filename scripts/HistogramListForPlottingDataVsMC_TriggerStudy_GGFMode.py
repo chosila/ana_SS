@@ -8,15 +8,15 @@ sNRebinX = 'nRebinX';  sNRebinY = 'nRebinY';
 sXRebinning = 'xRebinning'; sYRebinning = 'yRebinning';
 
 ExpData_dict = {
-    'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
-    #'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
+    #'Data ABCD': ['SingleMuon_Run2018A', 'SingleMuon_Run2018B', 'SingleMuon_Run2018C', 'SingleMuon_Run2018D'],
+    'Data ABCD': ['EGamma_Run2018A', 'EGamma_Run2018B', 'EGamma_Run2018C', 'EGamma_Run2018D'],
     #'Data A': ['SingleMuon_Run2018A'],
     #'Data B': ['SingleMuon_Run2018B'],
     #'Data C': ['SingleMuon_Run2018C'],
     #'Data D': ['SingleMuon_Run2018D']
 }
 MCBkg_list = [
-    'QCD', #'QCD_0bCat', 'QCD_1bCat', 'QCD_2bCat', 'QCD_3bCat', 'QCD_4bCat', 'QCD_5bAndMoreCat',
+    'QCD_bEnr', 'QCD_BGen', 'QCD_Incl',#'QCD', #'QCD_0bCat', 'QCD_1bCat', 'QCD_2bCat', 'QCD_3bCat', 'QCD_4bCat', 'QCD_5bAndMoreCat',
     # 'TTToHadronic_powheg', 'TTToSemiLeptonic_powheg', 'TTTo2L2Nu_powheg', .
     'TTToHadronic_powheg',
     'TTToSemiLeptonic_powheg_bbqq',  'TTToSemiLeptonic_powheg_bbq' ,'TTToSemiLeptonic_powheg_bb', 'TTToSemiLeptonic_powheg_bqq', 'TTToSemiLeptonic_powheg_1b', 'TTToSemiLeptonic_powheg_0b',
@@ -62,7 +62,7 @@ histograms_dict = OD([
     ("hLeadingFatJetPhi", {sXLabel: 'hLeadingFatJetPhi', sYLabel: 'Events', sXRange: [-3.14, 3.14], sNRebinX: 2 }),
     ("hLeadingFatJetMass", {sXLabel: 'hLeadingFatJetMass', sYLabel: 'Events', sXRange: [1, 300], sNRebinX: 10}),
     ("hLeadingFatJetMSoftDrop", {sXLabel: 'hLeadingFatJetMSoftDrop', sYLabel: 'Events', sXRange: [1, 300], sNRebinX: 10 }),
-    ("hLeadingFatJetParticleNetMD_XbbOverQCD", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 4 }),
+    #("hLeadingFatJetParticleNetMD_XbbOverQCD", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 4 }),
     ("hLeadingFatJet_nBHadrons", {sXLabel: 'nBHadrons', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
     ("nBQuarkFromTop", {sXLabel: 'nBQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
     ("nLightQuarkFromTop", {sXLabel: 'nLightQuarkFromTop', sYLabel: 'Events', sXRange: [0,6], sNRebinX:1}),
@@ -84,13 +84,36 @@ histograms_dict = OD([
     ('bbqq4_xgb_score', {sXLabel: 'bbqq4_xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('bbqq11_xgb_score', {sXLabel: 'bbqq11_xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('bbqq_bbq13_xgb_score', {sXLabel: 'bbqq_bbq13_xgb_score', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
-    ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
-    ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
-    ('FatJet_PNetMD_Hto4b_Htoaa34bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    # ('FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa4bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    # ('FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    # ('FatJet_PNetMD_Hto4b_Htoaa34bOverQCD', {sXLabel: 'FatJet_PNetMD_Hto4b_Htoaa3bOverQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('btagHbb', {sXLabel: 'btagHbb', sYLabel: 'Events', sXRange: [-1,1], sNRebinX:4}),
-    ('particleNetMD_Xbb', {sXLabel: 'particleNetMD_Xbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
+    # ('particleNetMD_Xbb', {sXLabel: 'particleNetMD_Xbb', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('btagDDBvLV2', {sXLabel: 'btagDDBvLV2', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ('deepTagMD_ZHbbvsQCD', {sXLabel: 'deepTagMD_ZHbbvsQCD', sYLabel: 'Events', sXRange: [0,1], sNRebinX:4}),
     ("hLeadingFatJetParticleNetMD_XbbOverQCD", {sXLabel: 'hLeadingFatJetParticleNetMD_XbbOverQCD', sYLabel: 'Events', sXRange: [0, 1], sNRebinX: 2 }),
+
+    ## v2 plots
+    ('PNet_X4b_v1_Haa34b_score', {sXLabel: 'PNet_X4b_v1_Haa34b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v1_Haa4b_score', {sXLabel: 'PNet_X4b_v1_Haa4b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v2a_Haa34b_score', {sXLabel: 'PNet_X4b_v2a_Haa34b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v2a_Haa4b_score', {sXLabel: 'PNet_X4b_v2a_Haa4b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v2b_Haa34b_score', {sXLabel: 'PNet_X4b_v2b_Haa34b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v2b_Haa4b_score', {sXLabel: 'PNet_X4b_v2b_Haa4b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v2_Haa34b_score', {sXLabel: 'PNet_X4b_v2_Haa34b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_X4b_v2_Haa4b_score', {sXLabel: 'PNet_X4b_v2_Haa4b_score', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_TT_T2b_vs_01b', {sXLabel: 'PNet_TT_T2b_vs_01b', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_TT_bbqq_vs_01b', {sXLabel: 'PNet_TT_bbqq_vs_01b', sYLabel:'Events', sXRange: [0,1], sNRebinX: 1}),
+    ('PNet_TT_QCD', {sXLabel: 'PNet_TT_QCD', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_X', {sXLabel: 'PNet_TT_X', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T1b', {sXLabel: 'PNet_TT_T1b', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T2b', {sXLabel: 'PNet_TT_T2b', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_bbqq', {sXLabel: 'PNet_TT_bbqq', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T1b2q', {sXLabel: 'PNet_TT_T1b2q', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T1bb2q', {sXLabel: 'PNet_TT_T1bb2q', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T1bbb2q', {sXLabel: 'PNet_TT_T1bbb2q', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T2b1q', {sXLabel: 'PNet_TT_T2b1q', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_T2b2q', {sXLabel: 'PNet_TT_T2b2q', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
+    ('PNet_TT_TTHad', {sXLabel: 'PNet_TT_TTHad', sYLabel:'Events', sXRange: [0,1], sNRebinX: 10}),
 
 ])
