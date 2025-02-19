@@ -335,10 +335,11 @@ if __name__ == '__main__':
     if sAnalysis in ["htoaa_triggerStudy_GGFMode.py"]:
         # exclude irrelevant samples from running
         selSamplesToExclude_list.extend( [
+            kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
                 "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
-                "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
-                #"DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
+                # "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
+                "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
                 "DYJets_M-50_HT_LO",
                 "DYJets_HT_LO",
                 "WJetsToQQ_HT", "WJetsToLNu_Incl_NLO",
@@ -698,7 +699,7 @@ if __name__ == '__main__':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
                         if not dryRun:
-                            if num_jobs_running < 70:
+                            if num_jobs_running < 150:
                                 if printLevel >= 5:
                                     print("Now:  %s " % cmd1)
                                 os.system(cmd1)

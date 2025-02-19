@@ -53,7 +53,7 @@ print('input file: ', args.inputFile)
 
 sIpFile = args.inputFile
 sOpDir_substr = sIpFile.split('/')[-4:-2]
-sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
+sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/v2/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
 print('output dir: ', sOpDir)
 
 
