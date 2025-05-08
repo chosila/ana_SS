@@ -784,7 +784,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## fatjet selection
         ## may need to set pt values to low for the masked values, arg max, then change the values that don't pass to None?
-        fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6) & (events.FatJet.particleNetMD_XbbvsQCD > 0.75)
+        fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)  & (events.FatJet.particleNetMD_XbbvsQCD > 0.75)
         leadingFatJet = ak.firsts(events.FatJet[fatjet_mask]) #[idx_sort_fatjet_pt_after_selection])
 
 
@@ -880,8 +880,17 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                              ak4Jets.btagDeepFlavB,
                              -0.099
                              )
+        ## scale factor for flavB : flavB_mod = 2 * flavB^1.07
+        # print('-------------------------------------')
+        # print('\n\n\n\n\n\n\n')
+        # print(len(flavB_jet))
+        # print(len(~ak.is_none(flavB_jet)))
+        # print('\n\n\n\n\n\n\n')
+        # print('-------------------------------------')
+        # flavB_jet = 2*np.power(flavB_jet, 1.07)
 
         flavB_max_jet = ak.max(flavB_jet, axis=1)
+        flavB_max_jet = 2*np.power(flavB_max_jet, 1.07)
         flavB_max_jet = ak.fill_none(flavB_max_jet, -0.099)
 
 
@@ -1372,6 +1381,16 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     eventsGenPart = events.GenPart[mask_genTopQuark],
                     isPythiaTuneCP5 = self.datasetInfo['isPythiaTuneCP5']
                 )
+
+            # non TTbar , ST weight by fatjet pt
+            # SF = 1.34 - 0.00076*pt
+            if not (self.datasetInfo['isTTbar'] or ('SingleTop' in self.datasetInfo['sample_category'])):
+                weights.add(
+                    'non_TT_ST_sf',
+                    1.34 - 0.00076*leadingFatJet.pt
+                )
+
+
 
             '''
             # MC ParticleNetMD_XbbvsQCD SFs      SFs_ParticleNetMD_XbbvsQCD

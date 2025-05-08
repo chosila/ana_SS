@@ -53,8 +53,12 @@ print('input file: ', args.inputFile)
 
 sIpFile = args.inputFile
 sOpDir_substr = sIpFile.split('/')[-4:-2]
-sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/v2/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
+#sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/btv_presentation/v1/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
+
+sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/v1_rebin/{sOpDir_substr[0]}/{sOpDir_substr[1]}'.replace('v1/','')
+
 print('output dir: ', sOpDir)
+
 
 
 cmsWorkStatus                  = 'Work in Progress'
@@ -100,6 +104,8 @@ def rebinTH1(h1_, nRebins):
         h1Rebin_ = h1_[::8j]
     elif nRebins == 10:
         h1Rebin_ = h1_[::10j]
+    elif nRebins == 16:
+        h1Rebin_ = h1_[::16j]
     elif nRebins == 20:
         h1Rebin_ = h1_[::20j]
     elif nRebins == 40:
@@ -441,6 +447,20 @@ for sData, ExpData_list in ExpData_dict.items():
                     #fig1, ax1 = plt.subplots()
 
 
+
+                    ## need this to calculate the total of the data
+                    hData = None
+                    for ExpData_component in ExpData_list:
+                        histo_name_toUse_full = 'evt/%s/%s_%s' % (ExpData_component, histo_name_toUse, systematics_forData)
+                        h = fIpFile[histo_name_toUse_full].to_hist()
+                        if hData == None:
+                            hData = h
+                        else:
+                            hData = hData + h
+
+                    data_sum_total = hData.sum().value
+
+
                     if len(MCBkg_list) > 0:
                         hBkg_list = []
                         sBkg_list = []
@@ -454,11 +474,15 @@ for sData, ExpData_list in ExpData_dict.items():
                             h = rebinTH1(h, nRebinX) if nHistoDimemsions == 1 else rebinTH2(h, nRebinX, nRebinY)
 
                             h = h * luminosity_Scaling_toUse
+                            ## scale histogram by 0.6 if bb/bbq/bbqq
+                            if ('TTToSemiLeptonic_powheg_bb' in histo_name_toUse_full) or ('TTTo2L2Nu_powheg_bb' in histo_name_toUse_full):
+                                h=h*0.6
 
                             nTot_ = h.values().sum()
                             hBkg_list.append(h)
                             sBkg_list.append(dataset)
                             hBkg_integral_list.append(nTot_)
+
 
                             if abs(nTot_ - 0) < 1e-10: continue
                             #print(f"{histo_name_toUse_full} integral: {h.values.sum()}")
@@ -485,22 +509,28 @@ for sData, ExpData_list in ExpData_dict.items():
                         #print(f"sBkg_list: {sBkg_list} \nhBkg_integral_list (total {sum(hBkg_integral_list)}): {hBkg_integral_list} ")
                         #print(f"sBkg_list sorted by integral: {[(sBkg_list[idx], hBkg_integral_list[idx]) for idx in idx_hBkg_sortedByIntegral]}")
 
-                        hStack_list = [ hBkg_list[idx] for idx in idx_hBkg_sortedByIntegral ]
+                        sf_to_data_total = data_sum_total / np.sum(hBkg_integral_list)
+                        hStack_list = [ hBkg_list[idx]*sf_to_data_total for idx in idx_hBkg_sortedByIntegral ]
                         sStack_list = [ sBkg_list[idx] for idx in idx_hBkg_sortedByIntegral ]
                         #print(f"sStack_list: {sStack_list}")
                         #print(f"xError ({type(xError)}) ({len(xError)}): {xError}")
 
                         hStack_values_list    = np.array( [ h.values() for h in hStack_list ] )
                         hStack_variance_list  = np.array( [ h.variances() for h in hStack_list ] )
-                        hStack_error_list     = np.array( [ np.sqrt(h.variances()) for h in hStack_list ] )
+
+                        hBkgTot_values        = np.sum(hStack_values_list, axis=0)
+                        hBkgTot_variance      = np.sum(hStack_variance_list, axis=0)
+                        # hStack_error_list     = np.array( [ np.sqrt(h.variances()) for h in hStack_list ] )
                         #print(f"{len(hStack_list) = }"); sys.stdout.flush()
                         hStack_edges          = hStack_list[0].axes[0].edges
                         hStack_centers        = hStack_list[0].axes[0].centers
                         xError                = (hStack_list[0].axes[0].edges[1:] - hStack_list[0].axes[0].edges[0:-1]) / 2 if len(xError) == 0 else xError
 
-                        hBkgTot_values        = np.sum(hStack_values_list, axis=0)
-                        hBkgTot_variance      = np.sum(hStack_variance_list, axis=0)
-                        #print(f"hBkgTot_values sum: {sum(hBkgTot_values)}")
+
+                        print('data_sum_total: ', data_sum_total)
+                        print('hBkg_integral_list: ', np.sum(hBkg_integral_list))
+                        print('hStack_values_list: ', hStack_values_list.sum())
+                        print('----------------------------------------------------')
 
                         # Update yRange for hStackBkg -------
                         if nHistoDimemsions == 1:
@@ -521,6 +551,8 @@ for sData, ExpData_list in ExpData_dict.items():
                         #hep.histplot(hStack_values_list, bins=hStack_edges, ax=ax[0], yerr=hStack_error_list, histtype='step', stack=True, label=sStack_list, linestyle="--", color=["green", "black", (1, 0, 0, 0.4)])
                         #hep.histplot(hStack_values_list, bins=hStack_edges, ax=ax[0], histtype='fill', stack=True, label=sStack_list, color=["green", "darkorange", "red"])
 
+
+
                         ## shortening some labels in sStack_list
                         renamed_sStack_list = []
                         for n in sStack_list:
@@ -530,7 +562,10 @@ for sData, ExpData_list in ExpData_dict.items():
                             newn = newn.replace('_powheg', '')
                             renamed_sStack_list.append(newn)
 
-                            # https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_style_reference.html
+                        # https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_style_reference.html
+
+                        ## how do we go about....scaling the mc to match data
+
                         if nHistoDimemsions == 1: # 1-D histogram
                             hep.histplot(
                                 hStack_values_list,
@@ -548,10 +583,6 @@ for sData, ExpData_list in ExpData_dict.items():
 
                             ## 1D cumulative histogram
                             cumulative = np.cumsum(hStack_values_list, axis=1)
-                            print(hStack_values_list)
-                            print(cumulative)
-                            print(hStack_edges)
-                            print('\n\n\n')
 
                             hep.histplot(
                                 cumulative,
@@ -608,82 +639,82 @@ for sData, ExpData_list in ExpData_dict.items():
                     #print(f"\nAfter MCBkg {yAxisRange_cal = }")
 
 
-                    if len(MCSig_list) > 0:
-                        hSig_list = []
-                        sSig_list = []
-                        hSig_integral_list = []
-                        for iSig, dataset in enumerate(MCSig_list):
-                            histo_name_toUse_full = 'evt/%s/%s_%s' % (dataset, histo_name_toUse, systematic)
-                            h = fIpFile[histo_name_toUse_full].to_hist()
-                            h = rebinTH1(h, nRebinX) if nHistoDimemsions == 1 else rebinTH2(h, nRebinX, nRebinY)
+                    # if len(MCSig_list) > 0:
+                    #     hSig_list = []
+                    #     sSig_list = []
+                    #     hSig_integral_list = []
+                    #     for iSig, dataset in enumerate(MCSig_list):
+                    #         histo_name_toUse_full = 'evt/%s/%s_%s' % (dataset, histo_name_toUse, systematic)
+                    #         h = fIpFile[histo_name_toUse_full].to_hist()
+                    #         h = rebinTH1(h, nRebinX) if nHistoDimemsions == 1 else rebinTH2(h, nRebinX, nRebinY)
 
-                            h = h * luminosity_Scaling_toUse
+                    #         h = h * luminosity_Scaling_toUse
 
-                            nTot_ = h.values().sum()
-                            hSig_list.append(h)
-                            sSig_list.append(dataset)
-                            hSig_integral_list.append(h.values().sum())
-                            #print(f"{histo_name_toUse_full} integral: {h.values().sum()}")
+                    #         nTot_ = h.values().sum()
+                    #         hSig_list.append(h)
+                    #         sSig_list.append(dataset)
+                    #         hSig_integral_list.append(h.values().sum())
+                    #         #print(f"{histo_name_toUse_full} integral: {h.values().sum()}")
 
-                            histo_edges = h.axes[0].edges
-                            xError      = (h.axes[0].edges[1:] - h.axes[0].edges[0:-1]) / 2 if len(xError) == 0 else xError
-
-
-                            label_MCSig = dataset
-                            label_MCSig = sLableSig[iSig]
-                            if scale_MCSig > 1:
-                                #label_MCSig = '%s x %d' % (dataset, scale_MCSig)
-                                label_MCSig = '%s x %d' % (label_MCSig, scale_MCSig)
-
-                            if nHistoDimemsions == 1:
-                                yMin_ = getNonZeroMin(h.values())
-                                yMax_ = np.max(h.values())
-                                if yMin_ < yAxisRange_cal[0]:
-                                    yAxisRange_cal[0] = yMin_
-                                if (yMax_ > yAxisRange_cal[1]):
-                                    yAxisRange_cal[1] = yMax_
-
-                            # plot signal
-                            if nHistoDimemsions == 1:
-                                hep.histplot(
-                                    h.values() * scale_MCSig,
-                                    bins=histo_edges,
-                                    ax=ax[0],
-                                    yerr=np.sqrt(h.variances()) * scale_MCSig,
-                                    histtype='errorbar',
-                                    label=label_MCSig,
-                                    color=colors_sig_list[iSig][0],
-                                    marker='o',
-                                    markerfacecolor=colors_sig_list[iSig][0],
-                                    markersize=3
-                                    )
-                                cumulative=np.cumsum(h.values(), axis=1)
-                                hep.histplot(
-                                    cumulative * scaleMCSig,
-                                    bins=histo_edges,
-                                    ax=ax1[0],
-                                    yerr=np.sqrt(h.variances()) * scale_MCSig,
-                                    histtype='errorbar',
-                                    label=label_MCSig,
-                                    color=colors_sig_list[iSig][0],
-                                    marker='o',
-                                    markerfacecolor=colors_sig_list[iSig][0],
-                                    markersize=3
-                                    )
-
-                            nSig = np.sum(h.values())
-                            # S/sqrt(B)
-                            if nSig > 0 and nBkgTot > 0:
-                                S_ = h.values() / nSig
-                                B_ = np.sqrt(hBkgTot_values / nBkgTot)
-                                significance_i = np.divide(S_, B_, where=B_!=0, out=np.zeros(B_.shape))
-                                significanceAvg.append(significance_i)
+                    #         histo_edges = h.axes[0].edges
+                    #         xError      = (h.axes[0].edges[1:] - h.axes[0].edges[0:-1]) / 2 if len(xError) == 0 else xError
 
 
-                        significanceAvg = np.array(significanceAvg)
-                        significanceAvg = np.sum(significanceAvg, axis=0)
-                        significanceAvg = np.divide(significanceAvg, len(MCSig_list) )
-                        #print(f"significanceAvg (max: {np.max(significanceAvg)}): {significanceAvg}")
+                    #         label_MCSig = dataset
+                    #         label_MCSig = sLableSig[iSig]
+                    #         if scale_MCSig > 1:
+                    #             #label_MCSig = '%s x %d' % (dataset, scale_MCSig)
+                    #             label_MCSig = '%s x %d' % (label_MCSig, scale_MCSig)
+
+                    #         if nHistoDimemsions == 1:
+                    #             yMin_ = getNonZeroMin(h.values())
+                    #             yMax_ = np.max(h.values())
+                    #             if yMin_ < yAxisRange_cal[0]:
+                    #                 yAxisRange_cal[0] = yMin_
+                    #             if (yMax_ > yAxisRange_cal[1]):
+                    #                 yAxisRange_cal[1] = yMax_
+
+                    #         # plot signal
+                    #         if nHistoDimemsions == 1:
+                    #             hep.histplot(
+                    #                 h.values() * scale_MCSig,
+                    #                 bins=histo_edges,
+                    #                 ax=ax[0],
+                    #                 yerr=np.sqrt(h.variances()) * scale_MCSig,
+                    #                 histtype='errorbar',
+                    #                 label=label_MCSig,
+                    #                 color=colors_sig_list[iSig][0],
+                    #                 marker='o',
+                    #                 markerfacecolor=colors_sig_list[iSig][0],
+                    #                 markersize=3
+                    #                 )
+                    #             cumulative=np.cumsum(h.values(), axis=1)
+                    #             hep.histplot(
+                    #                 cumulative * scaleMCSig,
+                    #                 bins=histo_edges,
+                    #                 ax=ax1[0],
+                    #                 yerr=np.sqrt(h.variances()) * scale_MCSig,
+                    #                 histtype='errorbar',
+                    #                 label=label_MCSig,
+                    #                 color=colors_sig_list[iSig][0],
+                    #                 marker='o',
+                    #                 markerfacecolor=colors_sig_list[iSig][0],
+                    #                 markersize=3
+                    #                 )
+
+                    #         nSig = np.sum(h.values())
+                    #         # S/sqrt(B)
+                    #         if nSig > 0 and nBkgTot > 0:
+                    #             S_ = h.values() / nSig
+                    #             B_ = np.sqrt(hBkgTot_values / nBkgTot)
+                    #             significance_i = np.divide(S_, B_, where=B_!=0, out=np.zeros(B_.shape))
+                    #             significanceAvg.append(significance_i)
+
+
+                    #     significanceAvg = np.array(significanceAvg)
+                    #     significanceAvg = np.sum(significanceAvg, axis=0)
+                    #     significanceAvg = np.divide(significanceAvg, len(MCSig_list) )
+                    #     #print(f"significanceAvg (max: {np.max(significanceAvg)}): {significanceAvg}")
 
 
 
@@ -695,8 +726,11 @@ for sData, ExpData_list in ExpData_dict.items():
                         for ExpData_component in ExpData_list:
                             histo_name_toUse_full = 'evt/%s/%s_%s' % (ExpData_component, histo_name_toUse, systematics_forData)
                             h = fIpFile[histo_name_toUse_full].to_hist()
-                            if hData == None: hData = h
-                            else:             hData = hData + h
+                            if hData == None:
+                                hData = h
+                            else:
+                                hData = hData + h
+
 
                         hData = rebinTH1(hData, nRebinX) if nHistoDimemsions == 1 else rebinTH2(hData, nRebinX, nRebinY)
                         xError = (hData.axes[0].edges[1:] - hData.axes[0].edges[0:-1]) / 2
@@ -849,13 +883,16 @@ for sData, ExpData_list in ExpData_dict.items():
                         #print(f"{yMaxOffset = }, {yAxisRange_cal[1] * yMaxOffset = }, \t\t {abs(yAxisRange_cal[0]) * logYMinScaleFactor = }")
                         if yAxisScale == 'logY':
                             yAxisRange_cal[0] = abs(yAxisRange_cal[0]) * logYMinScaleFactor
+                            yAxisRange_cal[1] = pow(yAxisRange_cal[1], 1.8) ## make top 1.5 times larger to make space for margins
                             #yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
                         else:
                             yAxisRange_cal[0] = yAxisRange_cal[0]
+                            yAxisRange_cal[1] = yAxisRange_cal[1]*1.8
                             #yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
                         print(f"\nAt the end updated {yAxisRange_cal = } \t {yAxisScale = }")
-                        ax[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1])
-                        #ax1[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1])
+                        ax[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1]) ## ylim about 1.5x the max value so there's space for legend
+                        ax1[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1])
+
                     if xAxisLabel:
                         ax[0].set_xlabel(xAxisLabel)
                         #ax1[0].set_xlabel(xAxisLabel)

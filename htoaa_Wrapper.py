@@ -273,7 +273,8 @@ if __name__ == '__main__':
     xgbCut                  = args.xgbCut
 
     SourceCodeDir     = os.getcwd()
-    DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
+    #DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
+    DestinationDir    = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/v1_202505_scalefactor/%s/%s' % (anaVersion, era)
     EosDestinationDir = "/eos/cms/store/user/%s/htoaa/analysis/%s/%s" % (UserName, anaVersion, era)
 
     os.chdir( SourceCodeDir )
@@ -335,7 +336,7 @@ if __name__ == '__main__':
     if sAnalysis in ["htoaa_triggerStudy_GGFMode.py"]:
         # exclude irrelevant samples from running
         selSamplesToExclude_list.extend( [
-            kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
+            #kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
                 "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
                 # "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
@@ -369,6 +370,7 @@ if __name__ == '__main__':
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-50_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-55_TuneCP5_13TeV_madgraph_pythia8',
                 'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
+
 
         ] )
     ## ------------------------------------------------------------------------------------------
@@ -699,7 +701,7 @@ if __name__ == '__main__':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
                         if not dryRun:
-                            if num_jobs_running < 150:
+                            if num_jobs_running < 70:
                                 if printLevel >= 5:
                                     print("Now:  %s " % cmd1)
                                 os.system(cmd1)
