@@ -168,7 +168,7 @@ def writeCondorSumitFile(
         (5, 'testmatch'),    # 3 days
         (6, 'nextweek'),     # 1 week
     ])
-    iJobFlavour = 2 # 2, 'longlunch' 2 hours
+    iJobFlavour = 3 # 2, 'longlunch' 2 hours
     #iJobFlavour = 1 # 1, 'microcentury'
     if increaseJobFlavour: iJobFlavour += 1
 
@@ -273,7 +273,7 @@ if __name__ == '__main__':
     xgbCut                  = args.xgbCut
 
     SourceCodeDir     = os.getcwd()
-    DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
+    DestinationDir    = "../analysis/v1_202505_scalefactor/%s/%s" % (anaVersion, era)
     EosDestinationDir = "/eos/cms/store/user/%s/htoaa/analysis/%s/%s" % (UserName, anaVersion, era)
 
     os.chdir( SourceCodeDir )
@@ -335,6 +335,7 @@ if __name__ == '__main__':
     if sAnalysis in ["htoaa_triggerStudy_GGFMode.py"]:
         # exclude irrelevant samples from running
         selSamplesToExclude_list.extend( [
+            kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
                 "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
                 "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",

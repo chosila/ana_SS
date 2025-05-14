@@ -590,7 +590,6 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             for _syst in systematics_shift:
                 output += self.process_shift(events, _syst)
         else:
-            print(f" {np.unique(events.run, return_counts=True) = } "); sys.stdout.flush()
             output = self.process_shift(events, None)
 
 
@@ -921,10 +920,16 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             leadingLepton = leadingElectron
         ak4SelectionMask = ak4SelectionMask_nolep & ak4_FatJet_dR_mask & ak4_Lepton_dR_mask
         ak4LepJets_mask = ak4SelectionMask_nolep & ak4_FatJet_dR_mask & (~ak4_Lepton_dR_mask) & ((ak4Jets.pt - leadingLepton.pt) > 30)
+
+        ##  For all selected light-flavor non-b-tagged AK4 jets in MC only, substitute the b-tag score with: flavB_mod = 2 * flavB^1.07
+        if self.datasetInfo["isMC"]:
+            ak4Jets.btagDeepFlavB = 2*ak4Jets.btagDeepFlavB**1.07
+
         flavB_jet = ak.where(ak4SelectionMask & ( np.abs(ak4Jets.eta) < 2.4),
                              ak4Jets.btagDeepFlavB,
                              -0.099
                              )
+
 
         flavB_max_jet = ak.max(flavB_jet, axis=1)
         flavB_max_jet = ak.fill_none(flavB_max_jet, -0.099)
@@ -1412,6 +1417,15 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 wgt_TopPt = getTopPtRewgt(
                     eventsGenPart = events.GenPart[mask_genTopQuark],
                     isPythiaTuneCP5 = self.datasetInfo['isPythiaTuneCP5']
+                )
+
+            ##
+            # non TTbar , ST weight by fatjet pt
+            # SF = 1.34 - 0.00076*pt
+            if not (self.datasetInfo['isTTbar'] or ('SingleTop' in self.datasetInfo['sample_category'])):
+                weights.add(
+                    'non_TT_ST_sf',
+                    1.34 - 0.00076*leadingFatJet.pt
                 )
 
             '''

@@ -53,7 +53,7 @@ print('input file: ', args.inputFile)
 
 sIpFile = args.inputFile
 sOpDir_substr = sIpFile.split('/')[-4:-2]
-sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
+sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/v1_202505_scalefactor/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
 print('output dir: ', sOpDir)
 
 
@@ -849,9 +849,11 @@ for sData, ExpData_list in ExpData_dict.items():
                         #print(f"{yMaxOffset = }, {yAxisRange_cal[1] * yMaxOffset = }, \t\t {abs(yAxisRange_cal[0]) * logYMinScaleFactor = }")
                         if yAxisScale == 'logY':
                             yAxisRange_cal[0] = abs(yAxisRange_cal[0]) * logYMinScaleFactor
+                            yAxisRange_cal[1] = pow(yAxisRange_cal[1], 1.6)
                             #yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
                         else:
                             yAxisRange_cal[0] = yAxisRange_cal[0]
+                            yAxisRange_cal[1] = yAxisRange_cal[1]*1.6
                             #yAxisRange_cal[1] = yAxisRange_cal[1] * yMaxOffset
                         print(f"\nAt the end updated {yAxisRange_cal = } \t {yAxisScale = }")
                         ax[0].set_ylim(yAxisRange_cal[0], yAxisRange_cal[1])
