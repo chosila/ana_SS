@@ -274,7 +274,7 @@ if __name__ == '__main__':
 
     SourceCodeDir     = os.getcwd()
     #DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
-    DestinationDir    = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/v1_202505_scalefactor/%s/%s' % (anaVersion, era)
+    DestinationDir    = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/v2_scalefactor/%s/%s' % (anaVersion, era)
     EosDestinationDir = "/eos/cms/store/user/%s/htoaa/analysis/%s/%s" % (UserName, anaVersion, era)
 
     os.chdir( SourceCodeDir )
@@ -336,7 +336,7 @@ if __name__ == '__main__':
     if sAnalysis in ["htoaa_triggerStudy_GGFMode.py"]:
         # exclude irrelevant samples from running
         selSamplesToExclude_list.extend( [
-            #kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
+            kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
                 "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
                 "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
                 # "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",

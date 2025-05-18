@@ -881,16 +881,11 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                              -0.099
                              )
         ## scale factor for flavB : flavB_mod = 2 * flavB^1.07
-        # print('-------------------------------------')
-        # print('\n\n\n\n\n\n\n')
-        # print(len(flavB_jet))
-        # print(len(~ak.is_none(flavB_jet)))
-        # print('\n\n\n\n\n\n\n')
-        # print('-------------------------------------')
-        # flavB_jet = 2*np.power(flavB_jet, 1.07)
+        ##  For all selected light-flavor non-b-tagged AK4 jets in MC only, substitute the b-tag score with: flavB_mod = 2 * flavB^1.07
+        if self.datasetInfo["isMC"]:
+            ak4Jets.btagDeepFlavB = 2*ak4Jets.btagDeepFlavB**1.07
 
         flavB_max_jet = ak.max(flavB_jet, axis=1)
-        flavB_max_jet = 2*np.power(flavB_max_jet, 1.07)
         flavB_max_jet = ak.fill_none(flavB_max_jet, -0.099)
 
 
