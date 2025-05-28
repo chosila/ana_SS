@@ -1,4 +1,4 @@
-# htoaa Analysis Framework using Coffea
+# This branch holds v2 NanoAOD processing
 
 ## Seting up environment using conda
 1. Install 'conda' on your system/lxplus. Suggestion: Follow https://docs.anaconda.com/anaconda/install/linux/
