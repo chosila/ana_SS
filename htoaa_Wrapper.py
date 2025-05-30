@@ -699,7 +699,7 @@ if __name__ == '__main__':
                         cmd1 = "condor_submit %s" % sCondorSubmit_to_use
 
                         if not dryRun:
-                            if num_jobs_running < 70:
+                            if num_jobs_running < 80:
                                 if printLevel >= 5:
                                     print("Now:  %s " % cmd1)
                                 os.system(cmd1)
