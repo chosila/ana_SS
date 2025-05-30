@@ -204,10 +204,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
                 'xgb_score',
                 '1b',
-                '1b_BBQ',
+                #'1b_BBQ',
                 '1b_BBQQ',
                 '0b',
-                '0b_BBQ',
+                #'0b_BBQ',
                 '0b_BBQQ'
             ]),
         ])
@@ -246,10 +246,10 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         # sel_0b_BBQ :  ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b', '0b_BBQ']
         # sel_0b_BBQQ : ['nPV', 'METFilters', 'goodLepton', 'dR_Lep_FatJet', '0b', '0b_BBQ', '0b_BBQQ']
         self.sel_names_all['sel_1b'] = [x for x in self.sel_names_all["SR"] if (('0b' not in x) and (('BBQ' not in x)))]
-        self.sel_names_all['sel_1b_BBQ'] = [x for x in self.sel_names_all["SR"] if (('0b' not in x) and ('BBQQ' not in x))]
+        #self.sel_names_all['sel_1b_BBQ'] = [x for x in self.sel_names_all["SR"] if (('0b' not in x) and ('BBQQ' not in x))]
         self.sel_names_all['sel_1b_BBQQ'] = [x for x in self.sel_names_all["SR"] if '0b' not in x]
         self.sel_names_all['sel_0b'] = [x for x in self.sel_names_all["SR"] if (('1b' not in x) and (('BBQ' not in x)))]
-        self.sel_names_all['sel_0b_BBQ'] = [x for x in self.sel_names_all["SR"] if (('1b' not in x) and ('BBQQ' not in x))]
+        #self.sel_names_all['sel_0b_BBQ'] = [x for x in self.sel_names_all["SR"] if (('1b' not in x) and ('BBQQ' not in x))]
         self.sel_names_all['sel_0b_BBQQ'] = [x for x in self.sel_names_all["SR"] if '1b' not in x]
 
 
