@@ -70,10 +70,10 @@ frameinfo = getframeinfo(currentframe())
 
 
 ## make sure there's nothing in the inputFiles dire before starting
-import glob, os
-for f in glob.glob('inputFiles/*.root'):
-    print('removing files: ', f)
-    os.remove(f)
+# import glob, os
+# for f in glob.glob('inputFiles/*.root'):
+#     print('removing files: ', f)
+#     os.remove(f)
 
 # use GOldenJSON
 
