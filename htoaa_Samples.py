@@ -10,6 +10,64 @@ kWJets        = "WJets"
 
 QCDInclMode = 2 # 1: run "QCD_Incl", 2: run "QCD_Incl_PSWeight", 0: run both "QCD_Incl" and "QCD_Incl_PSWeight". Use 2 as "QCD_Incl_PSWeight" (recommended)
 
+Samples2017 = OD([
+    # DY
+    ("DYJets_M-10to50_Incl_LO", [
+        "DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ]),
+    ("DYJets_M-50_Incl_LO", [
+        "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ]),
+
+    # ST
+    ("SingleTop", [
+        "ST_t-channel_top_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+        "ST_t-channel_antitop_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+        "ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+        "ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+        "ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+        "ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+    ]),
+
+    # TTbar
+    ("TTToHadronic_powheg", [
+        "TTToHadronic_TuneCP5_13TeV-powheg-pythia8",
+    ]),
+    ("TTToSemiLeptonic_powheg", [
+        "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+    ]),
+    ("TTTo2L2Nu_powheg", [
+        "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    ]),
+
+    # WJets
+    ('WJetsToLNu_HT_LO', [
+        "WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+        "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ]),
+
+    # SingleMuon
+    ("SingleMuon_Run2017B", ["SingleMuon_Run2017B"]),
+    ("SingleMuon_Run2017C", ["SingleMuon_Run2017C"]),
+    ("SingleMuon_Run2017D", ["SingleMuon_Run2017D"]),
+    ("SingleMuon_Run2017E", ["SingleMuon_Run2017E"]),
+    ("SingleMuon_Run2017F", ["SingleMuon_Run2017F"]),
+
+    # EGamma
+    ("SingleElectron_Run2017B", ["SingleElectron_Run2017B"]),
+    ("SingleElectron_Run2017C", ["SingleElectron_Run2017C"]),
+    ("SingleElectron_Run2017D", ["SingleElectron_Run2017D"]),
+    ("SingleElectron_Run2017E", ["SingleElectron_Run2017E"]),
+    ("SingleElectron_Run2017F", ["SingleElectron_Run2017F"]),
+
+])
+
 Samples2018 = OD([
 
     #(kData, [

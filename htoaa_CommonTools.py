@@ -15,7 +15,7 @@ import hist as hist
 from parse import *
 import logging
 
-from htoaa_Settings import * 
+from htoaa_Settings import *
 from htoaa_Samples import (
     kData, kQCD_bEnrich, kQCD_bGen, kQCDIncl, kZJets, kWJets
 )
@@ -25,7 +25,7 @@ def calculate_lumiScale(luminosity, crossSection, sumEvents):
     lumiScale = 1
     # as crosssection is in pb and luminosity in fb
     pb_to_fb_conversionFactor = 1000
-    
+
     if sumEvents != 0: lumiScale = luminosity * crossSection * pb_to_fb_conversionFactor / sumEvents
     return lumiScale
 
@@ -41,14 +41,14 @@ def getSampleHTRange(sample_datasetNameFull):
             if sample_HT_Max == 'Inf':
                 sample_HT_Max = kLHE_HT_Max
             else:
-                sample_HT_Max = int(sample_HT_Max)            
+                sample_HT_Max = int(sample_HT_Max)
 #            try:
 #                sample_HT_Max = int(sample_HT_Max) # to take care of sample_HT_Max = 'Inf'
 #            except:
 #                sample_HT_Max = -1
             break
     return sample_HT_Min, sample_HT_Max
-    
+
 '''
 def update_crosssection(sample_category, sample_dataset, sample_crossSection):
     if sample_category not in [kQCD_bGen]: return sample_crossSection
@@ -56,7 +56,7 @@ def update_crosssection(sample_category, sample_dataset, sample_crossSection):
     # HTSamplesStitch SF -------------------------------------------------------------------
     sample_HT_Min, sample_HT_Max = getSampleHTRange(sample_dataset)
     sample_HT_toUse = sample_HT_Min # int(sample_HT_Min)
-    
+
     sIpFile_HTSamplesStitchSF        = Corrections['HTSamplesStitch']['inputFile']
     sHistogramName_HTSamplesStitchSF = Corrections['HTSamplesStitch']['histogramName']
     sHistogramName_HTSamplesStitchSF = sHistogramName_HTSamplesStitchSF.replace('$SAMPLECATEGORY', sample_category)
@@ -64,7 +64,7 @@ def update_crosssection(sample_category, sample_dataset, sample_crossSection):
     HTSamplesStitchSF = None
     ipFile_HTSamplesStitchSF = R.TFile(sIpFile_HTSamplesStitchSF)
     if not ipFile_HTSamplesStitchSF.IsOpen():
-        logging.error   ("update_crosssection(): Colud not open inputfile %s ." % (sIpFile_HTSamplesStitchSF), exc_info=True)        
+        logging.error   ("update_crosssection(): Colud not open inputfile %s ." % (sIpFile_HTSamplesStitchSF), exc_info=True)
         exit(0)
 
     hHTSamplesStitchSF = None
@@ -72,7 +72,7 @@ def update_crosssection(sample_category, sample_dataset, sample_crossSection):
     if not hHTSamplesStitchSF:
         logging.error   ("update_crosssection(): Histogram %s could not read from inputfile %s ." % (sHistogramName_HTSamplesStitchSF, sIpFile_HTSamplesStitchSF), exc_info=True)
         exit(0)
-        
+
     try:
         HTSamplesStitchSF = hHTSamplesStitchSF.GetBinContent( hHTSamplesStitchSF.FindBin(sample_HT_toUse) )
     except:
@@ -83,9 +83,9 @@ def update_crosssection(sample_category, sample_dataset, sample_crossSection):
     print(f"update_crosssection():: sample_category: {sample_category}, sample_dataset: {sample_dataset}, sample_crossSection (original): {sample_crossSection}, HTSamplesStitchSF(@HT {sample_HT_toUse}): {HTSamplesStitchSF}, sample_crossSection_corr: {sample_crossSection_corr}")
     ipFile_HTSamplesStitchSF.Close()
     # ----------------------------------------------------------------------------------------
-    
+
     return sample_crossSection_corr
-'''    
+'''
 
 def getTH1BinContent(histo, xValue):
     # histo: uprootTH1D.to_hist()
@@ -98,13 +98,13 @@ def getTH1BinContent(histo, xValue):
     #print(f"htoaa_CommonTools.py::getTH1BinContent():: {histo = },   {xBin = },    {histo[xBin] = },   {histo[xBin].value = }")
     return histo[xBin]
 
-    
+
 def getNanoAODFile(
-        fileName, 
-        useLocalFileIfExists = True, 
-        downloadFile = True, 
-        fileNameLocal = './inputFiles/fLocal.root', 
-        nTriesToDownload = 3, 
+        fileName,
+        useLocalFileIfExists = True,
+        downloadFile = True,
+        fileNameLocal = './inputFiles/fLocal.root',
+        nTriesToDownload = 3,
         server = 'lxplus'
         ):
     # MC:
@@ -139,21 +139,21 @@ def getNanoAODFile(
             DatasetTier                = r_['DatasetTier']
             GT                         = r_['GT']
             SampleDir                  = r_['SampleDir']
-            SampleFileName             = r_['SampleFileName'] 
+            SampleFileName             = r_['SampleFileName']
             Era                        = None
             if   'UL16' in SampleProductionCampaign or 'UL2016' in SampleProductionCampaign:
                 Era = '2016'
             elif 'UL17' in SampleProductionCampaign or 'UL2017' in SampleProductionCampaign:
                 Era = '2017'
             elif 'UL18' in SampleProductionCampaign or 'UL2018' in SampleProductionCampaign:
-                Era = '2018'       
+                Era = '2018'
             fileName_EOS = f"/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/{Era}/{IsMC}/{SampleName}/{SampleProductionCampaign}/{SampleFileName}"
 
-        
+
         if fileName.startswith("/eos/"): # File is stored on /eos/ area on lxplus
             fileName_EOS = fileName
 
-        print(f"Checking for eos file: {fileName_EOS = }") 
+        print(f"Checking for eos file: {fileName_EOS = }")
         print(f"htoaa_CommonTools::getNanoAODFile() here2 {datetime.now() = }"); sys.stdout.flush()
         print(f"{fileName_EOS = }: {os.path.exists(fileName_EOS) = } ")
 
@@ -165,7 +165,7 @@ def getNanoAODFile(
         if  xrdcpFile(fileName_EOS, fileNameLocal, nTry = 3, cp_command = 'eos cp'):
             print(f"Forced xrdcp for {fileName_EOS = } successful.")
             print(f"htoaa_CommonTools::getNanoAODFile() here3 {datetime.now() = }"); sys.stdout.flush()
-        print(f"{fileNameLocal = }: {os.path.exists(fileNameLocal) = } ")            
+        print(f"{fileNameLocal = }: {os.path.exists(fileNameLocal) = } ")
         print(f"List directory {os.path.dirname(fileNameLocal) = }:  {os.listdir(os.path.dirname(fileNameLocal)) = }")
         if os.path.exists(fileNameLocal):
             return fileNameLocal, True
@@ -186,7 +186,7 @@ def getNanoAODFile(
                     print(f"htoaa_CommonTools::getNanoAODFile() here6 {datetime.now() = }"); sys.stdout.flush()
                     isReadingSuccessful = True
                     break
-                
+
             else:
                 file1 = None
                 try:
@@ -218,7 +218,7 @@ def setXRootDRedirector(fileName, useLocalFileIfExists = True):
 
     # DAS file: "/store/data/Run2018A/JetHT/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/97F68EC0-0E12-C04C-A5D6-2B7A7C6688F8.root"
     # eos file: "/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2018/data/JetHT/Run2018A-UL2018_MiniAODv2_NanoAODv9_GT36-v1/97F68EC0-0E12-C04C-A5D6-2B7A7C6688F8.root"
-    
+
     if not fileName.startswith("/store/"):
         return fileName
 
@@ -241,9 +241,9 @@ def setXRootDRedirector(fileName, useLocalFileIfExists = True):
             Era = '2017'
         elif 'UL18' in SampleProductionCampaign:
             Era = '2018'
-           
+
         fileName_EOS = f"/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/{Era}/{IsMC}/{SampleName}/{SampleProductionCampaign}/{SampleFileName}"
-    
+
     redirector_toUse = None
     for redirector in xrootd_redirectorNames:
         print(f"setXRootDRedirector():: Checking {redirector + fileName}"); sys.stdout.flush()
@@ -274,9 +274,9 @@ def setXRootDRedirector(fileName, useLocalFileIfExists = True):
                 print(f"{redirector + fileName}: {nEntries}"); sys.stdout.flush()
                 redirector_toUse = redirector
                 break
-            
+
     #print(f"redirector_toUse: {redirector_toUse}")
-    
+
     return redirector_toUse + fileName
 
 def xrdcpFile(sFileName, sFileNameLocal, nTry = 3, cp_command = 'xrdcp'):
@@ -285,11 +285,11 @@ def xrdcpFile(sFileName, sFileNameLocal, nTry = 3, cp_command = 'xrdcp'):
     dirName_ = os.path.dirname(sFileNameLocal)
     os.makedirs(dirName_, exist_ok=True)
     print(f"{dirName_ = }: {os.path.exists(dirName_)} ")
-    print(f"{command_ = }")    
+    print(f"{command_ = }")
     for iTry in range(nTry):
         print(f"htoaa_CommonTools::xrdcpFile() here1 {iTry = } {datetime.now() = }"); sys.stdout.flush()
         process = subprocess.Popen(command_list_,
-                                   stdout=subprocess.PIPE, 
+                                   stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
                                    universal_newlines=True
                                    )
@@ -303,7 +303,7 @@ def xrdcpFile(sFileName, sFileNameLocal, nTry = 3, cp_command = 'xrdcp'):
                 print(f"sFileNameLocal: {sFileNameLocal} ({fileSize} MB) ")
             except  FileNotFoundError:
                 print(f"sFileNameLocal: {sFileNameLocal} file not found.")
-            except OSError: 
+            except OSError:
                 print(f"sFileNameLocal: {sFileNameLocal} OS error occurred.")
         #if 'FATAL' not in stderr and 'ERROR' not in stderr : # download was successful
 #        if ('fatal' not in stderr_lower and 'error' not in stderr_lower) or \
@@ -313,13 +313,13 @@ def xrdcpFile(sFileName, sFileNameLocal, nTry = 3, cp_command = 'xrdcp'):
             return True
 
     return False
-    
+
 
 
 def selectRunLuminosityBlock_ApprochEventBase(golden_json_path, runNumber_list, luminosityBlock_list):
     print(f" selectRunLuminosityBlock "); sys.stdout.flush();
     with open(golden_json_path) as fDataGoldenJSON:
-        dataLSSelGoldenJSON = json.load(fDataGoldenJSON)    
+        dataLSSelGoldenJSON = json.load(fDataGoldenJSON)
         #print(f"0 : {dataLSSelGoldenJSON = }")
         dataLSSelGoldenJSON = {int(k): v for k, v in dataLSSelGoldenJSON.items()}
 
@@ -360,36 +360,36 @@ def selectMETFilters(flags_list, era, isMC):
 
     if "goodVertices" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.goodVertices
-    
+
     if "globalSuperTightHalo2016Filter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.globalSuperTightHalo2016Filter
-    
+
     if "HBHENoiseFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.HBHENoiseFilter
-    
+
     if "HBHENoiseIsoFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.HBHENoiseIsoFilter
-    
+
     if "EcalDeadCellTriggerPrimitiveFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.EcalDeadCellTriggerPrimitiveFilter
-    
+
     if "BadPFMuonFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.BadPFMuonFilter
-    
+
     if "BadPFMuonDzFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.BadPFMuonDzFilter
-    
+
     if "hfNoisyHitsFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.hfNoisyHitsFilter
-    
+
     if "eeBadScFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.eeBadScFilter
-    
+
     if "ecalBadCalibFilter" in MET_Filters[era][sFLagDataOrMC]:
         mask_METFilters = mask_METFilters & flags_list.ecalBadCalibFilter
 
     return mask_METFilters
-    
+
 
 
 
@@ -411,7 +411,7 @@ def getLumiScaleForPhSpOverlapRewgtMode(
         sample_HT_value ,
         mask_PhSp_dict ):
     lumiScale = None
-    
+
     if 'QCD' in sample_category:
         xBin = None
         for iBin in range(len(hLumiScale.axes[0])):
@@ -425,7 +425,7 @@ def getLumiScaleForPhSpOverlapRewgtMode(
             lumiScale_value = hLumiScale[xBin, PhSpName]
             lumiScale = np.where(mask_PhSp, np.ones(nEvents) * lumiScale_value, lumiScale)
             #print(f'htoaa_CommonTools::getLumiScaleForPhSpOverlapRewgtMode():: {sample_category = }, {sample_HT_value = }, {xBin = }, {PhSpName = }, {lumiScale_value = }, ')
-                            
+
     else:
         logging.error(f'htoaa_CommonTools::getLumiScaleForPhSpOverlapRewgtMode():: {sample_category = } not implemented')
         exit(0)
@@ -448,9 +448,9 @@ def getTopPtRewgt(eventsGenPart, isPythiaTuneCP5):
     list_pT_top_antiTop.append( ak.firsts( eventsGenPart[(eventsGenPart.pdgId == (-1 * PDGID_TopQuark))].pt ) )
 
     fitRangeMin         = Corrections["TopPtRewgt"]["TuneCP5"]["FitRange"][0]
-    fitRangeMax         = Corrections["TopPtRewgt"]["TuneCP5"]["FitRange"][1]   
+    fitRangeMax         = Corrections["TopPtRewgt"]["TuneCP5"]["FitRange"][1]
     sFitFunctionFormat  = Corrections["TopPtRewgt"]["TuneCP5"]["FitFunctionFormat"]
-    sFitFunction        = Corrections["TopPtRewgt"]["TuneCP5"]["FitFunction"] 
+    sFitFunction        = Corrections["TopPtRewgt"]["TuneCP5"]["FitFunction"]
     if sFitFunctionFormat == "exp( {a} + ({b} * x) + ({c} * x * x) + ({d}/(x + {e})) )":
         fitResult_        = parse(sFitFunctionFormat, sFitFunction) # https://pypi.org/project/parse/
         pTuneCP5_a = float(fitResult_['a'])
@@ -469,7 +469,7 @@ def getTopPtRewgt(eventsGenPart, isPythiaTuneCP5):
             exit(0)
         if not math.isclose(Corrections["TopPtRewgt"]["TuneCUETP"]["FitRange"][1], fitRangeMax, rel_tol=1e-5):
             logging.critical(f'htoaa_CommonTools::getTopPtRewgt():: {Corrections["TopPtRewgt"]["TuneCP5"]["FitRange"][1] = } is not equal to {Corrections["TopPtRewgt"]["TuneCUETP"]["FitRange"][1]}. Code is not able to handle it... Fix it..')
-            exit(0)    
+            exit(0)
         sFitFunctionFormat    = Corrections["TopPtRewgt"]["TuneCUETP"]["FitFunctionFormat"]
         sFitFunction          = Corrections["TopPtRewgt"]["TuneCUETP"]["FitFunction"]
         if sFitFunctionFormat == "{a} + ({b} * TanH({c} + ({d} * x) )":
@@ -496,12 +496,12 @@ def getTopPtRewgt(eventsGenPart, isPythiaTuneCP5):
         if Corrections["TopPtRewgt"]["TuneCP5"]["FitFunctionFormat"] == "exp( {a} + ({b} * x) + ({c} * x * x) + ({d}/(x + {e})) )":
             wgt_withinFitRange  = np.exp( pTuneCP5_a + (pTuneCP5_b * pT_list   ) + (pTuneCP5_c * pT_list    * pT_list   ) + (pTuneCP5_d / (pT_list    + pTuneCP5_e)) )
             wgt_outsideFitRange = np.exp( pTuneCP5_a + (pTuneCP5_b * pTMax_list) + (pTuneCP5_c * pTMax_list * pTMax_list) + (pTuneCP5_d / (pTMax_list + pTuneCP5_e)) )
-            
+
             wgt_TopPtRewgt = wgt_TopPtRewgt * ak.where(
                 np.less_equal(pT_list, fitRangeMax),
                 wgt_withinFitRange,
                 wgt_outsideFitRange
-            ) 
+            )
         #printVariable('wgt_TopPtRewgt ', wgt_TopPtRewgt)
 
         if not isPythiaTuneCP5:
@@ -540,6 +540,29 @@ def getPURewgts(PU_list, hPURewgt):
     #print(f"wgt_PU ({len(wgt_PU)}): {wgt_PU}")
     return wgt_PU
 
+def getPURewgts_variation(events, year):
+
+    if 'puWeight' in events.fields:
+        # Read from PU weights stored in NanoAODv2
+        puNom  = events.puWeight
+        puUp   = events.puWeightUp
+        puDown = events.puWeightDown
+    else:
+        ## json files from: https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG/LUM
+        fname = "data/correction/mc/PURewgt/{0}_UL/puWeights.json.gz".format(year)
+        hname = {
+            "2016APV": "Collisions16_UltraLegacy_goldenJSON",
+            "2016"   : "Collisions16_UltraLegacy_goldenJSON",
+            "2017"   : "Collisions17_UltraLegacy_goldenJSON",
+            "2018"   : "Collisions18_UltraLegacy_goldenJSON"
+        }
+        evaluator = correctionlib.CorrectionSet.from_file(fname)
+
+        puUp = evaluator[hname[str(year)]].evaluate(np.array(events.Pileup.nTrueInt), "up")
+        puDown = evaluator[hname[str(year)]].evaluate(np.array(events.Pileup.nTrueInt), "down")
+        puNom = evaluator[hname[str(year)]].evaluate(np.array(events.Pileup.nTrueInt), "nominal")
+
+    return [puNom, puUp, puDown]
 
 def getHiggsPtRewgtForGGToHToAATo4B(GenHiggsPt_list): # GenHiggsPt_list
     # Used in Brook's analysis
@@ -548,7 +571,7 @@ def getHiggsPtRewgtForGGToHToAATo4B(GenHiggsPt_list): # GenHiggsPt_list
 
     # https://indico.cern.ch/event/1348321/#19-siddhesh-sawant
     # min(max(1.45849 + -0.00400668*x + 4.02577e-06*pow(x, 2) + -1.38804e-09*pow(x, 3), 0.09), 1.02)
-    wgt_HiggsPt = 1.45849 - 0.00400668*GenHiggsPt_list + 4.02577e-06*GenHiggsPt_list**2 - 1.38804e-09*GenHiggsPt_list**3 
+    wgt_HiggsPt = 1.45849 - 0.00400668*GenHiggsPt_list + 4.02577e-06*GenHiggsPt_list**2 - 1.38804e-09*GenHiggsPt_list**3
     wgt_HiggsPt = np.maximum(wgt_HiggsPt, np.full(len(GenHiggsPt_list), 0.09) )
     wgt_HiggsPt = np.minimum(wgt_HiggsPt, np.full(len(GenHiggsPt_list), 1.02) )
     return wgt_HiggsPt
@@ -556,7 +579,7 @@ def getHiggsPtRewgtForGGToHToAATo4B(GenHiggsPt_list): # GenHiggsPt_list
 
 def getHTReweight(HT_list, sFitFunctionFormat, sFitFunction, sFitFunctionRange):
     wgt_HT = None
-    
+
     # 'Corrections' variable defined in htoaa_Settings
     if sFitFunctionFormat == "{p0} + ({p1} * (x - {HTBinMin}))":
         fitResult_        = parse(sFitFunctionFormat, sFitFunction) # https://pypi.org/project/parse/
@@ -581,11 +604,11 @@ def getHTReweight(HT_list, sFitFunctionFormat, sFitFunction, sFitFunctionRange):
         exit(0)
 
     return wgt_HT
-    
-    
-def selGenPartsWithStatusFlag(GenPart_StatusFlags_list, statusFlag_toSelect):  
+
+
+def selGenPartsWithStatusFlag(GenPart_StatusFlags_list, statusFlag_toSelect):
     # Check if statusFlag_toSelect th bit is 1 in binary version of GenPart_StatusFlags
-    return ( GenPart_StatusFlags_list & (2 ** int(statusFlag_toSelect)) ) > 0  
+    return ( GenPart_StatusFlags_list & (2 ** int(statusFlag_toSelect)) ) > 0
 
 
 def DfColLabel_convert_bytes_to_string(df):
@@ -608,7 +631,7 @@ def cut_ObjectMultiplicity(nObjects, nObjects_min=None, nObjects_max=None):
         False: if nObjects fails the condition
     '''
     mask = mask_low = mask_up  = None
-    if nObjects_min is not None: mask_low = (nObjects >= nObjects_min)    
+    if nObjects_min is not None: mask_low = (nObjects >= nObjects_min)
     if nObjects_max is not None: mask_up  = (nObjects <= nObjects_max)
 
     if (nObjects_min is not None) and (nObjects_max is not None):
@@ -633,14 +656,14 @@ def cut_ObjectPt(objects_Pt, PtThrsh_Lead=None, PtThrsh_Sublead=None, PtThrsh_Th
     '''
     print("objects_Pt ({}) : {}".format(type(objects_Pt),  objects_Pt))
     condition = True
-    if                                    objects_Pt[0] < PtThrsh_Lead:     condition = False    
+    if                                    objects_Pt[0] < PtThrsh_Lead:     condition = False
     if (PtThrsh_Sublead is not None) and (objects_Pt[1] < PtThrsh_Sublead): condition = False
     if (PtThrsh_Third   is not None) and (objects_Pt[2] < PtThrsh_Third):   condition = False
     if (PtThrsh_Fourth  is not None) and (objects_Pt[3] < PtThrsh_Fourth):  condition = False
     if (PtThrsh_Fifth   is not None) and (objects_Pt[4] < PtThrsh_Fifth):   condition = False
 
     return condition
-    
+
 def cut_ObjectPt_1(objects_Pt, PtThrshs):
     print("objects_Pt ({}) : {}, \t\t PtThrshs ({}) : {}".format(type(objects_Pt),  objects_Pt, type(PtThrshs), PtThrshs))
 
@@ -653,7 +676,7 @@ def cut_ObjectEta(objects_Eta, EtaThrsh, nObjects):
     Return:
         True: All objects' Eta is about respective threshold
         False: Else false
-    '''    
+    '''
     condition = True
     for iObject in range(nObjects):
         if abs(objects_Eta[iObject]) > EtaThrsh:
@@ -668,7 +691,7 @@ def GetDictFromJsonFile(filePath):
     # Lines starting with '#' are not read out, and also content between '/* .... */' are not read.
     # Content between " '''   ....  ''' " are not read
     # Source: https://stackoverflow.com/questions/29959191/how-to-parse-json-file-with-c-style-comments
-    
+
     contents = ""
     fh = open(filePath)
     for line in fh:
@@ -678,7 +701,7 @@ def GetDictFromJsonFile(filePath):
             cleanedLine += "\n"
         contents += cleanedLine
     fh.close
-    
+
     #while "/*" in contents:
     #    preComment, postComment = contents.split("/*", 1)ß
     #    contents = preComment + postComment.split("*/", 1)[1]
@@ -708,17 +731,17 @@ def executeBashCommand(sCmd1):
     if result.stderr:
         #print(f"{result.stderr = }")
         print("result.stderr: %s" % (result.stderr))
-        
+
     return result.stdout
 
 
 def fillHist(
         h = coffea_hist.Hist('tmp'),
         dataset = '',
-        syst = None, 
+        syst = None,
         xValue = None,
         yValue = None,
-        zValue = None,        
+        zValue = None,
         wgt = None
 ):
     nBasicAxes = 2
@@ -726,15 +749,15 @@ def fillHist(
     print(f"htoaa_CommonTools::fillHist():: h.axes ({type(h.axes)}): {h.axes}", flush=True)
     print(f"htoaa_CommonTools::fillHist():: h.axes[0] ({type(h.axes[0])}): {h.axes[0]}", flush=True)
     print(f"htoaa_CommonTools::fillHist():: {h.axes = },  h.axes[nBasicAxes] ({type(h.axes[nBasicAxes])}): {h.axes[nBasicAxes]}")
-    
-    
+
+
     if 1==1: return
     '''
     if len(h.axes) == (nBasicAxes+1):
         h.fill(
             dataset = dataset,
             systematic = syst_,
-            h.axes[nBasicAxes] = xValue,            
+            h.axes[nBasicAxes] = xValue,
             weight = wgt
         )
     elif len(h.axes) == (nBasicAxes+2):
@@ -753,7 +776,7 @@ def rebinTH1(h1_, nRebins):
     if not (isinstance(h1_, hist.Hist) or  isinstance(h1_, coffea_hist.Hist)):
         print(f"rebinTH1():: histogram type {type(h1_)} not implemented... so could not rebin histogram ")
         return h1_
-    
+
     if len(h1_.axes) != 1:
         print(f"rebinTH1:: histogram is not 1D")
         return h1_
@@ -783,11 +806,11 @@ def rebinTH1(h1_, nRebins):
         h1Rebin_ = h1_[::100j]
         print("Rebin 100 <<<")
     else:
-        print(f"nRebins={nRebins} is not yet implemented... Implement it \t\t **** ERROR ****")        
-        
+        print(f"nRebins={nRebins} is not yet implemented... Implement it \t\t **** ERROR ****")
+
     #print(f"h1_ values ({len(h1_.values())}): {h1_.values()} \n variances ({len(h1_.variances())}): {h1_.variances()}")
     #print(f"h1Rebin_ values ({len(h1Rebin_.values())}): {h1Rebin_.values()} \n variances ({len(h1Rebin_.variances())}): {h1Rebin_.variances()}")
-    if   nRebins > 1:    
+    if   nRebins > 1:
         h1_ = h1Rebin_
 
     return h1_
@@ -798,7 +821,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
     if not (isinstance(h1_, hist.Hist) or  isinstance(h1_, coffea_hist.Hist)):
         print(f"rebinTH1():: histogram type {type(h1_)} not implemented... so could not rebin histogram ")
         return h1_
-    
+
     if len(h1_.axes) != 2:
         print(f"rebinTH1:: histogram is not 2D")
         return h1_
@@ -828,7 +851,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::1j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     elif   nRebinX == 2:
         if   nRebinY == 1:
@@ -854,7 +877,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::2j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     elif   nRebinX == 3:
         if   nRebinY == 1:
@@ -880,7 +903,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::3j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     elif   nRebinX == 4:
         if   nRebinY == 1:
@@ -906,7 +929,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::4j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     elif   nRebinX == 5:
         if   nRebinY == 1:
@@ -932,7 +955,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::5j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     elif   nRebinX == 6:
         if   nRebinY == 1:
@@ -958,7 +981,7 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::6j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     elif   nRebinX == 10:
         if   nRebinY == 1:
@@ -984,15 +1007,15 @@ def rebinTH2(h1_, nRebinX, nRebinY):
         elif nRebinY == 100:
             h1Rebin_ = h1_[::10j, ::100j]
         else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")        
+            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
     else:
-        print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")   
+        print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
 
-       
+
     #print(f"h1_ values ({len(h1_.values())}): {h1_.values()} \n variances ({len(h1_.variances())}): {h1_.variances()}")
     #print(f"h1Rebin_ values ({len(h1Rebin_.values())}): {h1Rebin_.values()} \n variances ({len(h1Rebin_.variances())}): {h1Rebin_.variances()}")
-    if   nRebinX > 1 or nRebinY > 1 :    
+    if   nRebinX > 1 or nRebinY > 1 :
         h1_ = h1Rebin_
 
     return h1_
@@ -1003,7 +1026,7 @@ def variableRebinTH1(h1_, xNewEdges):
     if not (isinstance(h1_, hist.Hist) or  isinstance(h1_, coffea_hist.Hist)):
         print(f"rebinTH1():: histogram type {type(h1_)} not implemented... so could not rebin histogram ")
         return h1_
-    
+
     if len(h1_.axes) != 1:
         print(f"rebinTH1:: histogram is not 1D")
         return h1_
@@ -1013,7 +1036,7 @@ def variableRebinTH1(h1_, xNewEdges):
         return h1_
 
 
-    
+
     xOldEdges = h1_.axes[0].edges
     # bin numbers along the Xold axis that correspond to bin-edges of Xnew axis
     xOldIdx_pointing_xNewEdges = np.digitize(xNewEdges, xOldEdges) - 1 # xOldBinNumber (starting from 0) corresponds to xNewBinEdges
@@ -1023,7 +1046,7 @@ def variableRebinTH1(h1_, xNewEdges):
 
     h1Rebin_ = hist.Hist(hist.axis.Variable(xNewEdges, name=h1_.axes[0].name, label=h1_.axes[0].label), storage=hist.storage.Double())
 
-    print(f"h1Rebin_.axes[0].centers ({type(h1Rebin_.axes[0].centers)}) ({len(h1Rebin_.axes[0].centers)}) ({h1Rebin_.axes[0].centers.shape[0]}) {h1Rebin_.axes[0].centers}")    
+    print(f"h1Rebin_.axes[0].centers ({type(h1Rebin_.axes[0].centers)}) ({len(h1Rebin_.axes[0].centers)}) ({h1Rebin_.axes[0].centers.shape[0]}) {h1Rebin_.axes[0].centers}")
     print(f"h1_.values() ({h1_.values().shape[0]}): {h1_.values()}")
     for iBinXnew in range(h1Rebin_.axes[0].centers.shape[0]):
         firstBinInRangeXold        = xOldIdx_pointing_xNewEdges[iBinXnew    ]
@@ -1080,7 +1103,7 @@ def printVariablePtEtaPhi(sName, var):
 
 def akArray_isin(testArray, referenceArray):
     '''
-    Compare each element of testArray (along axis=1) with referenceArray (along axis=1), and return boolean array (with shape of testArray) 
+    Compare each element of testArray (along axis=1) with referenceArray (along axis=1), and return boolean array (with shape of testArray)
     '''
     return ak.from_iter( [ np.isin(testArray[idx_], referenceArray[idx_]) for idx_ in range(len(testArray)) ] )
 

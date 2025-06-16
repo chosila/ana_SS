@@ -47,6 +47,7 @@ class DataBlindingOptions(enum.Enum):
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('inputFile')
+parser.add_argument('era')
 
 args = parser.parse_args()
 print('input file: ', args.inputFile)
@@ -55,14 +56,14 @@ sIpFile = args.inputFile
 sOpDir_substr = sIpFile.split('/')[-4:-2]
 #sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/btv_presentation/v1/{sOpDir_substr[0]}/{sOpDir_substr[1]}'
 
-sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/v1_rebin/{sOpDir_substr[0]}/{sOpDir_substr[1]}'.replace('v1/','')
+sOpDir = f'/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/BBQQ_calibration/plots/v2_2017/{sOpDir_substr[1]}'
 
 print('output dir: ', sOpDir)
 
 
 
 cmsWorkStatus                  = 'Work in Progress'
-era                            = '2018'
+era                            = args.era
 luminosity_total               = Luminosities_forGGFMode[era][HLT_toUse][0] # 54.54  #59.83
 dataBlindOption                = DataBlindingOptions.Unblind # DataBlindingOptions.BlindPartially , DataBlindingOptions.BlindFully , DataBlindingOptions.Unblind
 significantThshForDataBlinding = 0.125 # blind data in bins with S/sqrt(B) > significantThshForDataBlinding while running with dataBlindOption = DataBlindingOptions.BlindPartially
@@ -125,210 +126,6 @@ def rebinTH1(h1_, nRebins):
 
     return h1_
 
-# %%
-def rebinTH2(h1_, nRebinX, nRebinY):
-    #print(f"rebinTH1():: histogram type {type(h1_) = },  {isinstance(h1_, hist.Hist) = }  ")
-    if not isinstance(h1_, hist.Hist):
-        print(f"rebinTH1():: histogram type {type(h1_)} not implemented... so could not rebin histogram ")
-        return h1_
-
-    if len(h1_.axes) != 2:
-        print(f"rebinTH1:: histogram is not 2D")
-        return h1_
-
-    h1Rebin_ = None
-    if   nRebinX == 1:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::1j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::1j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::1j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::1j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::1j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::1j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::1j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::1j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::1j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::1j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    elif   nRebinX == 2:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::2j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::2j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::2j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::2j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::2j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::2j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::2j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::2j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::2j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::2j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    elif   nRebinX == 3:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::3j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::3j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::3j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::3j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::3j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::3j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::3j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::3j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::3j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::3j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    elif   nRebinX == 4:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::4j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::4j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::4j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::4j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::4j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::4j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::4j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::4j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::4j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::4j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    elif   nRebinX == 5:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::5j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::5j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::5j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::5j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::5j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::5j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::5j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::5j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::5j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::5j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    elif   nRebinX == 6:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::6j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::6j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::6j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::6j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::6j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::6j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::6j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::6j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::6j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::6j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    elif   nRebinX == 10:
-        if   nRebinY == 1:
-            h1Rebin_ = h1_
-        elif nRebinY == 2:
-            h1Rebin_ = h1_[::10j, ::2j]
-        elif nRebinY == 3:
-            h1Rebin_ = h1_[::10j, ::3j]
-        elif nRebinY == 4:
-            h1Rebin_ = h1_[::10j, ::4j]
-        elif nRebinY == 5:
-            h1Rebin_ = h1_[::10j, ::5j]
-        elif nRebinY == 6:
-            h1Rebin_ = h1_[::10j, ::6j]
-        elif nRebinY == 10:
-            h1Rebin_ = h1_[::10j, ::10j]
-        elif nRebinY == 20:
-            h1Rebin_ = h1_[::10j, ::20j]
-        elif nRebinY == 40:
-            h1Rebin_ = h1_[::10j, ::40j]
-        elif nRebinY == 50:
-            h1Rebin_ = h1_[::10j, ::50j]
-        elif nRebinY == 100:
-            h1Rebin_ = h1_[::10j, ::100j]
-        else:
-            print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-    else:
-        print(f"{nRebinX = }, {nRebinY = } is not yet implemented... Implement it \t\t **** ERROR ****")
-
-
-    #print(f"h1_ values ({len(h1_.values())}): {h1_.values()} \n variances ({len(h1_.variances())}): {h1_.variances()}")
-    #print(f"h1Rebin_ values ({len(h1Rebin_.values())}): {h1Rebin_.values()} \n variances ({len(h1Rebin_.variances())}): {h1Rebin_.variances()}")
-    if   nRebinX > 1 or nRebinY > 1 :
-        h1_ = h1Rebin_
-
-    return h1_
 
 # %%
 def getNonZeroMin(arr):
@@ -396,15 +193,17 @@ colors_sig_list = [
     ['green', 0.9, ''],
 ]
 
+
 for sData, ExpData_list in ExpData_dict.items():
     luminosity_toUse = 0
-    for ExpData_component in ExpData_list:
-        DatasetEra_         = ExpData_component.split(era)[1][0] # 'JetHT_Run2018A'.split('2018')[1][0]
-        luminosity_forEra_  = Luminosities_forGGFMode_perEra[era][HLT_toUse][DatasetEra_]
-        luminosity_toUse   += luminosity_forEra_
-        print(f"{ExpData_list = }, {DatasetEra_ = }, {luminosity_forEra_ = } ")
-    luminosity_Scaling_toUse = round(luminosity_toUse, 2) / round(luminosity_total, 2)
-    luminosity_toUse = round(luminosity_toUse, 2)
+    # for ExpData_component in ExpData_list:
+
+    #     DatasetEra_         = ExpData_component.split(era)[1][0] # 'JetHT_Run2018A'.split('2018')[1][0]
+    #     luminosity_forEra_  = Luminosities_forGGFMode_perEra[era][HLT_toUse][DatasetEra_]
+    #     luminosity_toUse   += luminosity_forEra_
+    #     print(f"{ExpData_list = }, {DatasetEra_ = }, {luminosity_forEra_ = } ")
+    luminosity_Scaling_toUse = 1 #round(luminosity_toUse, 2) / round(luminosity_total, 2)
+    luminosity_toUse = Luminosities_forGGFMode[era][HLT_toUse][0]# round(luminosity_toUse, 2)
     print(f"{sData}: {ExpData_list}, {luminosity_toUse = }, {luminosity_total = },  {luminosity_Scaling_toUse = }")
 
     for selectionTag in selectionTags:

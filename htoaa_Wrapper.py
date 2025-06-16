@@ -23,7 +23,7 @@ print(f"htoaa_Wraper:: here1 {datetime.now() = }")
 from htoaa_Settings import *
 print(f"htoaa_Wraper:: here2 {datetime.now() = }")
 from htoaa_Samples import (
-    Samples2018,
+    Samples2018, Samples2017,
     kData, kQCDIncl, kQCD_bGen, kQCD_bEnrich
 )
 print(f"htoaa_Wraper:: here3 {datetime.now() = }")
@@ -251,6 +251,7 @@ if __name__ == '__main__':
     parser.add_argument('-dryRun',            action='store_true', default=False)
     parser.add_argument('-leptonSelection',   type=str, default='Muon',                      choices=['Muon', 'Electron'])
     parser.add_argument('-xgbCut',            type=str, default='bdtHi',                     choices=['bdtHi', 'bdtMed', 'bdtLo', 'bdtVeto', 'noBdt'])
+    parser.add_argument('-destination',       type=str, default='../analysis',               help='../analysis/v1 or  ../analysis/v1_202scalefactor etc')
     args=parser.parse_args()
     print("args: {}".format(args))
     print(f"htoaa_Wraper:: here7 {datetime.now() = }"); sys.stdout.flush()
@@ -271,10 +272,13 @@ if __name__ == '__main__':
     dryRun                  = args.dryRun
     leptonSelection         = args.leptonSelection
     xgbCut                  = args.xgbCut
+    destination             = args.destination
 
     SourceCodeDir     = os.getcwd()
     #DestinationDir    = "../analysis/%s/%s" % (anaVersion, era)
-    DestinationDir    = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/v2_scalefactor/%s/%s' % (anaVersion, era)
+    #DestinationDir    = '/afs/cern.ch/work/c/csutanta/HTOAA_CMSSW/analysis/v2_scalefactor/%s/%s' % (anaVersion, era)
+    DestinationDir    = '%s/%s/%s' % (destination,anaVersion, era)
+
     EosDestinationDir = "/eos/cms/store/user/%s/htoaa/analysis/%s/%s" % (UserName, anaVersion, era)
 
     os.chdir( SourceCodeDir )
@@ -292,6 +296,8 @@ if __name__ == '__main__':
     samplesInfo = None
     if era == Era_2018:
         samplesList = Samples2018 # htoaa_Samples.py
+    if era == Era_2017:
+        samplesList = Samples2017
     with open(sFileSamplesInfo[era]) as fSamplesInfo:
         samplesInfo = json.load(fSamplesInfo) # Samples_Era.json
     selSamplesToRun_list = []
@@ -335,44 +341,45 @@ if __name__ == '__main__':
     #  Settings for GGF H->aa->4b trigger study
     if sAnalysis in ["htoaa_triggerStudy_GGFMode.py"]:
         # exclude irrelevant samples from running
-        selSamplesToExclude_list.extend( [
-            kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
-                "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
-                "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
-                # "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
-                "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
-                "DYJets_M-50_HT_LO",
-                "DYJets_HT_LO",
-                "WJetsToQQ_HT", "WJetsToLNu_Incl_NLO",
-                # "WJetsToLNu_HT_LO",
-                'WJetsToLNu_Incl_LO', 'W1JetsToLNu_LO', 'W2JetsToLNu_LO', 'W3JetsToLNu_LO', 'W4JetsToLNu_LO',
-                'GluGluHToBB_Incl', 'GluGluHToBB_Pt-200ToInf', 'WJetsToQQ', 'ZJetsToQQ',
-                "SUSY_VBFH_HToAATo4B", "SUSY_WH_WToAll_HToAATo4B", "SUSY_ZH_ZToAll_HToAATo4B", "SUSY_TTH_TTToAll_HToAATo4B",
-                "SUSY_GluGluH_01J_HToAATo4B_M-12_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-15_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-20_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-25_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-30_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-35_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-40_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-45_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-50_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-55_TuneCP5_13TeV_madgraph_pythia8",
-                "SUSY_GluGluH_01J_HToAATo4B_M-60_TuneCP5_13TeV_madgraph_pythia8",
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-12_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-15_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-20_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-25_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-30_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-35_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-40_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-45_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-50_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-55_TuneCP5_13TeV_madgraph_pythia8',
-                'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
+        if era == Era_2018:
+            selSamplesToExclude_list.extend( [
+                kQCDIncl, kQCD_bGen, kQCD_bEnrich, 'QCD_Incl_PSWeight',
+                    "JetHT_Run2018A", "JetHT_Run2018B", "JetHT_Run2018C", "JetHT_Run2018D",
+                    "TTJets_Incl_NLO", "TTJets_Incl_LO", "TTJets_HT_LO", "TTJets_Lep_LO",
+                    # "DYJets_M-10to50_Incl_LO", "DYJets_M-50_Incl_LO",
+                    "DYJets_M-10to50_Incl_NLO", "DYJets_M-50_Incl_NLO",
+                    "DYJets_M-50_HT_LO",
+                    "DYJets_HT_LO",
+                    "WJetsToQQ_HT", "WJetsToLNu_Incl_NLO",
+                    # "WJetsToLNu_HT_LO",
+                    'WJetsToLNu_Incl_LO', 'W1JetsToLNu_LO', 'W2JetsToLNu_LO', 'W3JetsToLNu_LO', 'W4JetsToLNu_LO',
+                    'GluGluHToBB_Incl', 'GluGluHToBB_Pt-200ToInf', 'WJetsToQQ', 'ZJetsToQQ',
+                    "SUSY_VBFH_HToAATo4B", "SUSY_WH_WToAll_HToAATo4B", "SUSY_ZH_ZToAll_HToAATo4B", "SUSY_TTH_TTToAll_HToAATo4B",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-12_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-15_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-20_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-25_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-30_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-35_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-40_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-45_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-50_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-55_TuneCP5_13TeV_madgraph_pythia8",
+                    "SUSY_GluGluH_01J_HToAATo4B_M-60_TuneCP5_13TeV_madgraph_pythia8",
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-12_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-15_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-20_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-25_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-30_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-35_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-40_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-45_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-50_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-55_TuneCP5_13TeV_madgraph_pythia8',
+                    'SUSY_GluGluH_01J_HToAATo4B_Pt150_M-60_TuneCP5_13TeV_madgraph_pythia8',
 
 
-        ] )
+            ] )
     ## ------------------------------------------------------------------------------------------
 
     #  Settings for countSumEventsInSample.py

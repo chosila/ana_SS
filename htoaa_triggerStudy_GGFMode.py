@@ -55,7 +55,7 @@ from htoaa_CommonTools import (
     getNanoAODFile, setXRootDRedirector,  xrdcpFile,
     selectMETFilters,
     selGenPartsWithStatusFlag,
-    getTopPtRewgt, getPURewgts, getHTReweight,
+    getTopPtRewgt, getPURewgts, getPURewgts_variation, getHTReweight,
     fillHist,
     printVariable, printVariablePtEtaPhi,
     insertInListBeforeThisElement,
@@ -70,10 +70,10 @@ frameinfo = getframeinfo(currentframe())
 
 
 ## make sure there's nothing in the inputFiles dire before starting
-# import glob, os
-# for f in glob.glob('inputFiles/*.root'):
-#     print('removing files: ', f)
-#     os.remove(f)
+import glob, os
+for f in glob.glob('inputFiles/*.root'):
+    print('removing files: ', f)
+    os.remove(f)
 
 # use GOldenJSON
 
@@ -280,8 +280,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
             # lumiScale --------------------------------------------------------------------------------------------------
             if self.sMuTrgSelection not in Luminosities_forGGFMode[self.datasetInfo["era"]]:
-                logging.critical(f'htoaa_triggerStudy_GGFMode.py::main():: {self.sMuTrgSelection = } not in {Luminosities_forGGFMode[self.datasetInfo["era"]] = }.')
-                exit(0)
+               logging.critical(f'htoaa_triggerStudy_GGFMode.py::main():: {self.sMuTrgSelection = } not in {Luminosities_forGGFMode[self.datasetInfo["era"]] = }.')
+               exit(0)
 
             self.datasetInfo["lumiScale"] = calculate_lumiScale(
                 luminosity   = Luminosities_forGGFMode[self.datasetInfo["era"]][self.sMuTrgSelection][0],
@@ -293,10 +293,12 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     lumiScale: {self.datasetInfo["lumiScale"] }')
 
             # MC PURewgt --------------------------------------------------------------------------------------------------
-            print(f'MC {self.datasetInfo["era"]} PU reweighting:: ip file: {Corrections["PURewgt"][self.datasetInfo["era"]]["inputFile"]}, histogram: {Corrections["PURewgt"][self.datasetInfo["era"]]["histogramName"]} ')
-            with uproot.open(Corrections["PURewgt"][self.datasetInfo["era"]]["inputFile"]) as f_:
-                #print(f"{f_.keys() = }"); sys.stdout.flush()
-                self.hPURewgt = f_['%s' % Corrections["PURewgt"][self.datasetInfo["era"]]["histogramName"]].to_hist()
+            ### THIS IS NOT USED. PU REWEIGHT IS all done in get PURewgts_variation function now
+            # print(f'MC {self.datasetInfo["era"]} PU reweighting:: ip file: {Corrections["PURewgt"][self.datasetInfo["era"]]["inputFile"]}, histogram: {Corrections["PURewgt"][self.datasetInfo["era"]]["histogramName"]} ')
+
+            # with uproot.open(Corrections["PURewgt"][self.datasetInfo["era"]]["inputFile"]) as f_:
+            #     #print(f"{f_.keys() = }"); sys.stdout.flush()
+            #     self.hPURewgt = f_['%s' % Corrections["PURewgt"][self.datasetInfo["era"]]["histogramName"]].to_hist()
 
 
             # set self.pdgId_BHadrons for 'QCD_bGenFilter' sample requirement ---------------------------------------------
@@ -717,25 +719,21 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         ## sel leptons
         ## muon triggers, lepton ID, and candidate mask
         ## refer to page 42 of https://indico.cern.ch/event/1430644/contributions/6018705/attachments/2886849/5060196/v2_BoostedHaa4b_Hichem_062824SUS3G.pdf for the details of the selection
-        mask_Trgs = falses_list
-        muon_HLT_Trgs = ['IsoMu24', 'Mu50']
-        muon_L1T_Trgs = ['SingleMu22', 'SingleMu25']
 
-        muon_mask_HLT = events.HLT[muon_HLT_Trgs[0]]==True
-        muon_mask_HLT = muon_mask_HLT | (events.HLT[muon_HLT_Trgs[1]]==True)
-
-        muon_mask_L1T = events.L1[muon_L1T_Trgs[0]]==True
-        muon_mask_L1T = muon_mask_L1T | (events.L1[muon_L1T_Trgs[1]]==True)
+        if self.datasetInfo["era"] == Era_2018:
+            muon_mask_L1T = (events.L1['SingleMu22']==True) | (events.L1['SingleMu25']==True)
+            muon_mask_HLT = (events.HLT['IsoMu24']==True) | (events.HLT['Mu50']==True) #| (events.HLT['OldMu100']==True) | (events.HLT['TkMu100']==True)
+            muon_candidate_mask = events.Muon.pt > 26
+        elif self.datasetInfo['era'] == Era_2017:
+            muon_mask_L1T = (events.L1['SingleMu22']==True) | (events.L1['SingleMu25']==True)
+            muon_mask_HLT = (events.HLT['IsoMu27']==True) | (events.HLT['Mu50']==True) #| (events.HLT['OldMu100']==True) | (events.HLT['TkMu100']==True)
+            muon_candidate_mask = events.Muon.pt > 29
+        elif (self.datasetInfo['era'] == Era_2016) or (self.datasetInfo['era'] == Era_2016APV):
+            muon_mask_L1T = (events.L1['SingleMu22']==True)
+            muon_mask_HLT = (events.HLT['IsoMu24']==True) | (events.HLT['Mu50']==True) #| (events.HLT['IsoTkMu24']==True) | (events.HLT['TkM50']==True)
+            muon_candidate_mask = events.Muon.pt > 26
 
         muon_Trgs_mask = muon_mask_HLT & muon_mask_L1T
-
-        # muon_baselineID_mask = (events.Muon.pt > 10) & \
-        #     (events.Muon.miniPFRelIso_all < 0.10) &\
-        #     ((events.Muon.mediumPromptId) | ((events.Muon.pt > 53) & (events.Muon.highPtId > 0))) &\
-        #     (np.abs(events.Muon.dz) < 0.1) &\
-        #     (np.abs(events.Muon.dxy) < 0.02) &\
-        #     (np.abs(events.Muon.eta) < 2.4)
-
         ## # (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
         muon_baselineID_mask = (events.Muon.pt > 10) & \
             (events.Muon.miniIsoId >= 3) &\
@@ -744,13 +742,21 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             (np.abs(events.Muon.dxy) < 0.02) &\
             (np.abs(events.Muon.eta) < 2.4)
 
-        muon_candidate_mask = events.Muon.pt > 26
+
         muon_mask = muon_Trgs_mask & muon_baselineID_mask & muon_candidate_mask
         muon_mask_low_pt = muon_Trgs_mask & muon_baselineID_mask & (events.Muon.pt > 10)
 
         ## electron trigger and lepton ID masks
-        electron_mask1 = None
-        electron_HLT_Trgs = ['Ele32_WPTight_Gsf', 'Ele35_WPTight_Gsf_L1EGMT', 'Ele115_CaloIdVT_GsfTrkIdT', 'Ele50_CaloIdVT_GsfTrkIdT_PFJet165']
+        if self.datasetInfo['era'] == Era_2018:
+            electron_HLT_Trgs = ['Ele32_WPTight_Gsf', 'Ele50_CaloIdVT_GsfTrkIdT_PFJet165', 'Ele115_CaloIdVT_GsfTrkIdT','Ele35_WPTight_Gsf_L1EGMT'] #['Ele32_WPTight_Gsf', 'Ele35_WPTight_Gsf_L1EGMT', 'Ele115_CaloIdVT_GsfTrkIdT', 'Ele50_CaloIdVT_GsfTrkIdT_PFJet165']
+            electron_candidate_mask_pt = events.Electron.pt > 35
+        elif self.datasetInfo['era'] == Era_2017:
+            electron_HLT_Trgs = [ 'Ele32_WPTight_Gsf_L1DoubleEG', 'Ele35_WPTight_Gsf',]
+            #    'Photon200'  - this is recommended for when there is significant electron pt > 300 Gev https://twiki.cern.ch/twiki/bin/view/CMS/EgHLTRunIISummary#2017
+            electron_candidate_mask_pt = events.Electron.pt > 35
+        elif (self.datasetInfo['era'] == Era_2016) or (self.datasetInfo['era'] == Era_2016APV):
+            electron_HLT_Trgs = ['Ele27_WPTight_Gsf', 'Ele115_CaloIdVT_GsfTrkIdT', 'Ele50_CaloIdVT_GsfTrkIdT_PFJet165', 'Photon175']
+            electron_candidate_mask_pt = events.Electron.pt > 30
         electron_Trgs_mask = np.full_like(events.HLT[electron_HLT_Trgs[0]], False)
         for trg in electron_HLT_Trgs:
             electron_Trgs_mask = electron_Trgs_mask | events.HLT[trg]
@@ -766,7 +772,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             ((events.Electron.mvaFall17V2Iso_WP80) | (events.Electron.cutBased_HEEP)) &\
             (np.abs(events.Electron.dxy) < 0.02) & \
             (np.abs(events.Electron.dz) < 0.1)
-        electron_candidate_mask_pt = (events.Electron.pt > 35)
+
 
         electron_mask = electron_Trgs_mask & electron_baselineID_mask & electron_candidate_mask & electron_candidate_mask_pt
         electron_mask_low_pt = electron_Trgs_mask & electron_baselineID_mask  & electron_candidate_mask & (events.Electron.pt > 10)
@@ -1357,9 +1363,13 @@ class HToAATo4bProcessor(processor.ProcessorABC):
             '''
 
             # MC PURewgt ----------------------------------
-            wgt_PU = getPURewgts(
-                PU_list  = events.Pileup.nTrueInt,
-                hPURewgt = self.hPURewgt
+            # wgt_PU = getPURewgts(
+            #     PU_list  = events.Pileup.nTrueInt,
+            #     hPURewgt = self.hPURewgt
+            # )
+            wgt_PU, wgt_PUUp, wgt_PUDown = getPURewgts_variation(
+                events = events,
+                year   = self.datasetInfo["era"]
             )
 
             # MC QCD_bGen HT reweight ---------------------
