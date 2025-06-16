@@ -61,14 +61,25 @@ Luminosities_Inclusive = { # [<lumi>, <uncertainty in percent> ] in fb^-1
 Luminosities_forGGFMode = { # [<lumi>, <uncertainty in percent> ] in fb^-1
     Era_2016: [36.31, 1.2],
     Era_2017: [41.48, 2.3],
+    Era_2017: { # [41.48, 2.3]
+        'Trg_Combo_AK4AK8Jet_HT' :     [41.54, 2.3], # https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList#2017
+        'Trg_Combo_AK4AK8Jet_HT_VBF' : [41.54, 2.3],
+        'Trg_Combo_MET' :              [40.67, 2.3],
+        'Trg_Combo_Mu' :               [41.54, 2.3],
+    },
+
     Era_2018: {
         'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': [54.54, 2.5], # for HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v* trigger. See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_Final.xlsx
-        'Trg_Combo_AK4AK8Jet_HT':                             [59.83, 2.5], # See ./data/luminosity/2018/Luminosity_HLTPaths.xlsx
+        'Trg_Combo_AK4AK8Jet_HT':                             [59.83, 2.5], # https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
+        'Trg_Combo_AK4AK8Jet_HT_VBF':                         [59.83, 2.5], # https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
+        'Trg_Combo_AK4AK8Jet_HT_MET':                         [59.83, 2.5], # Copied from Trg_Combo_AK4AK8Jet_HT. Needs to be checked.
+        'Trg_Combo_MET':                                      [59.83, 2.5], # https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
         'HLT_IsoMu24':                                        [59.82, 2.5], # See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_IsoMu24_v.xlsx
         'HLT_IsoMu27':                                        [59.83, 2.5], # See ./data/luminosity/2018/output_brilcalc_314472-325175_UL18_HLT_IsoMu27_v.xlsx
         'Trg_Combo_Mu':                                       [59.83, 2.5], # See ./data/luminosity/2018/Luminosity_HLTPaths.xlsx
     },
 }
+
 Luminosities_forGGFMode_perEra = {
     Era_2018: {
         'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4': {
@@ -101,9 +112,34 @@ Luminosities_forGGFMode_perEra = {
             'C':  6.895,
             'D': 31.839
         },
-    }
+    },
+    Era_2017: { # [41.48, 2.3]
+        'Trg_Combo_AK4AK8Jet_HT' :     [41.54, 2.3], # https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList#2017
+        'Trg_Combo_AK4AK8Jet_HT_VBF' : [41.54, 2.3],
+        'Trg_Combo_MET' :              [40.67, 2.3],
+        'Trg_Combo_Mu' :               [41.54, 2.3],
+
+    },
 }
 Triggers_perEra = {
+    Era_2017: {
+        'Trg_Combo_AK4AK8Jet_HT': {
+            'HLT_PFJet500':                                                  ['L1_SingleJet180'], # 41.54
+            'HLT_PFHT1050':                                                  ['L1_HTT380er'], # 41.54
+            'HLT_AK8PFHT800_TrimMass50':                                     ['L1_HTT380er'], # 36.49 / 41.54
+            'HLT_AK8PFJet500':                                               ['L1_SingleJet180'], # 41.54
+            'HLT_AK8PFJet400_TrimMass30':                                    ['L1_SingleJet180'], # 36.75 / 41.54
+            'HLT_AK8PFJet330_PFAK8BTagCSV_p17':                              ['L1_SingleJet180'], # 7.73 / 41.54
+            #
+            'HLT_DoublePFJets100MaxDeta1p6_DoubleCaloBTagCSV_p33':       ['L1_DoubleJet100er2p3_dEta_Max1p6', 'L1_DoubleJet112er2p3_dEta_Max1p6'],  # 36.34 / 41.54
+            'HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0': ['L1_HTT320er', 'L1_HTT380er', 'L1_QuadJet60er3p0', 'L1_HTT320er_QuadJet_70_55_40_40_er2p4', 'L1_HTT320er_QuadJet_70_55_40_40_er2p5'], # 36.75 / 41.54
+        },
+        'Trg_Combo_Mu': {
+            'HLT_IsoMu24': ['L1_SingleMu22'], # 38.06 / 41.54
+            'HLT_IsoMu27': ['L1_SingleMu22', 'L1_SingleMu25'], # 41.54
+            'HLT_Mu50':    ['L1_SingleMu22', 'L1_SingleMu25'], # 41.54
+        },
+    },
     Era_2018: {
         'Trg_Combo_AK4AK8Jet_HT': {
             'HLT_PFJet500':                                       ['L1_SingleJet180'],
@@ -121,6 +157,31 @@ Triggers_perEra = {
     }
 }
 
+## 2018 HEM1516 issue
+HEM1516Issue2018_AffectedRunRange = [319077, 325175]
+DataFractionAffectedBy2018HEM1516Issue = 0.7105 # factor = (luminosity for run >= 319077) / (2018 luminosity) = 38.7501 / 54.5365. Calculated for 2018 HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4 trigger
+Weight_HEM1516Issue2018_perTrigger = {
+    # Google-sheet: https://docs.google.com/spreadsheets/d/19ot4nFlhiJoD6v81qhgyKSYjE5PhgqgT2dz98PNIWg0/edit?usp=sharing
+    'HLT_PFHT1050':                                                  0.3523,
+    'HLT_PFJet500':                                                  0.3523,
+    'HLT_AK8PFHT800_TrimMass50':                                     0.3523,
+    'HLT_AK8PFJet500':                                               0.3523,
+    'HLT_AK8PFJet400_TrimMass30':                                    0.3523,
+    'HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4':            0.2895,
+
+    'HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71':       0.2895,
+    'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5': 0.3523,
+
+    'HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1':    0.2895,
+    'HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2':              0.2895,
+
+    'HLT_PFMET120_PFMHT120_IDTight_PFHT60':                          0.3522,
+    'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight':                         0.3523,
+    'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60':                  0.3522,
+    'HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1':             0.2895,
+    'HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned':                      0.3523,
+    'HLT_PFMETTypeOne140_PFMHT140_IDTight':                          0.3523,
+}
 
 sFilesGoldenJSON = {
     Era_2016: 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt',
@@ -185,11 +246,14 @@ sFileLumiScalesPhSpOverlapRewgt = {
     }
 }
 
-HEM1516Issue2018_AffectedRunRange = [319077, 325175]
-DataFractionAffectedBy2018HEM1516Issue = 0.7105 # factor = (luminosity for run >= 319077) / (2018 luminosity) = 38.7501 / 54.5365. Calculated for 2018 HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4 trigger
 
 bTagWPs = { # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
     Era_2018: {
+        'AK4DeepJet': { # https://btv-wiki.docs.cern.ch/ScaleFactors/UL2018/
+            'L': 0.0490,
+            'M': 0.2783,
+            'T': 0.7100
+        },
         'DeepCSV': { # https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18
             'L': 0.1208,
             'M': 0.4506,
@@ -205,16 +269,72 @@ bTagWPs = { # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
             # https://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2021/005
             'L': 0.9172
         },
-        'ParticleNetMD_Hto4b_Htoaa4bOverQCD': {
+        'ParticleNetMD_Hto4b_Htoaa4bOverQCD': { # earlier ParticleNetMD_Hto4b_Htoaa4bOverQCD
             # https://ssawant.web.cern.ch/ssawant/HToAA/DatavsMC/20231106_PNetSignificanceScan_Msd90to140/?match=ParticleNetMD_Hto4b_Htoaa4bOverQCD
             'WP-80': 0.920,
             #'WP-60': 0.978,
             'WP-60': 0.975, # https://indico.cern.ch/event/1348321/?note=257291#31-saswati-nandan
             'WP-40': 0.992,
-        }
+            'WP-95': 0.80, # sideband minimum threshold for WP60 <--> Assumption
+            'WP-99': 0.50, # sideband minimum threshold for WP80 <--> Assumption
+        },
+        'PNet_Xto4bv1_Htoaa4bOverQCD': { # earlier ParticleNetMD_Hto4b_Htoaa4bOverQCD
+            # https://ssawant.web.cern.ch/ssawant/HToAA/DatavsMC/20231106_PNetSignificanceScan_Msd90to140/?match=ParticleNetMD_Hto4b_Htoaa4bOverQCD
+            'WP-80': 0.920,
+            #'WP-60': 0.978,
+            'WP-60': 0.975, # https://indico.cern.ch/event/1348321/?note=257291#31-saswati-nandan
+            'WP-40': 0.992,
+            'WP-95': 0.80, # sideband minimum threshold for WP60 <--> Assumption
+            'WP-99': 0.50, # sideband minimum threshold for WP80 <--> Assumption
+        },
+        'PNet_Xto4bv2_Htoaa4b': {
+            # Htoaato4b channel: https://mattermost.web.cern.ch/cms-exp/pl/icc97qchspnfprkiozptnqkksy
+            # X4b_v2 = (FatJet_PNet_X4b_v2a_Haa4b_score + FatJet_PNet_X4b_v2b_Haa4b_score) / 2.0
+            'SRWP-40':  0.96,   'SBWP-40':  0.84,    # fake rate 0.1%
+            'SRWP-45a': 0.955,  'SBWP-45a': 0.80,    # fake rate ??%
+            'SRWP-45b': 0.950,  'SBWP-45b': 0.77,    # fake rate ??%
+            'SRWP-50':  0.945,  'SBWP-50':  0.74,    # fake rate 0.2%
+            'SRWP-60':  0.93,   'SBWP-60':  0.66,    # fake rate 0.3%
+            'SRWP-65':  0.92,   'SBWP-65':  0.60,    # fake rate 0.4%
+            'SRWP-70':  0.90,   'SBWP-70':  0.50,    # fake rate 0.5%
+            'SRWP-80':  0.84,   'SBWP-80':  0.40,    # fake rate 0.1%
+            'SRWP-95':  0.66, # 'SBWP-60'
+        },
+        'PNet_Xto4bv2a_Htoaa4b': {
+            # Andrew, Hichem, Siddhesh chat: https://mattermost.web.cern.ch/cms-exp/pl/j6dnq8aid7nadnhb1w4sypqt3r
+            'SRWP-40': 0.968,  'SBWP-40': 0.84,    # fake rate 0.1%
+            'SRWP-60': 0.944,  'SBWP-60': 0.66,    # fake rate 0.3%
+            'SRWP-80': 0.868,  'SBWP-80': 0.40,    # fake rate 0.1%
+        },
+        'PNet_Xto4bv2b_Htoaa4b': {
+            # Andrew, Hichem, Siddhesh chat: https://mattermost.web.cern.ch/cms-exp/pl/j6dnq8aid7nadnhb1w4sypqt3r
+            'SRWP-40': 0.952,  'SBWP-40': 0.84,    # fake rate 0.1%
+            'SRWP-60': 0.916,  'SBWP-60': 0.66,    # fake rate 0.3%
+            'SRWP-80': 0.814,  'SBWP-80': 0.40,    # fake rate 0.1%
+        },
+        'PNet_Xto34bv2_Htoaa4b': {
+            # Andrew, Hichem, Siddhesh chat: https://mattermost.web.cern.ch/cms-exp/pl/48j5369mdbnyf8o9anb96ebjra
+            'SRWP-40':  0.89,   'SBWP-40':  0.55,    # fake rate 0.6%
+            'SRWP-50':  0.85,   'SBWP-50':  0.41,    # fake rate 1.1%
+            'SRWP-60':  0.78,   'SBWP-60':  0.27,    # fake rate 1.9%
+            'SRWP-65':  0.73,   'SBWP-65':  0.21,    # fake rate 2.6%
+            'SRWP-70':  0.67,   'SBWP-70':  0.14,    # fake rate 3.5%
+            'SRWP-80':  0.53,   'SBWP-80':  0.03,    # fake rate 6.3%
+        },
     },
 }
 
+bTagSFEfficiencyDict = {
+    Era_2018: { # 'AK4DeepJet' WP-M
+        'inputFile':    'data/correction/mc/BtagSF/2018/jetBtagEfficiency.root',
+        'histogramName': {
+            'b-flavour':     'hJetBtagEffi_b_TT_Presel', #'hJetBtagEffi_b_QCD_TT_Presel',
+            'c-flavour':     'hJetBtagEffi_c_TT_Presel', #'hJetBtagEffi_c_QCD_TT_Presel',
+            'light-flavour': 'hJetBtagEffi_l_TT_Presel', #'hJetBtagEffi_l_QCD_TT_Presel',
+        },
+        'pTAxisRange': [20, 1000],
+    }
+}
 
 Corrections = {
 
@@ -274,7 +394,10 @@ massPseudoscalarA_windows_dict = OD([
     ('mA30Window', [28.0, 32.0]),
     ('mA55Window', [50.0, 58.0]),
 ])
-
+massHiggs_windows_dict = {
+    'MsoftdropHiggsWindow': [110, 140],
+    'PNet_massH_Hto4b_HiggsWindow': [110, 140],
+}
 
 
 ### Miscellaneous variables
