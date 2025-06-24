@@ -83,6 +83,12 @@ if __name__ == '__main__':
     elif era == Era_2017:
         from SamplesAndCrosssection_NanoAOD_2017 import list_datasetAndXs_2017
         list_datasetAndXs = list_datasetAndXs_2017
+    elif era == Era_2016:
+        from SamplesAndCrosssection_NanoAOD_2016 import list_datasetAndXs_2016
+        list_datasetAndXs = list_datasetAndXs_2016
+    # elif era == Era_2016APV:
+    #     from SamplesAndCrosssection_NanoAOD_2016APV import list_datasetAndXs_2016APV
+    #     list_datasetAndXs = list_datasetAndXs_2016APV
 
     sFileSamplesInfo_toUse = sFileSamplesInfo[era]
     sFileSamplesInfo_toUse = sFileSamplesInfo_toUse.replace('.json', '_v0.json')

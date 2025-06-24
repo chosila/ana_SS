@@ -21,11 +21,13 @@ kLHE_HT_Max = 99999.0
 NanoAODFileSize_Min = 0.3 # in MB
 #------------------------------------
 
+Era_2016APV = '2016APV'
 Era_2016 = '2016'
 Era_2017 = '2017'
 Era_2018 = '2018'
 
 sFileSamplesInfo = {
+    # Era_2016APV: "Samples_2016APVUL.json",
     Era_2016: "Samples_2016UL.json",
     Era_2017: "Samples_2017UL.json",
     Era_2018: "Samples_2018UL.json"
@@ -49,7 +51,14 @@ sPathSkimmedNanoAODs = {
             'Data' : '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2017/data/PNet_v2_2024_11_22/$SAMPLENAME/r1_$ERATAG/PNet_*.root',
             'MC' : '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2017/MC/PNet_v2_2024_11_22/$SAMPLENAME/r*/PNet_*.root'
             }
+    },
+    Era_2016: {
+        'unskimmed' : {
+            'Data' : '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2016/data/PNet_v2_2024_11_22/$SAMPLENAME/r1_$ERATAG/PNet_*.root',
+            'MC' : '/eos/cms/store/group/phys_susy/HToaaTo4b/NanoAOD/2016/MC/PNet_v2_2024_11_22/$SAMPLENAME/r*/PNet_*.root'
+        }
     }
+
 }
 
 Luminosities_Inclusive = { # [<lumi>, <uncertainty in percent> ] in fb^-1
@@ -59,8 +68,11 @@ Luminosities_Inclusive = { # [<lumi>, <uncertainty in percent> ] in fb^-1
 }
 
 Luminosities_forGGFMode = { # [<lumi>, <uncertainty in percent> ] in fb^-1
-    Era_2016: [36.31, 1.2],
-    Era_2017: [41.48, 2.3],
+    # Era_2016: [36.31, 1.2],
+    # Era_2017: [41.48, 2.3],
+    Era_2016: {
+        'Trg_Combo_Mu' : [36.47, 2.3]
+    },
     Era_2017: { # [41.48, 2.3]
         'Trg_Combo_AK4AK8Jet_HT' :     [41.54, 2.3], # https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList#2017
         'Trg_Combo_AK4AK8Jet_HT_VBF' : [41.54, 2.3],

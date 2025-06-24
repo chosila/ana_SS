@@ -175,7 +175,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                 # 'Corrections' variable defined in htoaa_Settings.py
                 fitFunctionFormat_  = Corrections["HTRewgt"]["QCD_bGen"][self.datasetInfo["era"]]["FitFunctionFormat"]
                 fitFunctionHTRange_ = ""
-                for sHTBin in Corrections["HTRewgt"]["QCD_bGen"][self.datasetInfo["era"]]:
+                for sHTBin in Correction["HTRewgt"]["QCD_bGen"][self.datasetInfo["era"]]:
                     if "HT%dto" % (self.datasetInfo['sample_HT_Min']) in sHTBin:
                         fitFunctionHTRange_ = sHTBin
                         fitFunction_  = Corrections["HTRewgt"]["QCD_bGen"][self.datasetInfo["era"]][sHTBin]
@@ -459,27 +459,27 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     ('GenPartStatus'+sHExt, {sXaxis: pdgId_axis, sXaxisLabel:r'Genpart Status'}),
 
                     ## nanoAOD v2 variables
-                    ('PNet_X4b_v1_Haa34b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v1_Haa34b_score'}),
-                    ('PNet_X4b_v1_Haa4b_score'   +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v1_Haa4b_score'}),
-                    ('PNet_X4b_v2a_Haa34b_score' +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2a_Haa34b_score'}),
-                    ('PNet_X4b_v2a_Haa4b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2a_Haa4b_score'}),
-                    ('PNet_X4b_v2b_Haa34b_score' +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2b_Haa34b_score'}),
-                    ('PNet_X4b_v2b_Haa4b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2b_Haa4b_score'}),
-                    ('PNet_X4b_v2_Haa34b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2_Haa34b_score'}),
-                    ('PNet_X4b_v2_Haa4b_score'   +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2_Haa4b_score'}),
-                    ('PNet_TT_T2b_vs_01b'        +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b_vs_01b'}),
-                    ('PNet_TT_bbqq_vs_01b'       +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_bbqq_vs_01b'}),
-                    ('PNet_TT_QCD'               +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_QCD'}),
-                    ('PNet_TT_X'                 +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_X'}),
-                    ('PNet_TT_T1b'               +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1b'}),
-                    ('PNet_TT_T2b'               +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b'}),
-                    ('PNet_TT_bbqq'              +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_bbqq'}),
-                    ('PNet_TT_T1b2q'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1b2q'}),
-                    ('PNet_TT_T1bb2q'            +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1bb2q'}),
-                    ('PNet_TT_T1bbb2q'           +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1bbb2q'}),
-                    ('PNet_TT_T2b1q'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b1q'}),
-                    ('PNet_TT_T2b2q'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b2q'}),
-                    ('PNet_TT_TTHad'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_TTHad'}),
+                    # ('PNet_X4b_v1_Haa34b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v1_Haa34b_score'}),
+                    # ('PNet_X4b_v1_Haa4b_score'   +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v1_Haa4b_score'}),
+                    # ('PNet_X4b_v2a_Haa34b_score' +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2a_Haa34b_score'}),
+                    # ('PNet_X4b_v2a_Haa4b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2a_Haa4b_score'}),
+                    # ('PNet_X4b_v2b_Haa34b_score' +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2b_Haa34b_score'}),
+                    # ('PNet_X4b_v2b_Haa4b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2b_Haa4b_score'}),
+                    # ('PNet_X4b_v2_Haa34b_score'  +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2_Haa34b_score'}),
+                    # ('PNet_X4b_v2_Haa4b_score'   +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_X4b_v2_Haa4b_score'}),
+                    # ('PNet_TT_T2b_vs_01b'        +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b_vs_01b'}),
+                    # ('PNet_TT_bbqq_vs_01b'       +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_bbqq_vs_01b'}),
+                    # ('PNet_TT_QCD'               +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_QCD'}),
+                    # ('PNet_TT_X'                 +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_X'}),
+                    # ('PNet_TT_T1b'               +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1b'}),
+                    # ('PNet_TT_T2b'               +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b'}),
+                    # ('PNet_TT_bbqq'              +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_bbqq'}),
+                    # ('PNet_TT_T1b2q'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1b2q'}),
+                    # ('PNet_TT_T1bb2q'            +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1bb2q'}),
+                    # ('PNet_TT_T1bbb2q'           +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T1bbb2q'}),
+                    # ('PNet_TT_T2b1q'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b1q'}),
+                    # ('PNet_TT_T2b2q'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_T2b2q'}),
+                    # ('PNet_TT_TTHad'             +sHExt, {sXaxis: mlScore_axis, sXaxisLabel: r'PNet_TT_TTHad'}),
                 ]))
 
 
@@ -789,7 +789,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
 
         ## fatjet selection
         ## may need to set pt values to low for the masked values, arg max, then change the values that don't pass to None?
-        fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)  & (events.FatJet.particleNetMD_XbbvsQCD > 0.75)
+        fatjet_mask = (events.FatJet.pt > 250) & (events.FatJet.msoftdrop > 20) & (events.FatJet.mass > 110) & (np.abs(events.FatJet.eta) < 2.4) & (events.FatJet.jetId == 6)  #& # (events.FatJet.particleNetMD_XbbvsQCD > 0.75)
         leadingFatJet = ak.firsts(events.FatJet[fatjet_mask]) #[idx_sort_fatjet_pt_after_selection])
 
 
@@ -1097,8 +1097,8 @@ class HToAATo4bProcessor(processor.ProcessorABC):
         #     )
 
         ## v2 variables that need definition
-        PNet_X4b_v2_Haa34b_score = (leadingFatJet.PNet_X4b_v2a_Haa34b_vs_QCD + leadingFatJet.PNet_X4b_v2b_Haa34b_vs_QCD) / 2.0
-        PNet_X4b_v2_Haa4b_score  = (leadingFatJet.PNet_X4b_v2a_Haa4b_vs_QCD + leadingFatJet.PNet_X4b_v2b_Haa4b_vs_QCD) / 2.0
+        # PNet_X4b_v2_Haa34b_score = (leadingFatJet.PNet_X4b_v2a_Haa34b_vs_QCD + leadingFatJet.PNet_X4b_v2b_Haa34b_vs_QCD) / 2.0
+        # PNet_X4b_v2_Haa4b_score  = (leadingFatJet.PNet_X4b_v2a_Haa4b_vs_QCD + leadingFatJet.PNet_X4b_v2b_Haa4b_vs_QCD) / 2.0
 
 
         dR_leadingMuon_leadingFatJet =     leadingMuon.delta_r(leadingFatJet)
@@ -1870,7 +1870,7 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     )
                     output['particleNetMD_XbbOverQCD'+sHExt].fill(
                         dataset=dataset,
-                        MLScore=(leadingFatJet.particleNetMD_XbbvsQCD[sel_tmp_]), #leadingFatJetParticleNetMD_XbbvsQCD[sel_tmp_]),
+                        MLScore=(leadingFatJetParticleNetMD_XbbvsQCD[sel_tmp_]),
                         systematic=syst,
                         weight=evtWeight[sel_tmp_]
                     )
@@ -1996,135 +1996,135 @@ class HToAATo4bProcessor(processor.ProcessorABC):
                     #     weight=evtWeight[sel_tmp_]
                     # )
                     ## v2 particle net variables
-                    output['PNet_X4b_v1_Haa34b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_X4b_v1_Haa34b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
+                    # output['PNet_X4b_v1_Haa34b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_X4b_v1_Haa34b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
 
-                    output['PNet_X4b_v1_Haa4b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_X4b_v1_Haa4b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
+                    # output['PNet_X4b_v1_Haa4b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_X4b_v1_Haa4b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
 
-                    output['PNet_X4b_v2a_Haa34b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_X4b_v2a_Haa34b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
+                    # output['PNet_X4b_v2a_Haa34b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_X4b_v2a_Haa34b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
 
-                    output['PNet_X4b_v2a_Haa4b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_X4b_v2a_Haa4b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_X4b_v2b_Haa34b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_X4b_v2b_Haa34b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_X4b_v2b_Haa4b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_X4b_v2b_Haa4b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_X4b_v2_Haa34b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(PNet_X4b_v2_Haa34b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_X4b_v2_Haa4b_score'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(PNet_X4b_v2_Haa4b_score[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T2b_vs_01b'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T2b_vs_01b[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_bbqq_vs_01b'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_bbqq_vs_01b[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_QCD'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_QCD[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_X'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_X[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T1b'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T1b[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T2b'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T2b[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_bbqq'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_bbqq[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T1b2q'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T1b2q[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T1bb2q'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T1bb2q[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T1bbb2q'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T1bbb2q[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T2b1q'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T2b1q[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_T2b2q'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_T2b2q[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
-                    output['PNet_TT_TTHad'+sHExt].fill(
-                        dataset=dataset,
-                        MLScore=(leadingFatJet.PNet_TT_TTHad[sel_tmp_]),
-                        systematic=syst,
-                        weight=evtWeight[sel_tmp_]
-                    )
+                    # output['PNet_X4b_v2a_Haa4b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_X4b_v2a_Haa4b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_X4b_v2b_Haa34b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_X4b_v2b_Haa34b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_X4b_v2b_Haa4b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_X4b_v2b_Haa4b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_X4b_v2_Haa34b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(PNet_X4b_v2_Haa34b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_X4b_v2_Haa4b_score'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(PNet_X4b_v2_Haa4b_score[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T2b_vs_01b'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T2b_vs_01b[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_bbqq_vs_01b'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_bbqq_vs_01b[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_QCD'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_QCD[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_X'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_X[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T1b'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T1b[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T2b'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T2b[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_bbqq'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_bbqq[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T1b2q'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T1b2q[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T1bb2q'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T1bb2q[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T1bbb2q'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T1bbb2q[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T2b1q'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T2b1q[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_T2b2q'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_T2b2q[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
+                    # output['PNet_TT_TTHad'+sHExt].fill(
+                    #     dataset=dataset,
+                    #     MLScore=(leadingFatJet.PNet_TT_TTHad[sel_tmp_]),
+                    #     systematic=syst,
+                    #     weight=evtWeight[sel_tmp_]
+                    # )
 
                     ## 2d
                     # output['hLeadingFatJetEta_vs_Phi'+sHExt].fill(
